@@ -1,0 +1,67 @@
+/* 全局主题样式 - 温暖活力橙色主题 */
+:root {
+  --primary-color: #e87a56;
+  --primary-light: #f29d7a;
+  --primary-dark: #d65a32;
+  --secondary-color: #fff5f2;
+  --accent-color: #ff6b35;
+  --text-primary: #333;
+  --text-secondary: #666;
+  --text-light: #999;
+  --background-light: #fef9f7;
+  --border-color: #f0e6e2;
+  --shadow-light: rgba(232, 122, 86, 0.1);
+  --shadow-medium: rgba(232, 122, 86, 0.2);
+  --gradient-primary: linear-gradient(135deg, #e87a56 0%, #ff6b35 100%);
+  --gradient-light: linear-gradient(135deg, #fff5f2 0%, #fef9f7 100%);
+}
+
+/* Element UI 主题覆盖 */
+.el-button--primary {
+  background: var(--gradient-primary) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px var(--shadow-light) !important;
+  transition: all 0.3s ease !important;
+}
+
+.el-button--primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px var(--shadow-medium) !important;
+}
+
+.el-card {
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 2px 12px var(--shadow-light) !important;
+  transition: all 0.3s ease !important;
+}
+
+.el-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 25px var(--shadow-medium) !important;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.fade-in-up { animation: fadeInUp 0.6s ease-out; }
+.pulse-animation { animation: pulse 2s infinite; }
+.float-animation { animation: float 3s ease-in-out infinite; }

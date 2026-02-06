@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caohao.dao.CompanyDao">
+
+    <resultMap type="com.caohao.pojo.model.CompanyModel" id="CompanyMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="companyNumber" column="company_number" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="updateTime" column="update_time" jdbcType="BIGINT"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="processor" column="processor" jdbcType="VARCHAR"/>
+        <result property="replyTime" column="reply_time" jdbcType="BIGINT"/>
+        <result property="replyContent" column="reply_content" jdbcType="VARCHAR"/>
+        <result property="number" column="number" jdbcType="INTEGER"/>
+        <result property="category" column="category" jdbcType="VARCHAR"/>
+        <result property="companyLogo" column="company_logo" jdbcType="VARCHAR"/>
+        <result property="nature" column="nature" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="userEmail" column="user_email" jdbcType="VARCHAR"/>
+        <result property="userPhone" column="user_phone" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CompanyMap">
+        select
+          id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo
+        from company
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="CompanyMap">
+        select
+          c.id, c.company_number, c.name, c.description, c.user_id, c.create_time, c.update_time, 
+          c.status, c.processor, c.reply_time, c.reply_content, c.number, c.category, c.nature, c.company_logo,
+          u.real_name as user_name, u.user_name as user_email, u.phone as user_phone
+        from company c
+        left join user u on c.user_id = u.id
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="companyNumber != null and companyNumber != ''">
+                and company_number = #{companyNumber}
+            </if>
+            <if test="name != null and name != ''">
+                and name like "%${name}%"
+            </if>
+            <if test="description != null and description != ''">
+                and description = #{description}
+            </if>
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            <if test="createTime != null">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and update_time = #{updateTime}
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="processor != null and processor != ''">
+                and processor = #{processor}
+            </if>
+            <if test="replyTime != null">
+                and reply_time = #{replyTime}
+            </if>
+            <if test="replyContent != null and replyContent != ''">
+                and reply_content = #{replyContent}
+            </if>
+            <if test="number != null">
+                and number = #{number}
+            </if>
+            <if test="category != null and category != ''">
+                and category = #{category}
+            </if>
+            <if test="nature != null and nature != ''">
+                and nature = #{nature}
+            </if>
+            <!-- 新增筛选条件 -->
+            <if test="cityFilter != null and cityFilter != ''">
+                and (description like concat('%', #{cityFilter}, '%') or name like concat('%', #{cityFilter}, '%'))
+            </if>
+            <if test="industryFilter != null and industryFilter != ''">
+                and (category like concat('%', #{industryFilter}, '%') or description like concat('%', #{industryFilter}, '%'))
+            </if>
+            <!-- 默认只显示已审核通过的公司 -->
+            <if test="showAll == null or showAll != true">
+                <if test="status == null or status == ''">
+                    and status = 'Approve'
+                </if>
+            </if>
+            <if test="minNumber != null">
+                and number &gt;= #{minNumber}
+            </if>
+            <if test="maxNumber != null">
+                and number &lt;= #{maxNumber}
+            </if>
+        </where>
+        <!-- 排序 -->
+        <choose>
+            <when test="sortBy == 'scale'">
+                order by number desc
+            </when>
+            <when test="sortBy == 'jobs'">
+                order by id desc
+            </when>
+            <otherwise>
+                order by create_time desc
+            </otherwise>
+        </choose>
+    </select>
+    
+    <select id="queryByUsername" resultMap="CompanyMap">
+        select * from company where user_id = #{username}
+    </select>
+    
+    <select id="queryByUserIdString" resultMap="CompanyMap">
+        select * from company where user_id = #{userId}
+    </select>
+
+    <select id="queryByUserId" resultMap="CompanyMap">
+        select * from company where user_id = #{userId}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert">
+        insert into company(id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo)
+        values (#{id}, #{companyNumber}, #{name}, #{description}, #{userId}, #{createTime}, #{updateTime}, #{status}, #{processor}, #{replyTime}, #{replyContent}, #{number}, #{category}, #{nature}, #{companyLogo})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update company
+        <set>
+            <if test="companyNumber != null and companyNumber != ''">
+                company_number = #{companyNumber},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="processor != null and processor != ''">
+                processor = #{processor},
+            </if>
+            <if test="replyTime != null">
+                reply_time = #{replyTime},
+            </if>
+            <if test="replyContent != null and replyContent != ''">
+                reply_content = #{replyContent},
+            </if>
+            <if test="number != null">
+                number = #{number},
+            </if>
+            <if test="category != null and category != ''">
+                category = #{category},
+            </if>
+            <if test="companyLogo != null and companyLogo != ''">
+                company_logo = #{companyLogo},
+            </if>
+            <if test="nature != null and nature != ''">
+                nature = #{nature},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from company where id = #{id}
+    </delete>
+
+    <!--获取公司总数-->
+    <select id="getTotalCount" resultType="int">
+        select count(*) from company where status is not null
+    </select>
+
+    <!--按状态统计公司数量-->
+    <select id="getCountByStatus" resultType="int">
+        select count(*) from company where status = #{status}
+    </select>
+
+</mapper>

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.caohao.dao.EmploymentDao">
+
+    <resultMap type="com.caohao.pojo.model.EmploymentModel" id="EmploymentMap">
+        <result property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="education" column="education" jdbcType="VARCHAR"/>
+        <result property="position" column="position" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="BIGINT"/>
+        <result property="updateTime" column="update_time" jdbcType="BIGINT"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="minSalary" column="min_salary" jdbcType="VARCHAR"/>
+        <result property="maxSalary" column="max_salary" jdbcType="VARCHAR"/>
+        <result property="salary" column="salary" jdbcType="VARCHAR"/>
+        <result property="companyId" column="company_id" jdbcType="VARCHAR"/>
+        <result property="treatment" column="treatment" jdbcType="VARCHAR"/>
+        <result property="applicationCount" column="application_count" jdbcType="INTEGER"/>
+        <association property="companyModel" resultMap="com.caohao.dao.CompanyDao.CompanyMap" columnPrefix="company_"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="EmploymentMap">
+        select
+          id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment
+        from employment
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="EmploymentMap">
+        select
+        et.id, et.user_id, et.title, et.description, et.education, et.position, et.create_time, et.update_time, et.status, et.min_salary, et.max_salary, et.salary, et.company_id, et.treatment,
+        cy.id as company_company_id, cy.company_number as company_company_number, cy.name as company_name, cy.description as company_description, cy.user_id as company_user_id, cy.create_time as company_create_time, cy.update_time as company_update_time, cy.status as company_status, cy.processor as company_processor, cy.reply_time as company_reply_time, cy.reply_content as company_reply_content, cy.number as company_number, cy.category as company_category, cy.nature as company_nature, cy.company_logo as company_company_logo,
+        COALESCE(eu.application_count, 0) as application_count
+        from employment et
+        left join company cy on et.company_id = cy.id
+        left join (
+            select employment_id, count(*) as application_count
+            from employment_user
+            group by employment_id
+        ) eu on et.id = eu.employment_id
+        <where>
+            <if test="id != null and id != ''">
+                and et.id = #{id}
+            </if>
+            <if test="userId != null and userId != ''">
+                and et.user_id = #{userId}
+            </if>
+            <if test="title != null and title != ''">
+                and et.title like "%${title}%"
+            </if>
+            <if test="description != null and description != ''">
+                and et.description = #{description}
+            </if>
+            <if test="education != null and education != ''">
+                and et.education = #{education}
+            </if>
+            <if test="position != null and position != ''">
+                and et.position = #{position}
+            </if>
+            <if test="createTime != null">
+                and et.create_time = #{createTime}
+            </if>
+            <if test="updateTime != null">
+                and et.update_time = #{updateTime}
+            </if>
+            <if test="status != null and status != ''">
+                and et.status = #{status}
+            </if>
+            <if test="minSalary != null">
+                and (
+                    (et.min_salary is not null and CAST(et.min_salary AS UNSIGNED) &gt;= #{minSalary})
+                    or (et.salary like concat('%', #{minSalary}, '%'))
+                )
+            </if>
+            <if test="maxSalary != null">
+                and (
+                    (et.max_salary is not null and CAST(et.max_salary AS UNSIGNED) &lt;= #{maxSalary})
+                    or (et.salary like concat('%', #{maxSalary}, '%'))
+                )
+            </if>
+            <if test="companyId != null and companyId != ''">
+                and et.company_id = #{companyId}
+            </if>
+            <if test="treatment != null and treatment != ''">
+                and et.treatment = #{treatment}
+            </if>
+            <!-- 新增筛选条件 -->
+            <!-- 城市筛选 -->
+            <if test="cityFilter != null and cityFilter != '' and cityFilter != '全部'">
+                and et.position like concat('%', #{cityFilter}, '%')
+            </if>
+            <!-- 薪资范围筛选 -->
+            <if test="salaryRange != null and salaryRange != '' and salaryRange != '全部'">
+                <choose>
+                    <when test="salaryRange == '3K以下'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and CAST(et.min_salary AS UNSIGNED) &lt; 3)
+                            or (et.max_salary REGEXP '^[0-9]+$' and CAST(et.max_salary AS UNSIGNED) &lt; 3)
+                        )
+                    </when>
+                    <when test="salaryRange == '3K-5K'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and et.max_salary REGEXP '^[0-9]+$' 
+                             and CAST(et.min_salary AS UNSIGNED) &lt;= 5 and CAST(et.max_salary AS UNSIGNED) &gt;= 3)
+                        )
+                    </when>
+                    <when test="salaryRange == '5K-10K'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and et.max_salary REGEXP '^[0-9]+$' 
+                             and CAST(et.min_salary AS UNSIGNED) &lt;= 10 and CAST(et.max_salary AS UNSIGNED) &gt;= 5)
+                        )
+                    </when>
+                    <when test="salaryRange == '10K-15K'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and et.max_salary REGEXP '^[0-9]+$' 
+                             and CAST(et.min_salary AS UNSIGNED) &lt;= 15 and CAST(et.max_salary AS UNSIGNED) &gt;= 10)
+                        )
+                    </when>
+                    <when test="salaryRange == '15K-25K'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and et.max_salary REGEXP '^[0-9]+$' 
+                             and CAST(et.min_salary AS UNSIGNED) &lt;= 25 and CAST(et.max_salary AS UNSIGNED) &gt;= 15)
+                        )
+                    </when>
+                    <when test="salaryRange == '25K-40K'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and et.max_salary REGEXP '^[0-9]+$' 
+                             and CAST(et.min_salary AS UNSIGNED) &lt;= 40 and CAST(et.max_salary AS UNSIGNED) &gt;= 25)
+                        )
+                    </when>
+                    <when test="salaryRange == '40K以上'">
+                        and (
+                            (et.min_salary REGEXP '^[0-9]+$' and CAST(et.min_salary AS UNSIGNED) &gt;= 40)
+                            or (et.max_salary REGEXP '^[0-9]+$' and CAST(et.max_salary AS UNSIGNED) &gt;= 40)
+                        )
+                    </when>
+                </choose>
+            </if>
+            <!-- 学历筛选 -->
+            <if test="education != null and education != '' and education != '全部' and education != '不限'">
+                and et.education = #{education}
+            </if>
+            <!-- 公司规模筛选 -->
+            <if test="companyScale != null and companyScale != '' and companyScale != '全部'">
+                <choose>
+                    <when test="companyScale == '0-20人'">
+                        and cy.number &lt;= 20
+                    </when>
+                    <when test="companyScale == '20-99人'">
+                        and cy.number &gt;= 20 and cy.number &lt;= 99
+                    </when>
+                    <when test="companyScale == '100-499人'">
+                        and cy.number &gt;= 100 and cy.number &lt;= 499
+                    </when>
+                    <when test="companyScale == '500-999人'">
+                        and cy.number &gt;= 500 and cy.number &lt;= 999
+                    </when>
+                    <when test="companyScale == '1000-9999人'">
+                        and cy.number &gt;= 1000 and cy.number &lt;= 9999
+                    </when>
+                    <when test="companyScale == '10000人以上'">
+                        and cy.number &gt;= 10000
+                    </when>
+                </choose>
+            </if>
+            <!-- 默认只显示已审核通过的职位和公司 -->
+            <if test="showAll == null or showAll != true">
+                and et.status = 1 and cy.status = 'Approve'
+            </if>
+            <!-- 如果是showAll模式，只要求公司存在即可 -->
+            <if test="showAll != null and showAll == true">
+                and cy.id is not null
+            </if>
+        </where>
+        <!-- 排序 -->
+        <choose>
+            <when test="sortBy == 'salary_desc'">
+                order by CAST(et.max_salary AS UNSIGNED) desc
+            </when>
+            <when test="sortBy == 'salary_asc'">
+                order by CAST(et.max_salary AS UNSIGNED) asc
+            </when>
+            <when test="sortBy == 'time_desc'">
+                order by et.create_time DESC
+            </when>
+            <when test="sortBy == 'time_asc'">
+                order by et.create_time ASC
+            </when>
+            <when test="sortBy == 'applicationCount'">
+                order by COALESCE(eu.application_count, 0) DESC, et.create_time DESC
+            </when>
+            <when test="sortBy == 'createTime'">
+                order by et.create_time DESC
+            </when>
+            <otherwise>
+                order by et.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+    
+    <select id="selectByCompanyId" resultMap="EmploymentMap">
+        select * from employment where company_id = #{companyId}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert">
+        insert into employment(id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment)
+        values (#{id}, #{userId}, #{title}, #{description}, #{education}, #{position}, #{createTime}, #{updateTime}, #{status}, #{minSalary}, #{maxSalary}, #{salary}, #{companyId}, #{treatment})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update employment
+        <set>
+            <if test="userId != null and userId != ''">
+                user_id = #{userId},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="education != null and education != ''">
+                education = #{education},
+            </if>
+            <if test="position != null and position != ''">
+                position = #{position},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="minSalary != null and minSalary != ''">
+                min_salary = #{minSalary},
+            </if>
+            <if test="maxSalary != null and maxSalary != ''">
+                max_salary = #{maxSalary},
+            </if>
+            <if test="salary != null and salary != ''">
+                salary = #{salary},
+            </if>
+            <if test="companyId != null and companyId != ''">
+                company_id = #{companyId},
+            </if>
+            <if test="treatment != null and treatment != ''">
+                treatment = #{treatment},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from employment where id = #{id}
+    </delete>
+    
+    <delete id="deleteByCompanyId">
+        delete from employment where company_id = #{companyId}
+    </delete>
+
+    <!--获取职位总数-->
+    <select id="getTotalCount" resultType="int">
+        select count(*) from employment et
+        left join company cy on et.company_id = cy.id
+        where et.status >= 0
+    </select>
+
+    <!--按状态统计职位数量-->
+    <select id="getCountByStatus" resultType="int">
+        select count(*) from employment where status = #{status}
+    </select>
+
+</mapper>
