@@ -102,6 +102,8 @@
             <if test="maxNumber != null">
                 and number &lt;= #{maxNumber}
             </if>
+            <!-- 过滤掉没有公司编号的记录 -->
+            and company_number is not null
         </where>
         <!-- 排序 -->
         <choose>
@@ -109,7 +111,12 @@
                 order by number desc
             </when>
             <when test="sortBy == 'jobs'">
-                order by id desc
+                order by (
+                    select count(*)
+                    from employment
+                    where employment.company_id = c.id
+                    and employment.status = 1
+                ) desc
             </when>
             <otherwise>
                 order by create_time desc

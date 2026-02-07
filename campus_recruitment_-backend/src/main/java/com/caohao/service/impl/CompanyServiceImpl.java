@@ -82,9 +82,7 @@ public class CompanyServiceImpl implements CompanyService {
             // 设置职位数量字段供前端使用
             companyModel.setJobCount(employmentModels.size());
         }
-        List<CompanyModel> collect = companys.stream().filter(n -> n.getCompanyNumber() != null).collect(Collectors.toList());
-
-        return new PageInfo<>(collect);
+        return new PageInfo<>(companys);
     }
 
     /**
