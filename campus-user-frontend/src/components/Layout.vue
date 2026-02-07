@@ -72,13 +72,13 @@
     <el-footer class="footer">
       <div class="footer-content">
         <div class="footer-links">
-          <span>关于我们</span>
+          <router-link to="/about" class="footer-link">关于我们</router-link>
           <span class="divider">|</span>
-          <span>联系方式</span>
+          <router-link to="/contact" class="footer-link">联系方式</router-link>
           <span class="divider">|</span>
-          <span>隐私政策</span>
+          <router-link to="/privacy" class="footer-link">隐私政策</router-link>
         </div>
-        <p class="copyright">&copy; 2025 校园招聘系统. All rights reserved.</p>
+        <p class="copyright">© 2025 校园招聘系统. All rights reserved.</p>
       </div>
     </el-footer>
   </div>
@@ -378,12 +378,14 @@ export default {
   font-size: 14px;
 }
 
-.footer-links span {
+.footer-links .footer-link {
   cursor: pointer;
   transition: color 0.3s;
+  color: #94a3b8;
+  text-decoration: none;
 }
 
-.footer-links span:hover {
+.footer-links .footer-link:hover {
   color: white;
 }
 

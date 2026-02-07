@@ -138,7 +138,13 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleModel> queryByUser(String username, String type) {
-        List<ArticleModel> articleModels = articleDao.queryByUser(username, type);
+        // 根据用户名获取用户ID
+        UserModel user = userDao.selectByUserName(username);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+        String userId = user.getId();
+        List<ArticleModel> articleModels = articleDao.queryByUser(userId, type);
         for (ArticleModel articleModel : articleModels) {
             // 根据用户名查询用户信息
             UserModel userModel = userDao.selectByUserName(username);

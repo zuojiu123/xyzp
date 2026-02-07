@@ -55,6 +55,40 @@ const routes = [
     component: () => import('@/views/Profile.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/company/edit/:id',
+    name: 'CompanyEdit',
+    component: () => import('@/views/company/CompanyEdit.vue'),
+    meta: {
+      title: '编辑企业信息',
+      requiresAuth: true,
+      role: 'enterprise'
+    }
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/About.vue'),
+    meta: {
+      title: '关于我们'
+    }
+  },
+  {
+    path: '/contact',
+    name: 'Contact',
+    component: () => import('@/views/Contact.vue'),
+    meta: {
+      title: '联系方式'
+    }
+  },
+  {
+    path: '/privacy',
+    name: 'PrivacyPolicy',
+    component: () => import('@/views/PrivacyPolicy.vue'),
+    meta: {
+      title: '隐私政策'
+    }
+  },
   // 企业相关路由（必须在 /company/:id 之前）
   {
     path: '/company/register',
@@ -96,7 +130,15 @@ const routes = [
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
-  routes
+  routes,
+  // 配置滚动行为，实现点击链接后回到页面顶部
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { x: 0, y: 0 }
+    }
+  }
 })
 
 // 路由守卫
