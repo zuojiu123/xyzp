@@ -52,6 +52,16 @@ public class ArticleServiceImpl implements ArticleService {
             articleModel.setUserModel(userModel);
             List<Comments> commentsList=commentsDao.selectByArticleId(articleModel.getId());
             articleModel.setComments(commentsList);
+            // 增加阅读数
+            ArticleParam articleParam = new ArticleParam();
+            articleParam.setId(id);
+            Integer viewCount = articleModel.getViewCount();
+            if (viewCount == null) {
+                articleParam.setViewCount(1);
+            } else {
+                articleParam.setViewCount(viewCount + 1);
+            }
+            this.articleDao.update(articleParam);
         }
         return articleModel;
     }

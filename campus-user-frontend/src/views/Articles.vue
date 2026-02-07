@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="stats-info">
-                  <span class="stat-item"><i class="el-icon-view"></i> {{ article.viewCount || 1024 }}</span>
+                  <span class="stat-item"><i class="el-icon-view"></i> {{ article.viewCount || 0 }}</span>
                   <span class="stat-item"><i class="el-icon-star-off"></i> {{ article.collectNumber || 0 }}</span>
                   <span class="stat-item"><i class="el-icon-thumb"></i> {{ article.thumbUp || 0 }}</span>
                 </div>

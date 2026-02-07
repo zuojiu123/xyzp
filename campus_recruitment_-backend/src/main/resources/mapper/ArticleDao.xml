@@ -13,12 +13,13 @@
         <result property="type" column="type" jdbcType="VARCHAR"/>
         <result property="collectNumber" column="collect_number" jdbcType="INTEGER"/>
         <result property="thumbUp" column="thumb_up" jdbcType="INTEGER"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
     </resultMap>
 
     <!--查询单个-->
     <select id="queryById" resultMap="ArticleMap">
         select
-          id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up
+          id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up, view_count
         from article
         where id = #{id}
     </select>
@@ -26,7 +27,7 @@
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="ArticleMap">
         select
-          id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up
+          id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up, view_count
         from article
         <where>
             <if test="id != null and id != ''">
@@ -60,7 +61,7 @@
                 and thumb_up = #{thumbUp}
             </if>
         </where>
-        order by create_time  DESC
+        order by thumb_up DESC, collect_number DESC, view_count DESC
     </select>
     <select id="queryByUser" resultMap="ArticleMap">
         select * from article where user_id = #{username}
@@ -72,23 +73,23 @@
 
     <!--新增所有列-->
     <insert id="insert">
-        insert into article(id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up)
-        values (#{id}, #{title}, #{content}, #{picPath}, #{userId}, #{createTime}, #{updateTime}, #{type}, #{collectNumber}, #{thumbUp})
+        insert into article(id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up, view_count)
+        values (#{id}, #{title}, #{content}, #{picPath}, #{userId}, #{createTime}, #{updateTime}, #{type}, #{collectNumber}, #{thumbUp}, #{viewCount})
     </insert>
 
     <insert id="insertBatch" >
-        insert into article(id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up)
+        insert into article(id, title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up, view_count)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.id}, #{entity.title}, #{entity.content}, #{entity.picPath}, #{entity.userId}, #{entity.createTime}, #{entity.updateTime}, #{entity.type}, #{entity.collectNumber}, #{entity.thumbUp})
+        (#{entity.id}, #{entity.title}, #{entity.content}, #{entity.picPath}, #{entity.userId}, #{entity.createTime}, #{entity.updateTime}, #{entity.type}, #{entity.collectNumber}, #{entity.thumbUp}, #{entity.viewCount})
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch">
-        insert into article(title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up)
+        insert into article(title, content, pic_path, user_id, create_time, update_time, type, collect_number, thumb_up, view_count)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.title}, #{entity.content}, #{entity.picPath}, #{entity.userId}, #{entity.createTime}, #{entity.updateTime}, #{entity.type}, #{entity.collectNumber}, #{entity.thumbUp})
+            (#{entity.title}, #{entity.content}, #{entity.picPath}, #{entity.userId}, #{entity.createTime}, #{entity.updateTime}, #{entity.type}, #{entity.collectNumber}, #{entity.thumbUp}, #{entity.viewCount})
         </foreach>
         on duplicate key update
         title = values(title),
@@ -99,7 +100,8 @@
         update_time = values(update_time),
         type = values(type),
         collect_number = values(collect_number),
-        thumb_up = values(thumb_up)
+        thumb_up = values(thumb_up),
+        view_count = values(view_count)
     </insert>
 
     <!--通过主键修改数据-->
@@ -132,6 +134,9 @@
             </if>
             <if test="thumbUp != null">
                 thumb_up = #{thumbUp},
+            </if>
+            <if test="viewCount != null">
+                view_count = #{viewCount},
             </if>
         </set>
         where id = #{id}

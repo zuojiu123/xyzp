@@ -39,6 +39,10 @@ public class Article implements Serializable {
      * 点赞数
      */
     private Integer thumbUp;
+    /**
+     * 阅读数
+     */
+    private Integer viewCount;
 
 }
 
