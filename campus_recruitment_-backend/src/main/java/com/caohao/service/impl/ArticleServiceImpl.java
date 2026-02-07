@@ -42,24 +42,17 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleModel queryById(String id) {
         ArticleModel articleModel = this.articleDao.queryById(id);
-        ArticleParam articleParam = new ArticleParam();
-        articleParam.setId(id);
-        if(articleModel.getCollectNumber()==null){
-            articleParam.setCollectNumber(1);
-        }else {
-            articleParam.setCollectNumber(articleModel.getCollectNumber()+1);
+        if (articleModel != null) {
+            // 根据用户ID查询用户信息
+            UserModel userModel = userDao.queryById(articleModel.getUserId());
+            if (userModel == null) {
+                // 兼容性处理：如果按ID查不到，尝试按用户名查询
+                userModel = userDao.selectByUserName(articleModel.getUserId());
+            }
+            articleModel.setUserModel(userModel);
+            List<Comments> commentsList=commentsDao.selectByArticleId(articleModel.getId());
+            articleModel.setComments(commentsList);
         }
-
-        this.articleDao.update(articleParam);
-        // 根据用户ID查询用户信息
-        UserModel userModel = userDao.queryById(articleModel.getUserId());
-        if (userModel == null) {
-            // 兼容性处理：如果按ID查不到，尝试按用户名查询
-            userModel = userDao.selectByUserName(articleModel.getUserId());
-        }
-        articleModel.setUserModel(userModel);
-        List<Comments> commentsList=commentsDao.selectByArticleId(articleModel.getId());
-        articleModel.setComments(commentsList);
         return articleModel;
     }
 

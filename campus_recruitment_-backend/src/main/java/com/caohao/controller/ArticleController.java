@@ -108,5 +108,49 @@ public class ArticleController extends SuperController {
         return success(this.articleService.deleteById(id));
     }
 
+    /**
+     * 文章点赞
+     * @param id 文章ID
+     * @return 更新后的点赞数
+     */
+    @ApiOperation("文章点赞")
+    @PostMapping("/like/{id}")
+    public Result likeArticle(@PathVariable("id") String id) {
+        return success(this.articleService.likeArticle(id));
+    }
+
+    /**
+     * 文章取消点赞
+     * @param id 文章ID
+     * @return 更新后的点赞数
+     */
+    @ApiOperation("文章取消点赞")
+    @PostMapping("/unlike/{id}")
+    public Result unlikeArticle(@PathVariable("id") String id) {
+        return success(this.articleService.unlikeArticle(id));
+    }
+
+    /**
+     * 文章收藏
+     * @param id 文章ID
+     * @return 更新后的收藏数
+     */
+    @ApiOperation("文章收藏")
+    @PostMapping("/collect/{id}")
+    public Result collectArticle(@PathVariable("id") String id) {
+        return success(this.articleService.collectArticle(id));
+    }
+
+    /**
+     * 文章取消收藏
+     * @param id 文章ID
+     * @return 更新后的收藏数
+     */
+    @ApiOperation("文章取消收藏")
+    @PostMapping("/uncollect/{id}")
+    public Result uncollectArticle(@PathVariable("id") String id) {
+        return success(this.articleService.uncollectArticle(id));
+    }
+
 }
 

@@ -225,6 +225,18 @@ export default {
         const id = this.$route.params.id
         const response = await this.$api.article.getArticleById(id)
         this.article = response || {}
+        
+        // 从localStorage获取用户的点赞和收藏状态
+        const token = localStorage.getItem('token')
+        if (token) {
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
+          this.article.isLiked = likedArticles.includes(id)
+          this.article.isCollected = collectedArticles.includes(id)
+        } else {
+          this.article.isLiked = false
+          this.article.isCollected = false
+        }
       } catch (error) {
         console.error('获取文章详情失败:', error)
         this.$message.error('获取文章详情失败')
@@ -329,12 +341,29 @@ export default {
       }
       this.liking = true
       try {
-        this.$message.success(this.article.isLiked ? '取消点赞' : '点赞成功')
+        if (this.article.isLiked) {
+          this.article.thumbUp = await this.$api.article.unlikeArticle(this.article.id)
+          this.$message.success('取消点赞成功')
+          // 从localStorage中移除
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
+          const index = likedArticles.indexOf(this.article.id)
+          if (index > -1) {
+            likedArticles.splice(index, 1)
+            localStorage.setItem('likedArticles', JSON.stringify(likedArticles))
+          }
+        } else {
+          this.article.thumbUp = await this.$api.article.likeArticle(this.article.id)
+          this.$message.success('点赞成功')
+          // 保存到localStorage
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
+          if (!likedArticles.includes(this.article.id)) {
+            likedArticles.push(this.article.id)
+            localStorage.setItem('likedArticles', JSON.stringify(likedArticles))
+          }
+        }
         this.article.isLiked = !this.article.isLiked
-        this.article.thumbUp = this.article.isLiked
-            ? (this.article.thumbUp || 0) + 1
-            : (this.article.thumbUp || 1) - 1
       } catch (error) {
+        console.error('点赞操作失败:', error)
         this.$message.error('操作失败')
       } finally {
         this.liking = false
@@ -350,12 +379,29 @@ export default {
       }
       this.collecting = true
       try {
-        this.$message.success(this.article.isCollected ? '取消收藏' : '收藏成功')
+        if (this.article.isCollected) {
+          this.article.collectNumber = await this.$api.article.uncollectArticle(this.article.id)
+          this.$message.success('取消收藏成功')
+          // 从localStorage中移除
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
+          const index = collectedArticles.indexOf(this.article.id)
+          if (index > -1) {
+            collectedArticles.splice(index, 1)
+            localStorage.setItem('collectedArticles', JSON.stringify(collectedArticles))
+          }
+        } else {
+          this.article.collectNumber = await this.$api.article.collectArticle(this.article.id)
+          this.$message.success('收藏成功')
+          // 保存到localStorage
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
+          if (!collectedArticles.includes(this.article.id)) {
+            collectedArticles.push(this.article.id)
+            localStorage.setItem('collectedArticles', JSON.stringify(collectedArticles))
+          }
+        }
         this.article.isCollected = !this.article.isCollected
-        this.article.collectNumber = this.article.isCollected
-            ? (this.article.collectNumber || 0) + 1
-            : (this.article.collectNumber || 1) - 1
       } catch (error) {
+        console.error('收藏操作失败:', error)
         this.$message.error('操作失败')
       } finally {
         this.collecting = false

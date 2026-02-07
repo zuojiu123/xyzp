@@ -94,7 +94,11 @@ export default {
     getArticleById: (id) => api.get(`/article/${id}`),
     createArticle: (data) => api.post('/article', data),
     updateArticle: (data) => api.put('/article', data),
-    deleteArticle: (id) => api.delete(`/article/${id}`)
+    deleteArticle: (id) => api.delete(`/article/${id}`),
+    likeArticle: (id) => api.post(`/article/like/${id}`),
+    unlikeArticle: (id) => api.post(`/article/unlike/${id}`),
+    collectArticle: (id) => api.post(`/article/collect/${id}`),
+    uncollectArticle: (id) => api.post(`/article/uncollect/${id}`)
   },
 
   // 评论相关
