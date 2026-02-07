@@ -74,7 +74,9 @@ export default {
     createJob: (data) => api.post('/employment', data),
     updateJob: (data) => api.put('/employment', data),
     deleteJob: (id) => api.delete(`/employment/${id}`),
-    auditJob: (data) => api.put('/employment/audit', data)
+    auditJob: (data) => api.put('/employment/audit', data),
+    collectJob: (id) => api.post('/employment/collect', { id }),
+    uncollectJob: (id) => api.post('/employment/uncollect', { id })
   },
 
   // 求职申请相关

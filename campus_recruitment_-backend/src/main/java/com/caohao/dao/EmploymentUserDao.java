@@ -83,5 +83,11 @@ public interface EmploymentUserDao extends BaseMapper<EmploymentUser> {
      * 获取申请总数
      */
     int getTotalCount();
+
+    /**
+     * 通过用户ID和职位ID删除数据
+     */
+    int deleteByUserIdAndEmploymentId(EmploymentUserParam employmentUser);
+
 }
 

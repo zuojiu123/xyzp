@@ -89,5 +89,15 @@ public interface EmploymentDao extends BaseMapper<Employment> {
      */
     int getCountByStatus(@Param("status") int status);
 
+    /**
+     * 增加收藏数
+     */
+    int incrementCollectNumber(Employment employment);
+
+    /**
+     * 减少收藏数
+     */
+    int decrementCollectNumber(Employment employment);
+
 }
 

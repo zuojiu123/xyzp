@@ -69,7 +69,10 @@ public class Employment implements Serializable {
      */
     private String treatment;
 
-
+    /**
+     * 收藏数
+     */
+    private Integer collectNumber;
 
 
 }

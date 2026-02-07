@@ -205,4 +205,67 @@ public class EmploymentServiceImpl implements EmploymentService {
         return employmentDao.getCountByStatus(2); // 2=已下线
     }
 
+    @Override
+    public int collectEmployment(String employmentId) {
+        // 获取当前用户ID
+        String currentUsername = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(currentUsername)) {
+            throw new RuntimeException("请先登录");
+        }
+        UserModel user = userDao.selectByUserName(currentUsername);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 检查是否已经收藏
+        EmploymentUserParam employmentUserParam = new EmploymentUserParam();
+        employmentUserParam.setUserId(user.getId());
+        employmentUserParam.setEmploymentId(employmentId);
+        List<EmploymentUserModel> employmentUserModels = employmentUserDao.queryAllByLimit(employmentUserParam);
+        if (employmentUserModels.size() > 0) {
+            throw new RuntimeException("已经收藏过该职位");
+        }
+
+        // 添加收藏记录
+        employmentUserParam.setId(IDGenerator.StringID());
+        employmentUserParam.setCreateTime(DateUtil.getCurrentTimeMillis());
+        employmentUserParam.setDeleted(0);
+        // 从用户表中获取用户信息，填充name和phone字段（这些字段在表结构中是NOT NULL的）
+        employmentUserParam.setName(user.getRealName() != null ? user.getRealName() : user.getNickName() != null ? user.getNickName() : user.getUserName());
+        employmentUserParam.setPhone(user.getPhone() != null ? user.getPhone() : "");
+        employmentUserDao.insert(employmentUserParam);
+
+        // 更新职位收藏数
+        Employment employment = new Employment();
+        employment.setId(employmentId);
+        return employmentDao.incrementCollectNumber(employment);
+    }
+
+    @Override
+    public int uncollectEmployment(String employmentId) {
+        // 获取当前用户ID
+        String currentUsername = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(currentUsername)) {
+            throw new RuntimeException("请先登录");
+        }
+        UserModel user = userDao.selectByUserName(currentUsername);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 删除收藏记录
+        EmploymentUserParam employmentUserParam = new EmploymentUserParam();
+        employmentUserParam.setUserId(user.getId());
+        employmentUserParam.setEmploymentId(employmentId);
+        int deleteResult = employmentUserDao.deleteByUserIdAndEmploymentId(employmentUserParam);
+        if (deleteResult == 0) {
+            throw new RuntimeException("未收藏该职位");
+        }
+
+        // 更新职位收藏数
+        Employment employment = new Employment();
+        employment.setId(employmentId);
+        return employmentDao.decrementCollectNumber(employment);
+    }
+
 }

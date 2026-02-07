@@ -16,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * (Employment)表控制层
@@ -136,6 +137,48 @@ public class EmploymentController extends SuperController {
         String username = GetTokenInfoUtil.getUsername();
         System.out.println("当前用户: " + username);
         return success("Current user: " + username);
+    }
+
+    /**
+     * 收藏职位
+     */
+    @PostMapping("/collect")
+    public Result collect(@RequestBody Map<String, String> request) {
+        try {
+            String id = request.get("id");
+            if (id == null || id.isEmpty()) {
+                return failed("职位ID不能为空");
+            }
+            int result = employmentService.collectEmployment(id);
+            if (result > 0) {
+                return success();
+            } else {
+                return failed("收藏失败");
+            }
+        } catch (Exception e) {
+            return failed(e.getMessage());
+        }
+    }
+
+    /**
+     * 取消收藏职位
+     */
+    @PostMapping("/uncollect")
+    public Result uncollect(@RequestBody Map<String, String> request) {
+        try {
+            String id = request.get("id");
+            if (id == null || id.isEmpty()) {
+                return failed("职位ID不能为空");
+            }
+            int result = employmentService.uncollectEmployment(id);
+            if (result > 0) {
+                return success();
+            } else {
+                return failed("取消收藏失败");
+            }
+        } catch (Exception e) {
+            return failed(e.getMessage());
+        }
     }
 
 }

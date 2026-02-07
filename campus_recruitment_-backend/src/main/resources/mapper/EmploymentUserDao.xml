@@ -88,10 +88,81 @@
     </select>
 
 
-    <!--新增所有列-->
+    <!--新增数据，只插入非null字段-->
     <insert id="insert">
-        insert into employment_user(id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status)
-        values (#{id}, #{employmentId}, #{userId}, #{name}, #{phone}, #{introduce}, #{resume}, #{createTime}, #{deleted}, #{replyTime}, #{replyContent}, #{replyUser}, #{replyStatus}, #{userStatus})
+        insert into employment_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                id,
+            </if>
+            employment_id,
+            user_id,
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="phone != null and phone != ''">
+                phone,
+            </if>
+            <if test="introduce != null and introduce != ''">
+                introduce,
+            </if>
+            <if test="resume != null and resume != ''">
+                resume,
+            </if>
+            create_time,
+            deleted,
+            <if test="replyTime != null">
+                reply_time,
+            </if>
+            <if test="replyContent != null and replyContent != ''">
+                reply_content,
+            </if>
+            <if test="replyUser != null and replyUser != ''">
+                reply_user,
+            </if>
+            <if test="replyStatus != null and replyStatus != ''">
+                reply_status,
+            </if>
+            <if test="userStatus != null and userStatus != ''">
+                user_status,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">
+                #{id},
+            </if>
+            #{employmentId},
+            #{userId},
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="phone != null and phone != ''">
+                #{phone},
+            </if>
+            <if test="introduce != null and introduce != ''">
+                #{introduce},
+            </if>
+            <if test="resume != null and resume != ''">
+                #{resume},
+            </if>
+            #{createTime},
+            #{deleted},
+            <if test="replyTime != null">
+                #{replyTime},
+            </if>
+            <if test="replyContent != null and replyContent != ''">
+                #{replyContent},
+            </if>
+            <if test="replyUser != null and replyUser != ''">
+                #{replyUser},
+            </if>
+            <if test="replyStatus != null and replyStatus != ''">
+                #{replyStatus},
+            </if>
+            <if test="userStatus != null and userStatus != ''">
+                #{userStatus},
+            </if>
+        </trim>
     </insert>
 
     <insert id="insertBatch" >
@@ -183,6 +254,11 @@
     <select id="getTotalCount" resultType="int">
         select count(*) from employment_user where deleted = 0
     </select>
+
+    <!--通过用户ID和职位ID删除数据-->
+    <delete id="deleteByUserIdAndEmploymentId" parameterType="com.caohao.pojo.param.EmploymentUserParam">
+        delete from employment_user where user_id = #{userId} and employment_id = #{employmentId}
+    </delete>
 
 </mapper>
 

@@ -84,4 +84,14 @@ public interface EmploymentService {
      * 获取非活跃职位数量
      */
     int getInactiveCount();
+
+    /**
+     * 收藏职位
+     */
+    int collectEmployment(String employmentId);
+
+    /**
+     * 取消收藏职位
+     */
+    int uncollectEmployment(String employmentId);
 }

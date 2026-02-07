@@ -27,8 +27,13 @@
             {{ job.userStatus === 'have' ? '已投递' : '立即沟通' }}
           </el-button>
           <div class="action-links">
-            <span class="action-link"><i class="el-icon-star-off"></i> 收藏</span>
-            <span class="action-link"><i class="el-icon-share"></i> 分享</span>
+            <span class="action-link" @click="handleCollect" :loading="collectLoading">
+              <i :class="isCollected ? 'el-icon-star-on' : 'el-icon-star-off'"></i> 
+              {{ isCollected ? '已收藏' : '收藏' }}
+            </span>
+            <span class="action-link" @click="handleShare">
+              <i class="el-icon-share"></i> 分享
+            </span>
           </div>
         </div>
       </div>
@@ -172,6 +177,8 @@ export default {
       loading: false,
       applyDialogVisible: false,
       submitting: false,
+      collectLoading: false,
+      isCollected: false,
       applyForm: {
         name: '',
         phone: '',
@@ -203,11 +210,58 @@ export default {
         const jobId = this.$route.params.id
         const jobData = await this.$api.employment.getJobById(jobId)
         this.job = jobData || {}
+        // 检查收藏状态
+        this.checkCollectStatus()
       } catch (error) {
         console.error('获取职位详情失败:', error)
       } finally {
         this.loading = false
       }
+    },
+
+    checkCollectStatus() {
+      // 这里可以根据实际情况从后端获取收藏状态
+      // 暂时设置为false，实际使用时需要从后端获取
+      this.isCollected = false
+    },
+
+    async handleCollect() {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        this.$message.warning('请先登录')
+        this.$router.push('/login')
+        return
+      }
+
+      this.collectLoading = true
+      try {
+        if (this.isCollected) {
+          await this.$api.employment.uncollectJob(this.job.id)
+          this.$message.success('取消收藏成功')
+          this.isCollected = false
+          if (this.job.collectNumber) {
+            this.job.collectNumber--
+          }
+        } else {
+          await this.$api.employment.collectJob(this.job.id)
+          this.$message.success('收藏成功')
+          this.isCollected = true
+          if (this.job.collectNumber) {
+            this.job.collectNumber++
+          } else {
+            this.job.collectNumber = 1
+          }
+        }
+      } catch (error) {
+        this.$message.error(error.message || '操作失败')
+      } finally {
+        this.collectLoading = false
+      }
+    },
+
+    handleShare() {
+      // 分享功能实现
+      this.$message.info('分享功能开发中')
     },
 
     // 简单的福利处理，假设是逗号分隔的字符串
