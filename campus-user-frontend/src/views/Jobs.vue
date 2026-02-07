@@ -5,7 +5,8 @@
       <div class="filter-container">
         <!-- 搜索栏 -->
         <div class="search-header">
-          <h1 class="page-title">发现新机会</h1>
+          <h1 class="page-title">发现理想工作</h1>
+          <p class="page-subtitle">海量职位等你来投，助力职业发展新高度</p>
           <div class="search-wrapper">
             <el-input
                 v-model="filters.keyword"
@@ -13,7 +14,7 @@
                 class="custom-search-input"
                 clearable
                 @keyup.enter.native="searchJobs">
-              <el-button slot="append" icon="el-icon-search" @click="searchJobs" class="search-btn">搜索</el-button>
+              <el-button slot="append" icon="el-icon-search" @click="searchJobs" class="search-btn">搜索职位</el-button>
             </el-input>
           </div>
         </div>
@@ -65,10 +66,9 @@
             </div>
           </div>
 
-          <!-- 更多筛选与排序 (折叠/工具栏) -->
+          <!-- 更多筛选与排序 (工具栏) -->
           <div class="filter-toolbar">
             <div class="left-tools">
-              <!-- 公司规模下拉筛选 (节省空间) -->
               <el-select v-model="filters.companyScale" placeholder="公司规模" size="small" clearable @change="searchJobs" class="mini-select">
                 <el-option v-for="scale in companyScales" :key="scale.value" :label="scale.label" :value="scale.value"></el-option>
               </el-select>
@@ -82,7 +82,7 @@
                 <el-option label="薪资最低" value="salary_asc"></el-option>
               </el-select>
               <el-button type="text" class="reset-btn" @click="clearFilters">
-                <i class="el-icon-refresh"></i> 重置
+                <i class="el-icon-refresh"></i> 重置筛选
               </el-button>
             </div>
           </div>
@@ -94,44 +94,46 @@
         <template v-if="jobList.length > 0">
           <el-row :gutter="20">
             <el-col :xs="24" :sm="12" :lg="12" v-for="(job, index) in jobList" :key="job.id">
-              <div class="job-card-modern" @click="viewJobDetail(job.id)" :style="{animationDelay: index * 0.05 + 's'}">
+              <div class="job-card-clean" @click="viewJobDetail(job.id)" :style="{animationDelay: index * 0.05 + 's'}">
 
-                <div class="card-top">
-                  <div class="job-main">
-                    <div class="title-row">
+                <!-- 顶部高亮条 (装饰) -->
+                <div class="card-highlight-bar"></div>
+
+                <div class="card-body">
+                  <div class="job-header">
+                    <div class="title-group">
                       <h3 class="job-title">{{ job.title }}</h3>
-                      <span class="salary-text">{{ job.minSalary }}-{{ job.maxSalary }}K</span>
-                    </div>
-                    <div class="tag-row">
-                      <span class="mini-tag">{{ job.position || '地点不限' }}</span>
-                      <span class="mini-tag">{{ job.education || '学历不限' }}</span>
-                      <span class="mini-tag">{{ job.experience || '经验不限' }}</span>
-                    </div>
-                  </div>
-                  <!-- 右上角状态或发布时间 -->
-                  <div class="job-extra">
-                    <span class="time-tag">{{ formatTime(job.createTime) }}</span>
-                  </div>
-                </div>
-
-                <div class="card-divider"></div>
-
-                <div class="card-bottom">
-                  <div class="company-wrapper">
-                    <div class="company-logo-text">
-                      {{ job.companyModel ? job.companyModel.name.substring(0,1) : '企' }}
-                    </div>
-                    <div class="company-info">
-                      <div class="company-name">{{ job.companyModel ? job.companyModel.name : '未知公司' }}</div>
-                      <div class="company-meta">
-                        {{ job.companyModel ? job.companyModel.industry : '互联网' }} ·
-                        {{ job.companyModel ? job.companyModel.number : '100-499人' }}
+                      <div class="tags-group">
+                        <span class="tag-item" v-if="job.position">{{ job.position }}</span>
+                        <span class="tag-item" v-if="job.education">{{ job.education }}</span>
+                        <span class="tag-item" v-if="job.experience">{{ job.experience }}</span>
                       </div>
                     </div>
+                    <span class="salary-text">{{ job.minSalary }}-{{ job.maxSalary }}K</span>
                   </div>
-                  <el-button class="apply-btn" size="small" round @click.stop="applyJob(job.id)">
-                    立即申请
-                  </el-button>
+
+                  <div class="job-divider"></div>
+
+                  <div class="job-footer">
+                    <div class="company-info">
+                      <div class="company-logo-box">
+                        {{ job.companyModel ? job.companyModel.name.substring(0,1) : '聘' }}
+                      </div>
+                      <div class="company-text">
+                        <div class="co-name">{{ job.companyModel ? job.companyModel.name : '未知公司' }}</div>
+                        <div class="co-meta">
+                          {{ job.companyModel ? job.companyModel.industry : '互联网' }} ·
+                          {{ job.companyModel ? job.companyModel.number : '100-499人' }}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="action-area">
+                      <span class="time-text">{{ formatTime(job.createTime) }}</span>
+                      <el-button type="primary" size="mini" plain round class="apply-btn" @click.stop="applyJob(job.id)">
+                        立即申请
+                      </el-button>
+                    </div>
+                  </div>
                 </div>
 
               </div>
@@ -153,7 +155,9 @@
 
         <!-- 空状态 -->
         <template v-else>
-          <el-empty description="暂无符合条件的职位" :image-size="200"></el-empty>
+          <div class="empty-state">
+            <el-empty description="暂无符合条件的职位" :image-size="200"></el-empty>
+          </div>
         </template>
       </div>
     </div>
@@ -161,7 +165,7 @@
 </template>
 
 <script>
-// 逻辑部分保持不变
+// 逻辑部分保持完全一致
 export default {
   name: 'Jobs',
   data() {
@@ -236,7 +240,6 @@ export default {
         this.total = response.total || 0
       } catch (error) {
         console.error('获取职位列表失败:', error)
-        // 演示数据防白屏
         this.jobList = []
       } finally {
         this.loading = false
@@ -300,9 +303,10 @@ export default {
 </script>
 
 <style scoped>
+/* ================= 基础设置 ================= */
 .jobs-page {
   min-height: 100vh;
-  background: #f8fafc;
+  background: #f8fafc; /* 冷灰色背景 */
   padding-bottom: 60px;
 }
 
@@ -316,37 +320,45 @@ export default {
 .filter-container {
   background: white;
   border-radius: 12px;
-  padding: 30px;
+  padding: 40px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-  margin-bottom: 24px;
+  margin-bottom: 30px;
 }
 
 .search-header {
-  margin-bottom: 30px;
   text-align: center;
+  margin-bottom: 40px;
 }
 
 .page-title {
-  font-size: 28px;
+  font-size: 32px;
   color: #1e293b;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 30px;
 }
 
 .search-wrapper {
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
 /* 覆盖 Element UI 输入框样式 */
 .custom-search-input >>> .el-input__inner {
-  height: 50px;
-  line-height: 50px;
-  border-radius: 25px 0 0 25px;
+  height: 52px;
+  line-height: 52px;
+  border-radius: 26px 0 0 26px;
   border-right: none;
   border-color: #e2e8f0;
-  padding-left: 20px;
-  font-size: 15px;
+  padding-left: 24px;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
 .custom-search-input >>> .el-input__inner:focus {
@@ -357,9 +369,10 @@ export default {
   background-color: #ff6b00;
   border-color: #ff6b00;
   color: white;
-  border-radius: 0 25px 25px 0;
+  border-radius: 0 26px 26px 0;
   font-weight: 600;
-  padding: 0 30px;
+  padding: 0 36px;
+  font-size: 16px;
 }
 
 .custom-search-input >>> .el-input-group__append button.el-button {
@@ -370,13 +383,13 @@ export default {
 /* 筛选行样式 */
 .filter-groups-wrapper {
   border-top: 1px solid #f1f5f9;
-  padding-top: 20px;
+  padding-top: 30px;
 }
 
 .filter-row {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .filter-label {
@@ -384,7 +397,7 @@ export default {
   color: #64748b;
   font-size: 14px;
   font-weight: 500;
-  padding-top: 6px; /* 对齐 */
+  padding-top: 6px;
 }
 
 .filter-items {
@@ -446,97 +459,112 @@ export default {
   color: #94a3b8;
   font-size: 14px;
 }
+.reset-btn:hover { color: #ff6b00; }
 
-.reset-btn:hover {
-  color: #ff6b00;
-}
-
-/* ================= 2. 职位卡片样式 ================= */
-.job-card-modern {
+/* ================= 2. 职位卡片样式 (Clean) ================= */
+.job-card-clean {
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   cursor: pointer;
-  border: 1px solid #f0f4f8;
+  border: 1px solid #f1f5f9;
   box-shadow: 0 2px 8px rgba(0,0,0,0.02);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  height: 220px; /* 固定高度 */
   display: flex;
   flex-direction: column;
-  animation: fadeUp 0.5s ease-out backwards;
+  animation: fadeUp 0.6s ease-out backwards;
 }
 
-.job-card-modern:hover {
+.job-card-clean:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0,0,0,0.08);
-  border-color: rgba(255, 107, 0, 0.2);
+  border-color: rgba(255, 107, 0, 0.1);
 }
 
-.card-top {
+/* 顶部高亮条 */
+.card-highlight-bar {
+  height: 3px;
+  background: #ff6b00;
+  width: 0;
+  transition: width 0.3s ease;
+}
+
+.job-card-clean:hover .card-highlight-bar {
+  width: 100%;
+}
+
+.card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 卡片头部：职位名+标签+薪资 */
+.job-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 15px;
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .job-title {
-  margin: 0;
+  margin: 0 0 8px 0;
   font-size: 18px;
   font-weight: 700;
   color: #1e293b;
   line-height: 1.4;
+  /* 限制一行 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.tags-group {
+  display: flex;
+  gap: 8px;
+}
+
+.tag-item {
+  font-size: 12px;
+  color: #64748b;
+  background: #f8fafc;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .salary-text {
   font-size: 18px;
   font-weight: 800;
   color: #ff6b00;
+  white-space: nowrap;
 }
 
-.tag-row {
-  display: flex;
-  gap: 8px;
-}
-
-.mini-tag {
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.time-tag {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.card-divider {
+.job-divider {
+  margin-top: auto; /* 推到底部 */
   height: 1px;
   background: #f1f5f9;
-  margin: 10px 0 15px;
+  margin-bottom: 16px;
 }
 
-.card-bottom {
+/* 卡片底部：公司信息+按钮 */
+.job-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.company-wrapper {
+.company-info {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.company-logo-text {
+.company-logo-box {
   width: 40px;
   height: 40px;
   background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
@@ -549,33 +577,44 @@ export default {
   font-size: 18px;
 }
 
-.company-info {
+.company-text {
   display: flex;
   flex-direction: column;
 }
 
-.company-name {
+.co-name {
   font-size: 14px;
   font-weight: 600;
   color: #334155;
   margin-bottom: 2px;
 }
 
-.company-meta {
+.co-meta {
   font-size: 12px;
   color: #94a3b8;
 }
 
-.apply-btn {
-  background: #fff0e6;
-  color: #ff6b00;
-  border: none;
-  font-weight: 600;
-  transition: all 0.2s;
+.action-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
 }
 
-.job-card-modern:hover .apply-btn {
-  background: #ff6b00;
+.time-text {
+  font-size: 12px;
+  color: #cbd5e1;
+}
+
+.apply-btn {
+  padding: 6px 16px;
+  font-size: 12px;
+  border-color: #ff6b00;
+  color: #ff6b00;
+}
+
+.job-card-clean:hover .apply-btn {
+  background-color: #ff6b00;
   color: white;
 }
 
@@ -583,7 +622,7 @@ export default {
 .pagination-wrapper {
   display: flex;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 40px;
 }
 
 /* 覆盖分页样式 */
@@ -593,6 +632,11 @@ export default {
 
 .pagination-wrapper >>> .el-pagination.is-background .el-pager li:hover {
   color: #ff6b00;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
 }
 
 @keyframes fadeUp {
@@ -605,7 +649,6 @@ export default {
   .search-wrapper { max-width: 100%; }
   .filter-row { flex-direction: column; }
   .filter-items { margin-top: 8px; }
-  .card-bottom { flex-direction: column; align-items: flex-start; gap: 15px; }
-  .apply-btn { width: 100%; }
+  .job-card-clean { height: auto; }
 }
 </style>
