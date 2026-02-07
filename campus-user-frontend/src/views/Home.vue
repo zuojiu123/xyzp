@@ -165,7 +165,8 @@
           </div>
           <el-row :gutter="24">
             <el-col :xs="24" :sm="12" :md="6" v-for="(company, index) in hotCompanies.slice(0, 8)" :key="company.id">
-              <div class="company-card-premium">
+              <div class="company-card-premium" @click="viewCompany(company.id)">
+                <div class="card-overlay"></div>
                 <!-- 1. 动态渐变背景 Header -->
                 <div class="co-card-header" :class="`gradient-bg-${index % 4}`"></div>
 
@@ -186,7 +187,7 @@
                   <p class="co-desc-text">{{ company.description || '暂无详细介绍，点击查看更多信息...' }}</p>
 
                   <!-- 4. 底部按钮 -->
-                  <button class="co-visit-btn">
+                  <button class="co-visit-btn" @click="viewCompany(company.id)">
                     查看热招职位
                     <i class="el-icon-arrow-right"></i>
                   </button>
@@ -320,7 +321,8 @@ export default {
       if (hours > 0) return `${hours}小时前`
       return '刚刚'
     },
-    viewJob(id) { this.$router.push(`/job/${id}`) }
+    viewJob(id) { this.$router.push(`/job/${id}`) },
+    viewCompany(id) { this.$router.push(`/company/${id}`) }
   },
   mounted() {
     this.loadStats()
@@ -807,6 +809,22 @@ export default {
 .company-card-premium:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+.card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.co-visit-btn {
+  position: relative;
+  z-index: 2;
 }
 
 .co-card-header {
