@@ -148,4 +148,60 @@ public class ArticleServiceImpl implements ArticleService {
     public int getTotalCount() {
         return articleDao.getTotalCount();
     }
+
+    @Override
+    public int likeArticle(String articleId) {
+        ArticleModel articleModel = this.articleDao.queryById(articleId);
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.setId(articleId);
+        if(articleModel.getThumbUp()==null){
+            articleParam.setThumbUp(1);
+        }else {
+            articleParam.setThumbUp(articleModel.getThumbUp()+1);
+        }
+        this.articleDao.update(articleParam);
+        return articleParam.getThumbUp();
+    }
+
+    @Override
+    public int unlikeArticle(String articleId) {
+        ArticleModel articleModel = this.articleDao.queryById(articleId);
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.setId(articleId);
+        if(articleModel.getThumbUp()==null || articleModel.getThumbUp()<=0){
+            articleParam.setThumbUp(0);
+        }else {
+            articleParam.setThumbUp(articleModel.getThumbUp()-1);
+        }
+        this.articleDao.update(articleParam);
+        return articleParam.getThumbUp();
+    }
+
+    @Override
+    public int collectArticle(String articleId) {
+        ArticleModel articleModel = this.articleDao.queryById(articleId);
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.setId(articleId);
+        if(articleModel.getCollectNumber()==null){
+            articleParam.setCollectNumber(1);
+        }else {
+            articleParam.setCollectNumber(articleModel.getCollectNumber()+1);
+        }
+        this.articleDao.update(articleParam);
+        return articleParam.getCollectNumber();
+    }
+
+    @Override
+    public int uncollectArticle(String articleId) {
+        ArticleModel articleModel = this.articleDao.queryById(articleId);
+        ArticleParam articleParam = new ArticleParam();
+        articleParam.setId(articleId);
+        if(articleModel.getCollectNumber()==null || articleModel.getCollectNumber()<=0){
+            articleParam.setCollectNumber(0);
+        }else {
+            articleParam.setCollectNumber(articleModel.getCollectNumber()-1);
+        }
+        this.articleDao.update(articleParam);
+        return articleParam.getCollectNumber();
+    }
 }

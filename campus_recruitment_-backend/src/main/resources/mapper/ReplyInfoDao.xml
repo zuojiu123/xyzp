@@ -47,25 +47,26 @@
     </select>
     <select id="selectByIDS" resultMap="ReplyInfoMap">
         select id, content, recipient_id, operator_id, create_time, atId
-        from reply_info where id in
+        from reply_info
+        where id in
         <foreach collection="list" open="(" close=")" index="index" separator="," item="item">
             #{item}
         </foreach>
-        order by 'create_time' DESC
+        order by create_time ASC
     </select>
 
 
     <!--新增所有列-->
     <insert id="insert">
-        insert into reply_info(id, content, recipient_id, operator_id, create_time, atId)
-        values (#{id}, #{content}, #{recipientId}, #{operatorId}, #{createTime}, #{atid})
+        insert into reply_info(id, content, recipient_id, operator_id, create_time, atId, comments_id)
+        values (#{id}, #{content}, #{recipientId}, #{operatorId}, #{createTime}, #{atid}, #{commentsId})
     </insert>
 
     <insert id="insertBatch" >
-        insert into reply_info(id, content, recipient_id, operator_id, create_time, atId)
+        insert into reply_info(id, content, recipient_id, operator_id, create_time, atId, comments_id)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.id}, #{entity.content}, #{entity.recipientId}, #{entity.operatorId}, #{entity.createTime}, #{entity.atid})
+            (#{entity.id}, #{entity.content}, #{entity.recipientId}, #{entity.operatorId}, #{entity.createTime}, #{entity.atid}, #{entity.commentsId})
         </foreach>
     </insert>
 

@@ -100,26 +100,32 @@
 
                 <div class="comment-right">
                   <div class="comment-meta">
-                    <span class="username">{{ comment.userName || '匿名用户' }}</span>
+                    <span class="username">{{
+                        comment.userModel && comment.userModel.nickName
+                            ? comment.userModel.nickName
+                            : (comment.operatorId || '匿名用户')
+                      }}</span>
                     <span class="time">{{ formatTime(comment.createTime) }}</span>
                   </div>
 
                   <div class="comment-content-text">{{ comment.content }}</div>
 
                   <div class="comment-tools">
-                    <span class="tool-btn" @click="showReplyInput(comment.id)">
-                      <i class="el-icon-chat-round"></i> 回复
-                    </span>
+                    <span class="tool-btn"
+                          @click="showReplyInput(comment.id, null, comment.userModel ? comment.userModel.nickName : comment.userName)">
+  <i class="el-icon-chat-round"></i> 回复
+</span>
                   </div>
 
                   <!-- 回复输入框 -->
                   <transition name="el-zoom-in-top">
-                    <div v-if="replyingTo === comment.id" class="reply-input-box">
+                    <div v-if="replyingToCommentId  === comment.id" class="reply-input-box">
+                      <!-- 在 reply-input-box 区域 -->
                       <el-input
                           type="textarea"
                           v-model="replyContent"
                           :rows="2"
-                          placeholder="回复他..."
+                          :placeholder="replyingToUser ? `回复 ${replyingToUser}...` : '请输入回复内容...'"
                           class="reply-textarea"
                           resize="none">
                       </el-input>
@@ -137,17 +143,42 @@
                   </transition>
 
                   <!-- 二级回复列表 -->
-                  <div v-if="comment.replies && comment.replies.length > 0" class="sub-comments-list">
+                  <div v-if="comment.replyInfos && comment.replyInfos.length > 0" class="sub-comments-list">
                     <div
-                        v-for="reply in comment.replies"
+                        v-for="reply in (comment.isExpanded ? comment.replyInfos : comment.replyInfos.slice(0, 2))"
                         :key="reply.id"
                         class="sub-comment-item">
+                      <!-- ... 原有的子回复内容 ... -->
                       <div class="sub-header">
-                        <span class="sub-user">{{ reply.userName || '匿名用户' }}</span>
+                        <span class="sub-user">{{
+                            reply.selfUserModel ? reply.selfUserModel.nickName : (reply.userName || '匿名')
+                          }}</span>
+                        <template v-if="reply.otherUserModel">
+                          <span style="margin: 0 4px; color: #94a3b8;">回复</span>
+                          <span class="sub-user">@{{ reply.otherUserModel.nickName }}</span>
+                        </template>
                         <span class="sub-time">{{ formatTime(reply.createTime) }}</span>
                       </div>
                       <div class="sub-content">{{ reply.content }}</div>
+                      <div class="sub-actions" style="margin-top: 4px; text-align: right;">
+                        <el-button
+                            type="text"
+                            size="mini"
+                            @click="showReplyInput(comment.id, reply.id, reply.selfUserModel ? reply.selfUserModel.nickName : reply.userName)">
+                          回复
+                        </el-button>
+                      </div>
                     </div>
+
+                    <!-- 展开/收起 控制按钮 -->
+                    <!-- 只有当子回复总数大于 2 条时才显示这个按钮 -->
+                    <div v-if="comment.replyInfos.length > 2" class="toggle-replies-btn">
+                      <el-button type="text" size="small" @click="toggleReplies(comment)">
+                        {{ comment.isExpanded ? '收起回复' : `查看全部 ${comment.replyInfos.length} 条回复` }}
+                        <i :class="comment.isExpanded ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+                      </el-button>
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -181,7 +212,10 @@ export default {
       commenting: false,
       replying: false,
       liking: false,
-      collecting: false
+      collecting: false,
+      replyingToCommentId: null,
+      replyingToSpecificId: null,
+      replyingToUser: '',
     }
   },
   methods: {
@@ -203,10 +237,17 @@ export default {
       try {
         const id = this.$route.params.id
         const response = await this.$api.comments.getCommentsByArticle(id)
-        this.comments = response || []
+        this.comments = (response || []).map(comment => ({
+          ...comment,
+          isExpanded: false // 默认折叠，只显示部分
+        }))
       } catch (error) {
         console.error('获取评论失败:', error)
       }
+    },
+    toggleReplies(comment) {
+      // 切换展开/收起状态
+      comment.isExpanded = !comment.isExpanded
     },
 
     async submitComment() {
@@ -237,33 +278,45 @@ export default {
     },
 
     showReplyInput(commentId) {
-      this.replyingTo = commentId
-      this.replyContent = ''
+      this.replyingToCommentId = commentId;
+      this.replyingToSpecificId = specificId;
+      // 设置 placeholder 显示的名字
+      this.replyingToUser = targetName ? `@${targetName}` : '';
+      this.replyContent = '';
     },
 
     cancelReply() {
-      this.replyingTo = null
-      this.replyContent = ''
+      this.replyingToCommentId = null;
+      this.replyingToSpecificId = null;
+      this.replyContent = '';
     },
 
     async submitReply(commentId) {
       if (!this.replyContent.trim()) {
-        this.$message.warning('请输入回复内容')
-        return
+        this.$message.warning('请输入回复内容');
+        return;
       }
-      this.replying = true
+
+      this.replying = true;
       try {
-        await this.$api.replyInfo.createReply({
-          commentsId: commentId,
-          content: this.replyContent
-        })
-        this.$message.success('回复成功')
-        this.cancelReply()
-        await this.loadComments()
+        // 构造参数
+        const payload = {
+          commentsId: commentId, // 必须：所属的主评论ID
+          content: this.replyContent,
+          // 关键：如果点击的是楼中楼的回复按钮，这里传那个楼中楼的ID
+          parentReplyId: this.replyingToSpecificId
+        };
+
+        await this.$api.replyInfo.createReply(payload);
+
+        this.$message.success('回复成功');
+        this.cancelReply();
+        await this.loadComments(); // 重新加载列表
       } catch (error) {
-        this.$message.error('回复失败')
+        console.error(error);
+        this.$message.error('回复失败');
       } finally {
-        this.replying = false
+        this.replying = false;
       }
     },
 
@@ -311,13 +364,19 @@ export default {
 
     formatTime(timestamp) {
       if (!timestamp) return ''
-      const date = new Date(timestamp)
-      const now = new Date()
-      const diff = now - date
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      if (days === 0) return '今天'
-      if (days === 1) return '昨天'
-      return date.toLocaleDateString()
+
+      // 兼容处理：有些后端返回的时间戳是秒，需要乘1000
+      // 如果是毫秒级时间戳（13位），直接使用
+      const date = new Date(timestamp.toString().length === 10 ? timestamp * 1000 : timestamp)
+
+      const year = date.getFullYear()
+      const month = (date.getMonth() + 1).toString().padStart(2, '0')
+      const day = date.getDate().toString().padStart(2, '0')
+      const hours = date.getHours().toString().padStart(2, '0')
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      const seconds = date.getSeconds().toString().padStart(2, '0')
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
     }
   },
 
@@ -351,7 +410,7 @@ export default {
   background: white;
   border-radius: 12px;
   padding: 40px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
   margin-bottom: 30px;
 }
 
@@ -398,7 +457,21 @@ export default {
   background: #f1f5f9;
   color: #94a3b8;
   border: 2px solid white;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.toggle-replies-btn {
+  margin-top: 8px;
+  padding-left: 10px;
+}
+
+.toggle-replies-btn .el-button {
+  color: #94a3b8; /* 使用更淡的颜色，不抢视觉 */
+  font-size: 13px;
+}
+
+.toggle-replies-btn .el-button:hover {
+  color: #ff6b00; /* 主色调 */
 }
 
 .author-info {
@@ -454,7 +527,7 @@ export default {
   max-width: 100%;
   border-radius: 8px;
   margin: 20px 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .article-body >>> blockquote {
@@ -531,7 +604,7 @@ export default {
   background: white;
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
   margin-bottom: 30px;
 }
 
@@ -587,7 +660,7 @@ export default {
   background: white;
   border-radius: 12px;
   padding: 10px 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
 }
 
 .comment-row {
@@ -720,7 +793,13 @@ export default {
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

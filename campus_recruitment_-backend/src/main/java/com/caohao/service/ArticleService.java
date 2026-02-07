@@ -63,4 +63,32 @@ public interface ArticleService {
      * 获取文章总数
      */
     int getTotalCount();
+
+    /**
+     * 文章点赞
+     * @param articleId 文章ID
+     * @return 更新后的点赞数
+     */
+    int likeArticle(String articleId);
+
+    /**
+     * 文章取消点赞
+     * @param articleId 文章ID
+     * @return 更新后的点赞数
+     */
+    int unlikeArticle(String articleId);
+
+    /**
+     * 文章收藏
+     * @param articleId 文章ID
+     * @return 更新后的收藏数
+     */
+    int collectArticle(String articleId);
+
+    /**
+     * 文章取消收藏
+     * @param articleId 文章ID
+     * @return 更新后的收藏数
+     */
+    int uncollectArticle(String articleId);
 }
