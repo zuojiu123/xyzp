@@ -1,148 +1,164 @@
 <template>
-  <div class="companies">
+  <div class="companies-page">
     <div class="container">
-      <h1>公司列表</h1>
-      
-      <!-- 搜索栏 -->
-      <div class="search-section">
-        <div class="search-bar">
-          <el-input 
-            v-model="filters.keyword" 
-            placeholder="搜索公司名称、行业" 
-            size="large"
-            clearable
-            @keyup.enter.native="searchCompanies">
-            <el-button slot="append" icon="el-icon-search" @click="searchCompanies"></el-button>
-          </el-input>
+
+      <!-- 1. 顶部搜索与筛选区域 -->
+      <div class="filter-container">
+        <!-- 搜索栏 -->
+        <div class="search-header">
+          <h1 class="page-title">探索优秀企业</h1>
+          <p class="page-subtitle">连接数千家顶尖雇主，发现你的理想职场</p>
+          <div class="search-wrapper">
+            <el-input
+                v-model="filters.keyword"
+                placeholder="搜索公司名称、行业..."
+                class="custom-search-input"
+                clearable
+                @keyup.enter.native="searchCompanies">
+              <el-button slot="append" icon="el-icon-search" @click="searchCompanies" class="search-btn">搜索</el-button>
+            </el-input>
+          </div>
+        </div>
+
+        <!-- 筛选条件组 -->
+        <div class="filter-groups-wrapper">
+          <!-- 城市 -->
+          <div class="filter-row">
+            <span class="filter-label">所在城市</span>
+            <div class="filter-items">
+              <span
+                  v-for="city in cities"
+                  :key="city.value"
+                  class="filter-pill"
+                  :class="{ active: filters.city === city.value }"
+                  @click="selectCity(city.value)">
+                {{ city.label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 行业 -->
+          <div class="filter-row">
+            <span class="filter-label">所属行业</span>
+            <div class="filter-items">
+              <span
+                  v-for="industry in industries"
+                  :key="industry.value"
+                  class="filter-pill"
+                  :class="{ active: filters.industry === industry.value }"
+                  @click="selectIndustry(industry.value)">
+                {{ industry.label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 公司规模 -->
+          <div class="filter-row">
+            <span class="filter-label">人员规模</span>
+            <div class="filter-items">
+              <span
+                  v-for="scale in companyScales"
+                  :key="scale.value"
+                  class="filter-pill"
+                  :class="{ active: filters.scale === scale.value }"
+                  @click="selectScale(scale.value)">
+                {{ scale.label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 工具栏 -->
+          <div class="filter-toolbar">
+            <div class="right-tools">
+              <span class="sort-label">排序：</span>
+              <el-select v-model="sortBy" @change="searchCompanies" size="small" class="sort-select">
+                <el-option label="综合排序" value="createTime"></el-option>
+                <el-option label="规模最大" value="scale"></el-option>
+                <el-option label="职位最多" value="jobs"></el-option>
+              </el-select>
+              <el-button type="text" class="reset-btn" @click="clearFilters">
+                <i class="el-icon-refresh"></i> 重置筛选
+              </el-button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 筛选条件 -->
-      <div class="filter-section">
-        <!-- 城市筛选 -->
-        <div class="filter-group">
-          <span class="filter-label">城市：</span>
-          <div class="filter-options">
-            <el-tag 
-              v-for="city in cities" 
-              :key="city.value"
-              :type="filters.city === city.value ? '' : 'info'"
-              :effect="filters.city === city.value ? 'dark' : 'plain'"
-              @click="selectCity(city.value)"
-              class="filter-tag">
-              {{ city.label }}
-            </el-tag>
-          </div>
-        </div>
+      <!-- 2. 企业列表区域 -->
+      <div class="companies-grid" v-loading="loading">
+        <template v-if="companyList.length > 0">
+          <el-row :gutter="24">
+            <el-col :xs="24" :sm="12" :md="8" v-for="(company, index) in companyList" :key="company.id">
+              <div class="company-card-modern" @click="viewCompany(company.id)" :style="{animationDelay: index * 0.05 + 's'}">
 
-        <!-- 行业筛选 -->
-        <div class="filter-group">
-          <span class="filter-label">行业：</span>
-          <div class="filter-options">
-            <el-tag 
-              v-for="industry in industries" 
-              :key="industry.value"
-              :type="filters.industry === industry.value ? '' : 'info'"
-              :effect="filters.industry === industry.value ? 'dark' : 'plain'"
-              @click="selectIndustry(industry.value)"
-              class="filter-tag">
-              {{ industry.label }}
-            </el-tag>
-          </div>
-        </div>
+                <!-- 顶部背景条 -->
+                <div class="card-bg-decoration"></div>
 
-        <!-- 公司规模 -->
-        <div class="filter-group">
-          <span class="filter-label">规模：</span>
-          <div class="filter-options">
-            <el-tag 
-              v-for="scale in companyScales" 
-              :key="scale.value"
-              :type="filters.scale === scale.value ? '' : 'info'"
-              :effect="filters.scale === scale.value ? 'dark' : 'plain'"
-              @click="selectScale(scale.value)"
-              class="filter-tag">
-              {{ scale.label }}
-            </el-tag>
-          </div>
-        </div>
+                <div class="card-body">
+                  <!-- Logo与基本信息 -->
+                  <div class="company-header-block">
+                    <div class="logo-box">
+                      <img v-if="company.companyLogo" :src="company.companyLogo" :alt="company.name" class="real-logo" @error="handleLogoError">
+                      <div v-else class="text-logo">
+                        {{ company.name.substring(0, 1) }}
+                      </div>
+                    </div>
 
-        <!-- 排序方式 -->
-        <div class="sort-section">
-          <span class="filter-label">排序：</span>
-          <el-select v-model="sortBy" @change="searchCompanies" size="small">
-            <el-option label="最新注册" value="createTime"></el-option>
-            <el-option label="规模最大" value="scale"></el-option>
-            <el-option label="职位最多" value="jobs"></el-option>
-          </el-select>
-        </div>
+                    <h3 class="company-name" :title="company.name">{{ company.name }}</h3>
 
-        <!-- 清空筛选 -->
-        <div class="clear-filters">
-          <el-button size="small" @click="clearFilters">清空筛选</el-button>
-        </div>
-      </div>
-
-      <div class="companies-grid">
-        <el-row :gutter="20">
-          <el-col :span="8" v-for="company in companyList" :key="company.id">
-            <el-card class="company-card" @click.native="viewCompany(company.id)">
-              <div class="company-header">
-                <div class="company-logo">
-                  <div class="logo-wrapper">
-                    <img v-if="company.companyLogo" :src="company.companyLogo" :alt="company.name" @error="handleLogoError">
-                    <div v-else class="default-logo">
-                      <i class="el-icon-office-building"></i>
+                    <div class="company-tags">
+                      <span class="tag-item" v-if="company.category">{{ company.category }}</span>
+                      <span class="tag-item">{{ company.number || '100+' }}人</span>
+                      <span class="tag-item" v-if="company.city">{{ company.city }}</span>
                     </div>
                   </div>
-                </div>
-                <div class="company-basic">
-                  <h3>{{ company.name }}</h3>
-                  <div class="company-info">
-                    <span class="company-scale">
-                      <i class="el-icon-user"></i>
-                      {{ company.number || 100 }}人
-                    </span>
-                    <span class="company-industry" v-if="company.category">
-                      <i class="el-icon-suitcase"></i>
-                      {{ company.category }}
-                    </span>
+
+                  <!-- 简介 -->
+                  <p class="company-desc">
+                    {{ company.description || '这家公司很低调，暂无详细介绍...' }}
+                  </p>
+
+                  <div class="card-divider"></div>
+
+                  <!-- 底部数据栏 -->
+                  <div class="card-footer">
+                    <div class="footer-stat">
+                      <span class="stat-num">{{ company.jobCount || 0 }}</span>
+                      <span class="stat-label">个热招职位</span>
+                    </div>
+                    <button class="view-btn">
+                      进入主页 <i class="el-icon-right"></i>
+                    </button>
                   </div>
                 </div>
               </div>
-              <div class="company-desc">
-                {{ company.description || '该公司暂未添加介绍' }}
-              </div>
-              <div class="company-footer">
-                <div class="company-jobs">
-                  <i class="el-icon-position"></i>
-                  在招职位: {{ company.jobCount || 0 }}个
-                </div>
-                <div class="company-status">
-                  <el-tag size="mini" :type="company.status === 'Approve' ? 'success' : 'warning'">
-                    {{ company.status === 'Approve' ? '已认证' : '待审核' }}
-                  </el-tag>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-      </div>
+            </el-col>
+          </el-row>
 
-      <div class="pagination">
-        <el-pagination
-          @current-change="handlePageChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
-        </el-pagination>
+          <!-- 分页 -->
+          <div class="pagination-wrapper">
+            <el-pagination
+                background
+                @current-change="handlePageChange"
+                :current-page="currentPage"
+                :page-size="pageSize"
+                layout="prev, pager, next, jumper"
+                :total="total">
+            </el-pagination>
+          </div>
+        </template>
+
+        <!-- 空状态 -->
+        <template v-else>
+          <el-empty description="暂无符合条件的企业" :image-size="200"></el-empty>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+// 逻辑代码保持不变
 export default {
   name: 'Companies',
   data() {
@@ -197,17 +213,9 @@ export default {
       this.loading = true
       try {
         const params = {}
-        
-        // 添加所有筛选条件
-        if (this.filters.keyword) {
-          params.name = this.filters.keyword
-        }
-        if (this.filters.city) {
-          params.cityFilter = this.filters.city
-        }
-        if (this.filters.industry) {
-          params.industryFilter = this.filters.industry
-        }
+        if (this.filters.keyword) params.name = this.filters.keyword
+        if (this.filters.city) params.cityFilter = this.filters.city
+        if (this.filters.industry) params.industryFilter = this.filters.industry
         if (this.filters.scale) {
           const [minScale, maxScale] = this.filters.scale.split('-')
           if (minScale) params.minNumber = parseInt(minScale)
@@ -215,15 +223,11 @@ export default {
             params.maxNumber = parseInt(maxScale)
           } else if (maxScale === '+') {
             params.minNumber = parseInt(minScale)
-            // 不设置maxNumber，表示无上限
           }
         }
-        
-        // 添加排序参数
         params.sortBy = this.sortBy
-        
+
         console.log('企业筛选参数:', params)
-        
         const response = await this.$api.company.getCompanyList(this.currentPage, this.pageSize, params)
         this.companyList = response.list || []
         this.total = response.total || 0
@@ -264,9 +268,8 @@ export default {
       this.$router.push(`/company/${id}`)
     },
     handleLogoError(event) {
-      // 当公司logo加载失败时，隐藏图片元素
       event.target.style.display = 'none'
-      event.target.parentNode.innerHTML = '<div class="default-logo"><i class="el-icon-office-building"></i></div>'
+      event.target.parentNode.innerHTML = '<div class="text-logo">企</div>'
     },
     handlePageChange(page) {
       this.currentPage = page
@@ -280,235 +283,345 @@ export default {
 </script>
 
 <style scoped>
-.companies {
+/* ================= 基础设置 ================= */
+.companies-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
-  padding: 20px 0;
+  background: #f8fafc; /* 统一使用冷灰色背景 */
+  padding-bottom: 60px;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 20px;
 }
 
-h1 {
-  text-align: center;
-  color: #ff9800;
-  font-size: 32px;
-  margin-bottom: 30px;
-  font-weight: 600;
-}
-
-.search-section {
+/* ================= 1. 筛选区样式 ================= */
+.filter-container {
   background: white;
-  padding: 25px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.08);
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 30px;
 }
 
-.search-bar {
+.search-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 32px;
+  color: #1e293b;
+  margin-bottom: 10px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 30px;
+}
+
+.search-wrapper {
   max-width: 600px;
   margin: 0 auto;
 }
 
-.filter-section {
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.08);
+/* 搜索框覆盖 */
+.custom-search-input >>> .el-input__inner {
+  height: 52px;
+  line-height: 52px;
+  border-radius: 26px 0 0 26px;
+  border-right: none;
+  border-color: #e2e8f0;
+  padding-left: 24px;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
-.filter-group {
+.custom-search-input >>> .el-input__inner:focus {
+  border-color: #ff6b00;
+}
+
+.custom-search-input >>> .el-input-group__append {
+  background-color: #ff6b00;
+  border-color: #ff6b00;
+  color: white;
+  border-radius: 0 26px 26px 0;
+  font-weight: 600;
+  padding: 0 30px;
+  font-size: 16px;
+}
+
+.custom-search-input >>> .el-input-group__append button.el-button {
+  margin: 0;
+  border: none;
+}
+
+/* 筛选行 */
+.filter-groups-wrapper {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 30px;
+}
+
+.filter-row {
   display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-bottom: 20px;
 }
 
 .filter-label {
-  min-width: 60px;
-  color: #666;
+  width: 80px;
+  color: #64748b;
   font-size: 14px;
-  margin-right: 15px;
   font-weight: 500;
+  padding-top: 6px;
 }
 
-.filter-options {
+.filter-items {
+  flex: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  flex: 1;
 }
 
-.filter-tag {
-  cursor: pointer;
-  margin: 0;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 20px;
+/* 胶囊筛选 */
+.filter-pill {
+  font-size: 14px;
+  color: #475569;
   padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
 }
 
-.filter-tag:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 152, 0, 0.2);
+.filter-pill:hover {
+  color: #ff6b00;
+  background: #fff7ed;
 }
 
-.sort-section {
+.filter-pill.active {
+  background: #ff6b00;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(255, 107, 0, 0.2);
+}
+
+/* 工具栏 */
+.filter-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.right-tools {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  gap: 15px;
 }
 
-.clear-filters {
-  text-align: right;
+.sort-label {
+  font-size: 14px;
+  color: #64748b;
 }
 
-.companies-grid {
-  margin-bottom: 30px;
+.reset-btn {
+  color: #94a3b8;
+  font-size: 14px;
 }
+.reset-btn:hover { color: #ff6b00; }
 
-.company-card {
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #ffe8d6;
-  animation: fadeInUp 0.6s ease-out both;
-}
-
-.company-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(255, 152, 0, 0.15);
-  border-color: #ff9800;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.company-header {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #fff5eb;
-}
-
-.company-logo {
-  margin-right: 15px;
-}
-
-.logo-wrapper {
-  width: 70px;
-  height: 70px;
+/* ================= 2. 企业卡片样式 ================= */
+.company-card-modern {
+  background: white;
   border-radius: 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
   overflow: hidden;
+  height: 280px; /* 固定高度，保证整齐 */
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 0.6s ease-out backwards;
+}
+
+.company-card-modern:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* 装饰背景条 */
+.card-bg-decoration {
+  height: 60px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 0;
+}
+
+.card-body {
+  padding: 24px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.company-header-block {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* Logo 容器 */
+.logo-box {
+  width: 64px;
+  height: 64px;
+  background: white;
+  border-radius: 12px;
+  margin: 0 auto 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #fff5eb, #ffe8d6);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #f8fafc;
 }
 
-.logo-wrapper img {
+.real-logo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.default-logo {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #ff9800, #ffb74d);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 28px;
-}
-
-.company-basic {
-  flex: 1;
-}
-
-.company-basic h3 {
-  margin: 0 0 10px 0;
-  color: #333;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.company-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.company-scale, .company-industry {
-  color: #666;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: #fff5eb;
-  padding: 4px 12px;
   border-radius: 12px;
 }
 
-.company-scale i, .company-industry i {
-  color: #ff9800;
+.text-logo {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ff6b00;
+}
+
+.company-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.company-tags {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tag-item {
+  font-size: 12px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .company-desc {
-  color: #666;
+  font-size: 13px;
+  color: #94a3b8;
+  text-align: center;
   line-height: 1.6;
-  margin-bottom: 15px;
-  font-size: 14px;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  height: 42px; /* 限制高度 */
 }
 
-.company-footer {
+.card-divider {
+  margin-top: auto; /* 推到底部 */
+  height: 1px;
+  background: #f1f5f9;
+  margin-bottom: 12px;
+}
+
+.card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 15px;
-  border-top: 1px solid #fff5eb;
 }
 
-.company-status {
+.footer-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-num {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ff6b00;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.view-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
-.company-jobs {
-  color: #ff9800;
-  font-size: 14px;
+.company-card-modern:hover .view-btn {
+  background: #ff6b00;
+  border-color: #ff6b00;
+  color: white;
+}
+
+/* ================= 3. 分页 ================= */
+.pagination-wrapper {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
+  justify-content: center;
+  margin-top: 40px;
 }
 
-.company-jobs i {
-  font-size: 16px;
+/* 覆盖分页样式 */
+.pagination-wrapper >>> .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #ff6b00;
 }
 
-.pagination {
-  text-align: center;
-  padding: 20px 0;
+.pagination-wrapper >>> .el-pagination.is-background .el-pager li:hover {
+  color: #ff6b00;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .search-wrapper { max-width: 100%; }
+  .filter-row { flex-direction: column; }
+  .filter-items { margin-top: 8px; }
+  .company-card-modern { height: auto; padding-bottom: 20px; }
 }
 </style>

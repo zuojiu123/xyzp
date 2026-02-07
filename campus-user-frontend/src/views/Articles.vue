@@ -1,74 +1,87 @@
 <template>
-  <div class="articles">
+  <div class="articles-page">
     <div class="container">
+
+      <!-- 1. 页面头部 -->
       <div class="page-header">
-        <h1>求职文章</h1>
-        <p class="subtitle">分享求职经验，互相学习成长</p>
-      </div>
-      
-      <div class="filter-section">
-        <el-tabs v-model="activeTab" @tab-click="handleTabClick">
-          <el-tab-pane label="全部" name="all"></el-tab-pane>
-          <el-tab-pane label="经验分享" name="经验分享"></el-tab-pane>
-          <el-tab-pane label="求职心得" name="求职心得"></el-tab-pane>
-          <el-tab-pane label="面试技巧" name="面试技巧"></el-tab-pane>
-        </el-tabs>
+        <h1 class="page-title">求职攻略</h1>
+        <p class="page-subtitle">不仅是职位，更是成长的方向</p>
       </div>
 
-      <div class="articles-list" v-loading="loading">
-        <el-card 
-          v-for="(article, index) in articleList" 
-          :key="article.id" 
-          class="article-item" 
-          @click.native="viewArticle(article.id)"
-          :style="{animationDelay: index * 0.1 + 's'}">
-          <div class="article-content">
-            <div class="article-main">
-              <div class="article-header">
-                <h3 class="article-title">{{ article.title }}</h3>
-                <el-tag size="mini" type="warning" v-if="article.type">
-                  {{ article.type }}
-                </el-tag>
-              </div>
-              <div class="article-summary">{{ getArticleSummary(article.content) }}</div>
-              <div class="article-meta">
-                <span class="meta-item">
-                  <i class="el-icon-user"></i>
-                  {{ article.userName || '匿名用户' }}
-                </span>
-                <span class="meta-item">
-                  <i class="el-icon-time"></i>
-                  {{ formatTime(article.createTime) }}
-                </span>
-                <span class="meta-item stats">
-                  <i class="el-icon-star-off"></i> {{ article.collectNumber || 0 }}
-                </span>
-                <span class="meta-item stats">
-                  <i class="el-icon-thumb"></i> {{ article.thumbUp || 0 }}
-                </span>
-              </div>
-            </div>
-            <div class="article-cover">
-              <i :class="getArticleIcon(article.type)"></i>
-            </div>
-          </div>
-        </el-card>
-        
-        <div v-if="!loading && articleList.length === 0" class="empty-state">
-          <i class="el-icon-document"></i>
-          <p>暂无文章</p>
+      <!-- 2. 分类筛选 Tab (自定义样式) -->
+      <div class="tabs-container">
+        <div
+            v-for="tab in tabs"
+            :key="tab.name"
+            class="custom-tab"
+            :class="{ active: activeTab === tab.name }"
+            @click="handleTabClick(tab)">
+          {{ tab.label }}
         </div>
       </div>
 
-      <div class="pagination" v-if="total > 0">
+      <!-- 3. 文章列表 -->
+      <div class="articles-list" v-loading="loading">
+        <template v-if="articleList.length > 0">
+          <div
+              v-for="(article, index) in articleList"
+              :key="article.id"
+              class="article-card"
+              @click="viewArticle(article.id)"
+              :style="{animationDelay: index * 0.05 + 's'}">
+
+            <!-- 文章封面/图标区 -->
+            <div class="article-cover" :class="getCoverClass(article.type)">
+              <div class="cover-icon-wrapper">
+                <i :class="getArticleIcon(article.type)"></i>
+              </div>
+            </div>
+
+            <!-- 文章内容区 -->
+            <div class="article-content">
+              <div class="content-top">
+                <div class="title-row">
+                  <span class="category-tag" v-if="article.type">{{ article.type }}</span>
+                  <h3 class="article-title">{{ article.title }}</h3>
+                </div>
+                <p class="article-summary">{{ getArticleSummary(article.content) }}</p>
+              </div>
+
+              <div class="content-bottom">
+                <div class="author-info">
+                  <el-avatar :size="24" icon="el-icon-user-solid" class="author-avatar"></el-avatar>
+                  <span class="author-name">{{ article.userName || '匿名用户' }}</span>
+                  <span class="publish-time">· {{ formatTime(article.createTime) }}</span>
+                </div>
+
+                <div class="stats-info">
+                  <span class="stat-item"><i class="el-icon-view"></i> {{ article.viewCount || 1024 }}</span>
+                  <span class="stat-item"><i class="el-icon-star-off"></i> {{ article.collectNumber || 0 }}</span>
+                  <span class="stat-item"><i class="el-icon-thumb"></i> {{ article.thumbUp || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- 空状态 -->
+        <div v-else-if="!loading" class="empty-state">
+          <el-empty description="暂无相关文章" :image-size="200"></el-empty>
+        </div>
+      </div>
+
+      <!-- 4. 分页 -->
+      <div class="pagination-wrapper" v-if="total > 0">
         <el-pagination
-          @current-change="handlePageChange"
-          :current-page="currentPage"
-          :page-size="pageSize"
-          layout="total, prev, pager, next"
-          :total="total">
+            background
+            @current-change="handlePageChange"
+            :current-page="currentPage"
+            :page-size="pageSize"
+            layout="prev, pager, next, jumper"
+            :total="total">
         </el-pagination>
       </div>
+
     </div>
   </div>
 </template>
@@ -79,6 +92,12 @@ export default {
   data() {
     return {
       activeTab: 'all',
+      tabs: [
+        { label: '全部推荐', name: 'all' },
+        { label: '经验分享', name: 'experience' },
+        { label: '求职心得', name: 'JobHuntingTips' },
+        { label: '面试技巧', name: 'InterviewSkills' }
+      ],
       articleList: [],
       loading: false,
       currentPage: 1,
@@ -94,14 +113,11 @@ export default {
         if (this.activeTab !== 'all') {
           params.type = this.activeTab
         }
-        console.log('请求文章列表参数:', params)
         const response = await this.$api.article.getArticleList(this.currentPage, this.pageSize, params)
         this.articleList = response.list || []
         this.total = response.total || 0
-        console.log('文章列表:', this.articleList)
       } catch (error) {
         console.error('获取文章列表错误:', error)
-        this.$message.error('获取文章列表失败')
       } finally {
         this.loading = false
       }
@@ -120,28 +136,35 @@ export default {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     getArticleSummary(content) {
-      if (!content) return '暂无内容'
+      if (!content) return '暂无内容简介...'
       const text = content.replace(/<[^>]+>/g, '')
-      return text.length > 150 ? text.substring(0, 150) + '...' : text
+      return text.length > 120 ? text.substring(0, 120) + '...' : text
     },
     getArticleIcon(type) {
       const iconMap = {
-        '经验分享': 'el-icon-trophy',
-        '求职心得': 'el-icon-edit',
-        '面试技巧': 'el-icon-chat-dot-round'
+        '经验分享': 'el-icon-reading',
+        '求职心得': 'el-icon-notebook-2',
+        '面试技巧': 'el-icon-chat-line-round'
       }
       return iconMap[type] || 'el-icon-document'
     },
+    // 根据类型返回不同的背景色类名
+    getCoverClass(type) {
+      if (type === '经验分享') return 'bg-blue'
+      if (type === '求职心得') return 'bg-purple'
+      if (type === '面试技巧') return 'bg-orange'
+      return 'bg-default'
+    },
     formatTime(timestamp) {
+      if (!timestamp) return ''
       const date = new Date(timestamp)
       const now = new Date()
       const diff = now - date
       const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      
       if (days === 0) return '今天'
       if (days === 1) return '昨天'
       if (days < 7) return `${days}天前`
-      return date.toLocaleDateString()
+      return `${date.getMonth() + 1}月${date.getDate()}日`
     }
   },
   mounted() {
@@ -151,204 +174,241 @@ export default {
 </script>
 
 <style scoped>
-.articles {
+/* ================= 基础设置 ================= */
+.articles-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fff5eb 0%, #ffe8d6 100%);
-  padding: 30px 0;
+  background-color: #f8fafc; /* 统一冷灰色背景 */
+  padding-bottom: 60px;
 }
 
 .container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 40px 20px;
 }
 
+/* ================= 1. 头部样式 ================= */
 .page-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 40px;
 }
 
-.page-header h1 {
-  color: #ff9800;
+.page-title {
   font-size: 32px;
-  margin: 0 0 10px 0;
-  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 10px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
 }
 
-.subtitle {
-  color: #666;
+.page-subtitle {
+  color: #64748b;
   font-size: 16px;
   margin: 0;
 }
 
-.filter-section {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 25px;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.08);
-}
-
-.filter-section >>> .el-tabs__item {
-  font-size: 15px;
-  font-weight: 500;
-}
-
-.filter-section >>> .el-tabs__item.is-active {
-  color: #ff9800;
-}
-
-.filter-section >>> .el-tabs__active-bar {
-  background-color: #ff9800;
-}
-
-.articles-list {
-  margin-bottom: 30px;
-  min-height: 400px;
-}
-
-.article-item {
-  margin-bottom: 20px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid #ffe8d6;
-  animation: fadeInUp 0.6s ease-out both;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.article-item:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(255, 152, 0, 0.15);
-  border-color: #ff9800;
-}
-
-.article-content {
+/* ================= 2. 自定义 Tab ================= */
+.tabs-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.custom-tab {
+  padding: 8px 24px;
+  border-radius: 20px;
+  background: white;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
+}
+
+.custom-tab:hover {
+  color: #ff6b00;
+  border-color: #ff6b00;
+}
+
+.custom-tab.active {
+  background: #ff6b00;
+  color: white;
+  border-color: #ff6b00;
+  box-shadow: 0 4px 6px rgba(255, 107, 0, 0.2);
+}
+
+/* ================= 3. 文章列表卡片 ================= */
+.articles-list {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
-.article-main {
+.article-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  gap: 24px;
+  cursor: pointer;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: all 0.3s ease;
+  animation: fadeUp 0.5s ease-out backwards;
+}
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+  border-color: rgba(255, 107, 0, 0.1);
+}
+
+/* 左侧封面/图标区 */
+.article-cover {
+  width: 140px;
+  height: 140px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 不同类型的背景渐变 */
+.bg-default { background: linear-gradient(135deg, #f1f5f9, #e2e8f0); color: #94a3b8; }
+.bg-blue { background: linear-gradient(135deg, #e0f2fe, #bfdbfe); color: #3b82f6; }
+.bg-purple { background: linear-gradient(135deg, #f3e8ff, #d8b4fe); color: #a855f7; }
+.bg-orange { background: linear-gradient(135deg, #ffedd5, #fed7aa); color: #f97316; }
+
+.cover-icon-wrapper {
+  font-size: 48px;
+  transition: transform 0.3s;
+}
+
+.article-card:hover .cover-icon-wrapper {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+/* 右侧内容区 */
+.article-content {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  justify-content: space-between;
 }
 
-.article-header {
+.title-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
+  margin-bottom: 10px;
+}
+
+.category-tag {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
 .article-title {
   margin: 0;
-  color: #333;
   font-size: 18px;
-  font-weight: 600;
+  color: #1e293b;
+  font-weight: 700;
   line-height: 1.4;
-  flex: 1;
+  transition: color 0.2s;
+}
+
+.article-card:hover .article-title {
+  color: #ff6b00;
 }
 
 .article-summary {
-  color: #666;
-  line-height: 1.6;
   font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.article-meta {
+.content-bottom {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  font-size: 13px;
-  color: #999;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px dashed #f1f5f9;
+  padding-top: 12px;
 }
 
-.meta-item {
+.author-info {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 
-.meta-item i {
-  color: #ff9800;
-  font-size: 14px;
+.author-avatar {
+  background: #f1f5f9;
+  color: #94a3b8;
 }
 
-.stats {
+.author-name {
+  font-size: 13px;
+  color: #334155;
   font-weight: 500;
 }
 
-.article-cover {
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #ff9800, #ffb74d);
+.publish-time {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.stats-info {
   display: flex;
-  align-items: center;
+  gap: 16px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.stat-item i {
+  margin-right: 4px;
+}
+
+/* ================= 4. 分页 ================= */
+.pagination-wrapper {
+  display: flex;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.15);
-  transition: all 0.3s;
+  margin-top: 40px;
 }
 
-.article-cover i {
-  font-size: 48px;
-  color: white;
+.pagination-wrapper >>> .el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: #ff6b00;
 }
 
-.article-item:hover .article-cover {
-  transform: scale(1.05) rotate(5deg);
-  box-shadow: 0 8px 20px rgba(255, 152, 0, 0.25);
+.pagination-wrapper >>> .el-pagination.is-background .el-pager li:hover {
+  color: #ff6b00;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: #999;
+/* 动画 */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.empty-state i {
-  font-size: 64px;
-  color: #ddd;
-  margin-bottom: 20px;
-}
-
-.empty-state p {
-  font-size: 16px;
-  margin: 0;
-}
-
-.pagination {
-  text-align: center;
-  padding: 20px 0;
-}
-
+/* 响应式 */
 @media (max-width: 768px) {
-  .article-content {
-    flex-direction: column;
-  }
-  
-  .article-cover {
-    width: 100%;
-    height: 200px;
-  }
+  .article-card { flex-direction: column; }
+  .article-cover { width: 100%; height: 160px; }
+  .content-bottom { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .stats-info { width: 100%; justify-content: space-between; }
 }
 </style>
