@@ -211,7 +211,7 @@ export default {
         const jobData = await this.$api.employment.getJobById(jobId)
         this.job = jobData || {}
         // 检查收藏状态
-        this.checkCollectStatus()
+        await this.checkCollectStatus()
       } catch (error) {
         console.error('获取职位详情失败:', error)
       } finally {
@@ -220,9 +220,12 @@ export default {
     },
 
     checkCollectStatus() {
-      // 这里可以根据实际情况从后端获取收藏状态
-      // 暂时设置为false，实际使用时需要从后端获取
-      this.isCollected = false
+      // 从职位详情数据中获取收藏状态
+      if (this.job && this.job.userStatus === 'have') {
+        this.isCollected = true
+      } else {
+        this.isCollected = false
+      }
     },
 
     async handleCollect() {
@@ -253,15 +256,32 @@ export default {
           }
         }
       } catch (error) {
-        this.$message.error(error.message || '操作失败')
+        if (error.message === '已经收藏过该职位') {
+          // 如果已经收藏过，设置isCollected为true
+          this.isCollected = true
+          this.$message.info('您已收藏过该职位')
+        } else {
+          this.$message.error(error.message || '操作失败')
+        }
       } finally {
         this.collectLoading = false
       }
     },
 
     handleShare() {
-      // 分享功能实现
-      this.$message.info('分享功能开发中')
+      // 构建当前职位详情页的完整URL
+      const jobId = this.job.id
+      const shareUrl = `${window.location.origin}/job/${jobId}`
+      
+      // 使用Clipboard API复制链接到剪贴板
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          this.$message.success('链接已复制到剪贴板，您可以分享给好友了')
+        })
+        .catch(err => {
+          console.error('复制失败:', err)
+          this.$message.error('复制链接失败，请手动复制')
+        })
     },
 
     // 简单的福利处理，假设是逗号分隔的字符串

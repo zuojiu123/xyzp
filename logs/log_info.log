@@ -18102,3 +18102,831 @@
 2026-02-07 18:01:25.909 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
 2026-02-07 18:01:25.910 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
 2026-02-07 18:01:25.911 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:03:57.571 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:03:57.572 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:03:57.577 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:03:57.606 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:03:57.606 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:03:57.613 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:03:57.613 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:03:57.618 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:03:57.622 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:03:57.625 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:03:57.625 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:03:57.627 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:03:57.628 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:03:57.628 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:03:57.642 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:04:07.095 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:07.095 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:07.097 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:07.102 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:04:07.102 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:04:07.104 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:04:07.105 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:07.106 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:07.106 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:07.108 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:04:09.765 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:09.766 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:09.767 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:09.773 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:09.773 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G605(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458649774(Long), 0(Integer)
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:04:09.774 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:04:09.790 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:04:11.884 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:11.884 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:11.887 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:11.893 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:04:11.893 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:04:11.895 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:04:11.895 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:11.896 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:11.897 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:11.898 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:11.899 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:11.899 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:11.902 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:11.902 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:11.902 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:14.058 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:14.059 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:14.060 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:14.065 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:14.065 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:14.067 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:14.068 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:14.069 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:14.070 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:15.663 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:15.663 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:15.665 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:15.669 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:15.669 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:15.670 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:15.671 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:15.671 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:15.673 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:16.667 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:16.667 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:16.669 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:16.674 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:16.675 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:16.675 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:16.676 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:16.678 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:16.678 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:16.856 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:16.856 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:16.858 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:16.863 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:16.864 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:16.865 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:16.865 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:16.867 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:16.868 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:20.129 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:20.129 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:20.130 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:20.136 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:20.136 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:20.138 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:20.139 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:20.139 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:20.140 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:22.085 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:22.086 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:22.087 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:22.092 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:04:22.093 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:04:22.095 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:04:22.095 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:22.096 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:22.097 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:22.098 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:22.098 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:22.099 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:22.100 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:22.100 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:22.102 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:28.061 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:28.062 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:28.063 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:28.070 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:28.070 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:28.070 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:28.070 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:28.075 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:28.075 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:35.795 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:35.800 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:35.800 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:35.803 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:35.804 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:35.805 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:35.809 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:35.811 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:35.812 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:35.813 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:35.813 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:35.815 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:35.824 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.getTotalCount - ==>  Preparing: select count(*) from user where deleted = 0
+2026-02-07 18:04:35.826 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.getTotalCount - ==> Parameters: 
+2026-02-07 18:04:35.837 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.getTotalCount - <==      Total: 1
+2026-02-07 18:04:35.838 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getTotalCount - ==>  Preparing: select count(*) from company where status is not null
+2026-02-07 18:04:35.838 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getTotalCount - ==> Parameters: 
+2026-02-07 18:04:35.844 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getTotalCount - <==      Total: 1
+2026-02-07 18:04:35.845 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getTotalCount - ==>  Preparing: select count(*) from employment et left join company cy on et.company_id = cy.id where et.status >= 0
+2026-02-07 18:04:35.846 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getTotalCount - ==> Parameters: 
+2026-02-07 18:04:35.851 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getTotalCount - <==      Total: 1
+2026-02-07 18:04:35.856 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.getTotalCount - ==>  Preparing: select count(*) from employment_user where deleted = 0
+2026-02-07 18:04:35.857 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.getTotalCount - ==> Parameters: 
+2026-02-07 18:04:35.861 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.getTotalCount - <==      Total: 1
+2026-02-07 18:04:35.868 [http-nio-3030-exec-5] DEBUG com.caohao.dao.ArticleDao.getTotalCount - ==>  Preparing: select count(*) from article
+2026-02-07 18:04:35.868 [http-nio-3030-exec-5] DEBUG com.caohao.dao.ArticleDao.getTotalCount - ==> Parameters: 
+2026-02-07 18:04:35.872 [http-nio-3030-exec-5] DEBUG com.caohao.dao.ArticleDao.getTotalCount - <==      Total: 1
+2026-02-07 18:04:35.903 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getCountByStatus - ==>  Preparing: select count(*) from company where status = ?
+2026-02-07 18:04:35.904 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getCountByStatus - ==> Parameters: Check_Pending(String)
+2026-02-07 18:04:35.904 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.getCountByStatus - <==      Total: 1
+2026-02-07 18:04:35.908 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getCountByStatus - ==>  Preparing: select count(*) from employment where status = ?
+2026-02-07 18:04:35.909 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getCountByStatus - ==> Parameters: 0(Integer)
+2026-02-07 18:04:35.910 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.getCountByStatus - <==      Total: 1
+2026-02-07 18:04:36.303 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit_COUNT - ==>  Preparing: SELECT count(0) FROM company c LEFT JOIN user u ON c.user_id = u.id
+2026-02-07 18:04:36.307 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit_COUNT - ==> Parameters: 
+2026-02-07 18:04:36.309 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==>  Preparing: SELECT count(0) FROM employment et LEFT JOIN company cy ON et.company_id = cy.id LEFT JOIN (SELECT employment_id, count(*) AS application_count FROM employment_user GROUP BY employment_id) eu ON et.id = eu.employment_id WHERE cy.id IS NOT NULL
+2026-02-07 18:04:36.309 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==> Parameters: 
+2026-02-07 18:04:36.309 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit_COUNT - <==      Total: 1
+2026-02-07 18:04:36.309 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==>  Preparing: SELECT count(0) FROM employment et LEFT JOIN company cy ON et.company_id = cy.id LEFT JOIN (SELECT employment_id, count(*) AS application_count FROM employment_user GROUP BY employment_id) eu ON et.id = eu.employment_id WHERE cy.id IS NOT NULL
+2026-02-07 18:04:36.317 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==> Parameters: 
+2026-02-07 18:04:36.321 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - <==      Total: 1
+2026-02-07 18:04:36.321 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==>  Preparing: select et.id, et.user_id, et.title, et.description, et.education, et.position, et.create_time, et.update_time, et.status, et.min_salary, et.max_salary, et.salary, et.company_id, et.treatment, et.collect_number, cy.id as company_company_id, cy.company_number as company_company_number, cy.name as company_name, cy.description as company_description, cy.user_id as company_user_id, cy.create_time as company_create_time, cy.update_time as company_update_time, cy.status as company_status, cy.processor as company_processor, cy.reply_time as company_reply_time, cy.reply_content as company_reply_content, cy.number as company_number, cy.category as company_category, cy.nature as company_nature, cy.company_logo as company_company_logo, COALESCE(eu.application_count, 0) as application_count from employment et left join company cy on et.company_id = cy.id left join ( select employment_id, count(*) as application_count from employment_user group by employment_id ) eu on et.id = eu.employment_id WHERE cy.id is not null order by COALESCE(eu.application_count, 0) DESC, et.create_time DESC LIMIT ?
+2026-02-07 18:04:36.327 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==> Parameters: 20(Integer)
+2026-02-07 18:04:36.328 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit - ==>  Preparing: select c.id, c.company_number, c.name, c.description, c.user_id, c.create_time, c.update_time, c.status, c.processor, c.reply_time, c.reply_content, c.number, c.category, c.nature, c.company_logo, u.real_name as user_name, u.user_name as user_email, u.phone as user_phone from company c left join user u on c.user_id = u.id order by create_time desc LIMIT ?
+2026-02-07 18:04:36.328 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - <==      Total: 1
+2026-02-07 18:04:36.328 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit - ==> Parameters: 8(Integer)
+2026-02-07 18:04:36.331 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==>  Preparing: select et.id, et.user_id, et.title, et.description, et.education, et.position, et.create_time, et.update_time, et.status, et.min_salary, et.max_salary, et.salary, et.company_id, et.treatment, et.collect_number, cy.id as company_company_id, cy.company_number as company_company_number, cy.name as company_name, cy.description as company_description, cy.user_id as company_user_id, cy.create_time as company_create_time, cy.update_time as company_update_time, cy.status as company_status, cy.processor as company_processor, cy.reply_time as company_reply_time, cy.reply_content as company_reply_content, cy.number as company_number, cy.category as company_category, cy.nature as company_nature, cy.company_logo as company_company_logo, COALESCE(eu.application_count, 0) as application_count from employment et left join company cy on et.company_id = cy.id left join ( select employment_id, count(*) as application_count from employment_user group by employment_id ) eu on et.id = eu.employment_id WHERE cy.id is not null order by et.create_time DESC LIMIT ?
+2026-02-07 18:04:36.333 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==> Parameters: 20(Integer)
+2026-02-07 18:04:36.346 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryAllByLimit - <==      Total: 8
+2026-02-07 18:04:36.350 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.350 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_050(String)
+2026-02-07 18:04:36.352 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.352 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.356 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_048(String)
+2026-02-07 18:04:36.357 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.359 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.359 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_049(String)
+2026-02-07 18:04:36.363 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.364 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.364 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_047(String)
+2026-02-07 18:04:36.368 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.369 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.370 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_046(String)
+2026-02-07 18:04:36.370 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.375 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.376 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_045(String)
+2026-02-07 18:04:36.376 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.376 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - <==      Total: 20
+2026-02-07 18:04:36.380 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.381 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_044(String)
+2026-02-07 18:04:36.382 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.382 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - <==      Total: 20
+2026-02-07 18:04:36.382 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.382 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.382 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.382 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.382 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:04:36.382 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.382 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_043(String)
+2026-02-07 18:04:36.382 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.386 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.386 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 0
+2026-02-07 18:04:36.387 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.388 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.388 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.388 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.388 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.388 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.395 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.395 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.395 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.395 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.395 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.398 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.399 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.399 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.401 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.401 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.401 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:36.401 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.401 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.404 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.404 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.404 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.405 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.405 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.406 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.406 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.406 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.406 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.406 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.406 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.406 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.411 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.412 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.412 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.413 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.413 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.413 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.413 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.413 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_011(String)
+2026-02-07 18:04:36.417 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.417 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.418 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.418 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.419 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.419 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.419 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.419 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.419 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.419 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.419 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.419 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.423 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.423 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.424 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.424 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.424 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.424 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.425 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.425 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.425 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.425 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.425 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.425 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.425 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.425 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.429 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.429 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.430 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.430 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_010(String)
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.431 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.431 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.436 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.436 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.436 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.436 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.436 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.436 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.437 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.437 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.437 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.437 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.437 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.437 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.437 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.437 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.437 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.437 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.440 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.440 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_009(String)
+2026-02-07 18:04:36.440 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.440 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.442 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.442 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.442 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_008(String)
+2026-02-07 18:04:36.442 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_008(String)
+2026-02-07 18:04:36.443 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.443 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.443 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.443 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:36.443 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_008(String)
+2026-02-07 18:04:36.443 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_008(String)
+2026-02-07 18:04:36.443 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:36.443 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:37.682 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:37.684 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:37.686 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:37.696 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:04:37.696 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:04:37.702 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:04:37.702 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:04:37.702 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:04:37.702 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:04:37.708 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:37.708 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:37.708 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:37.708 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:37.713 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:37.714 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:39.816 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:04:39.818 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:39.819 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:04:39.824 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:04:39.824 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:04:39.826 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:04:39.827 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:04:39.828 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:04:39.829 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:26.178 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:26.180 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:26.182 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:26.196 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:26.197 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:26.199 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:26.202 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:26.203 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:26.205 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:26.205 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:26.205 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:26.206 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:26.207 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:26.208 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:26.214 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:26.504 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:26.504 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:26.506 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:26.514 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:26.514 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:26.518 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:26.519 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:26.519 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:26.519 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:26.519 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:26.522 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:26.524 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:26.524 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:26.526 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:26.528 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:27.978 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:27.980 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:27.981 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:27.985 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:27.985 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:27.988 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:27.989 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:27.989 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:27.991 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:27.991 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:27.992 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:27.993 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:27.993 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:27.993 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:27.995 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:29.527 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:29.527 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:29.528 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:29.533 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:29.534 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:29.534 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:29.536 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:29.536 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:29.538 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:32.029 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:32.030 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:32.031 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:32.035 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:32.035 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:32.036 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:32.037 [http-nio-3030-exec-5] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:08:32.039 [http-nio-3030-exec-5] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:08:32.039 [http-nio-3030-exec-5] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:08:32.039 [http-nio-3030-exec-5] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:08:32.039 [http-nio-3030-exec-5] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:32.047 [http-nio-3030-exec-5] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:33.439 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:33.440 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:33.441 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:33.448 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:33.448 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:33.449 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:33.450 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:33.450 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:33.451 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:33.453 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:08:33.453 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G329(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458913451(Long), 0(Integer)
+2026-02-07 18:08:33.457 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:08:33.458 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:08:33.458 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:33.460 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:35.448 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:35.449 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:35.450 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:35.454 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:35.455 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:35.457 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:35.458 [http-nio-3030-exec-7] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:08:35.458 [http-nio-3030-exec-7] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:08:35.468 [http-nio-3030-exec-7] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:08:35.468 [http-nio-3030-exec-7] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:08:35.468 [http-nio-3030-exec-7] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:35.472 [http-nio-3030-exec-7] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:36.611 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:36.612 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:36.613 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:36.619 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:36.620 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:36.621 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:36.621 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:36.622 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:36.623 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:36.623 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:08:36.623 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G587(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458916623(Long), 0(Integer)
+2026-02-07 18:08:36.627 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:08:36.627 [http-nio-3030-exec-3] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:08:36.627 [http-nio-3030-exec-3] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:36.631 [http-nio-3030-exec-3] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:39.160 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:39.161 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:39.161 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:39.165 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:39.165 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:39.165 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:39.171 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:39.171 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:39.171 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:39.171 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:39.171 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:39.177 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:39.177 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:39.177 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:39.180 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.445 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:40.445 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.447 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.459 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:40.459 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:40.462 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.462 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:40.462 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:40.462 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.462 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:40.467 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.470 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:40.471 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:40.474 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:40.481 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.651 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:40.651 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.653 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.656 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:40.657 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:40.658 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.658 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:40.658 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:40.659 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.659 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:40.659 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.661 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:40.662 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:40.662 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:40.662 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.860 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:40.860 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.862 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.865 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:40.865 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:40.868 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.869 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:40.874 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:40.874 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:40.874 [http-nio-3030-exec-4] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.986 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:40.987 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.987 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:40.991 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:40.991 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:40.992 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.994 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:40.994 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:40.995 [http-nio-3030-exec-5] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:40.996 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:40.997 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:40.997 [http-nio-3030-exec-5] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:40.998 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:40.998 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:40.998 [http-nio-3030-exec-5] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:41.177 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:41.177 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:41.178 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:41.182 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:41.188 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:41.189 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:41.189 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:41.189 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:41.189 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:42.143 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:42.144 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:42.145 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:42.149 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:42.151 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:42.151 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:42.153 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:42.154 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:42.155 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.283 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:43.284 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.286 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.289 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:43.290 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.292 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:43.293 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:08:43.293 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:08:43.306 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:08:43.306 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:08:43.306 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:43.311 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:43.460 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:43.461 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.462 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.468 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:43.468 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.469 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:43.469 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:43.470 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:43.470 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:43.471 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:08:43.472 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G867(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458923470(Long), 0(Integer)
+2026-02-07 18:08:43.474 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:08:43.475 [http-nio-3030-exec-9] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:08:43.476 [http-nio-3030-exec-9] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:43.478 [http-nio-3030-exec-9] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:43.632 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:43.632 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.633 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.639 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:43.639 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.641 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:43.642 [http-nio-3030-exec-10] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:08:43.642 [http-nio-3030-exec-10] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:08:43.645 [http-nio-3030-exec-10] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:08:43.646 [http-nio-3030-exec-10] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:08:43.646 [http-nio-3030-exec-10] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:43.648 [http-nio-3030-exec-10] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:43.812 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:43.813 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.814 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.818 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:43.820 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.821 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:43.822 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:43.823 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:43.823 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:43.824 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:08:43.825 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G725(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458923824(Long), 0(Integer)
+2026-02-07 18:08:43.828 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:08:43.829 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:08:43.829 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:43.831 [http-nio-3030-exec-2] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:43.986 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:43.986 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.987 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:43.992 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:43.992 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:43.993 [http-nio-3030-exec-4] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:43.993 [http-nio-3030-exec-4] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:08:43.993 [http-nio-3030-exec-4] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:08:43.999 [http-nio-3030-exec-4] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:08:43.999 [http-nio-3030-exec-4] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:08:44.000 [http-nio-3030-exec-4] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:44.003 [http-nio-3030-exec-4] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:46.276 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:46.276 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:46.276 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:46.295 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:46.299 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:46.302 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:46.302 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:46.302 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:46.305 [http-nio-3030-exec-1] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:46.305 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:46.305 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:46.305 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:46.310 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:46.310 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:46.312 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:47.639 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:47.640 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:47.641 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:47.647 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:47.647 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:47.650 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:47.651 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:47.651 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:47.652 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:08:47.653 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:08:47.653 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G358(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770458927653(Long), 0(Integer)
+2026-02-07 18:08:47.657 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:08:47.657 [http-nio-3030-exec-6] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:08:47.657 [http-nio-3030-exec-6] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:08:47.664 [http-nio-3030-exec-6] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:08:49.392 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:08:49.392 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:49.394 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:08:49.401 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:08:49.402 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:08:49.404 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:08:49.404 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:08:49.404 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:08:49.407 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:08:49.408 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:08:49.409 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:08:49.409 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:08:49.409 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:08:49.409 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:08:49.413 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:10:34.445 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:10:34.450 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:10:34.453 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:10:34.467 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:10:34.467 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:10:34.475 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:10:34.482 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:10:34.491 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:10:34.503 [http-nio-3030-exec-10] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:10:34.509 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:10:34.510 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:10:34.518 [http-nio-3030-exec-10] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:10:34.528 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:10:34.533 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:10:34.537 [http-nio-3030-exec-10] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:24.683 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:24.750 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:24.828 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:24.896 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:24.902 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:24.913 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:24.915 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:24.915 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:24.920 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:24.926 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:24.926 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:24.926 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:24.939 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:24.943 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:24.944 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:26.152 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:26.153 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:26.154 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:26.163 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:26.163 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:26.165 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:26.169 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:26.170 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:26.170 [http-nio-3030-exec-3] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:26.176 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:26.176 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:26.182 [http-nio-3030-exec-3] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:26.184 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:26.185 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:26.190 [http-nio-3030-exec-3] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:27.614 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:27.616 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:27.619 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:27.629 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:27.629 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:27.634 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:27.635 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:27.635 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:27.635 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:27.635 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:27.642 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:27.642 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:27.642 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:27.647 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:27.647 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:29.303 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:29.305 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:29.309 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:29.327 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:29.327 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:29.327 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:29.327 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==>  Preparing: delete from employment_user where user_id = ? and employment_id = ?
+2026-02-07 18:11:29.327 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - ==> Parameters: U354(String), job_078(String)
+2026-02-07 18:11:29.342 [http-nio-3030-exec-8] DEBUG c.c.d.E.deleteByUserIdAndEmploymentId - <==    Updates: 1
+2026-02-07 18:11:29.342 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number - 1 where id = ?
+2026-02-07 18:11:29.342 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:11:29.358 [http-nio-3030-exec-8] DEBUG c.caohao.dao.EmploymentDao.decrementCollectNumber - <==    Updates: 1
+2026-02-07 18:11:31.503 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:31.507 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:31.508 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:31.520 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:31.521 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:31.527 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:31.527 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:31.527 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:31.533 [http-nio-3030-exec-6] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:31.538 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:31.539 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:31.542 [http-nio-3030-exec-6] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:31.545 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:31.545 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:31.549 [http-nio-3030-exec-6] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:11:32.322 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:32.322 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:32.324 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:32.330 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:32.332 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:32.332 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:32.332 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:32.337 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:32.340 [http-nio-3030-exec-9] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:32.340 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:32.345 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:32.348 [http-nio-3030-exec-9] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:32.352 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:32.353 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:32.354 [http-nio-3030-exec-9] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:11:33.611 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:33.612 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:33.613 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:33.620 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:33.620 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 0
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==>  Preparing: insert into employment_user ( id, employment_id, user_id, name, phone, create_time, deleted ) values ( ?, ?, ?, ?, ?, ?, ? )
+2026-02-07 18:11:33.623 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - ==> Parameters: G983(String), job_078(String), U354(String), Admin(String), 13682800537(String), 1770459093623(Long), 0(Integer)
+2026-02-07 18:11:33.643 [http-nio-3030-exec-1] DEBUG com.caohao.dao.EmploymentUserDao.insert - <==    Updates: 1
+2026-02-07 18:11:33.643 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==>  Preparing: update employment set collect_number = collect_number + 1 where id = ?
+2026-02-07 18:11:33.643 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - ==> Parameters: job_078(String)
+2026-02-07 18:11:33.643 [http-nio-3030-exec-1] DEBUG c.caohao.dao.EmploymentDao.incrementCollectNumber - <==    Updates: 1
+2026-02-07 18:11:35.303 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:35.305 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:35.308 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:35.313 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==>  Preparing: select id, user_id, title, description, education, position, create_time, update_time, status, min_salary, max_salary, salary, company_id, treatment, collect_number from employment where id = ?
+2026-02-07 18:11:35.314 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - ==> Parameters: job_078(String)
+2026-02-07 18:11:35.314 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentDao.queryById - <==      Total: 1
+2026-02-07 18:11:35.320 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:35.320 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:35.320 [http-nio-3030-exec-2] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:35.325 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==>  Preparing: select * from user where user_name = ?
+2026-02-07 18:11:35.326 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:35.338 [http-nio-3030-exec-2] DEBUG com.caohao.dao.UserDao.selectByUserName - <==      Total: 1
+2026-02-07 18:11:35.338 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==>  Preparing: select id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, reply_status, user_status from employment_user WHERE employment_id = ? and user_id = ?
+2026-02-07 18:11:35.338 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - ==> Parameters: job_078(String), U354(String)
+2026-02-07 18:11:35.344 [http-nio-3030-exec-2] DEBUG com.caohao.dao.EmploymentUserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:54.532 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:54.533 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:54.535 [http-nio-3030-exec-7] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:54.547 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:54.549 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.551 [http-nio-3030-exec-7] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:54.552 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==>  Preparing: select * from employment where company_id = ?
+2026-02-07 18:11:54.552 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.561 [http-nio-3030-exec-7] DEBUG com.caohao.dao.EmploymentDao.selectByCompanyId - <==      Total: 4
+2026-02-07 18:11:54.587 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==>  Preparing: select user_name, password, nick_name, real_name, phone, identity_num, address, role, create_time, update_time, id, integral, credit, avatar, deleted, email from user WHERE user_name = ?
+2026-02-07 18:11:54.589 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - ==> Parameters: 1966867202@qq.com(String)
+2026-02-07 18:11:54.593 [http-nio-3030-exec-8] DEBUG com.caohao.dao.UserDao.queryAllByLimit - <==      Total: 1
+2026-02-07 18:11:54.846 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==>  Preparing: SELECT count(0) FROM employment et LEFT JOIN company cy ON et.company_id = cy.id LEFT JOIN (SELECT employment_id, count(*) AS application_count FROM employment_user GROUP BY employment_id) eu ON et.id = eu.employment_id WHERE et.company_id = ? AND et.status = 1 AND cy.status = 'Approve'
+2026-02-07 18:11:54.848 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.853 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit_COUNT - <==      Total: 1
+2026-02-07 18:11:54.863 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==>  Preparing: select et.id, et.user_id, et.title, et.description, et.education, et.position, et.create_time, et.update_time, et.status, et.min_salary, et.max_salary, et.salary, et.company_id, et.treatment, et.collect_number, cy.id as company_company_id, cy.company_number as company_company_number, cy.name as company_name, cy.description as company_description, cy.user_id as company_user_id, cy.create_time as company_create_time, cy.update_time as company_update_time, cy.status as company_status, cy.processor as company_processor, cy.reply_time as company_reply_time, cy.reply_content as company_reply_content, cy.number as company_number, cy.category as company_category, cy.nature as company_nature, cy.company_logo as company_company_logo, COALESCE(eu.application_count, 0) as application_count from employment et left join company cy on et.company_id = cy.id left join ( select employment_id, count(*) as application_count from employment_user group by employment_id ) eu on et.id = eu.employment_id WHERE et.company_id = ? and et.status = 1 and cy.status = 'Approve' order by et.create_time DESC LIMIT ?
+2026-02-07 18:11:54.869 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - ==> Parameters: comp_012(String), 10(Integer)
+2026-02-07 18:11:54.880 [http-nio-3030-exec-8] DEBUG com.caohao.dao.EmploymentDao.queryAllByLimit - <==      Total: 4
+2026-02-07 18:11:54.882 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:54.883 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.886 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:54.888 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:54.888 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.891 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:54.893 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:54.894 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.896 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
+2026-02-07 18:11:54.898 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==>  Preparing: select id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo from company where id = ?
+2026-02-07 18:11:54.899 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - ==> Parameters: comp_012(String)
+2026-02-07 18:11:54.901 [http-nio-3030-exec-8] DEBUG com.caohao.dao.CompanyDao.queryById - <==      Total: 1
