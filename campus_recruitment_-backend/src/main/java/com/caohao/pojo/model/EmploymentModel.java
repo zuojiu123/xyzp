@@ -30,5 +30,10 @@ public class EmploymentModel extends Employment {
      */
     private Integer applicationCount;
 
+    /**
+     * 是否收藏
+     */
+    private Boolean isCollected;
+
 }
 

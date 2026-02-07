@@ -103,7 +103,8 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
         System.out.println("用户名: " + username);
         // 使用用户ID
         employmentUser.setUserId(currentUser.getId());
-        
+        // 设置类型为投递
+        employmentUser.setType(1);
 
         this.employmentUserDao.insert(employmentUser);
         return employmentUser;

@@ -221,7 +221,7 @@ export default {
 
     checkCollectStatus() {
       // 从职位详情数据中获取收藏状态
-      if (this.job && this.job.userStatus === 'have') {
+      if (this.job && this.job.isCollected) {
         this.isCollected = true
       } else {
         this.isCollected = false

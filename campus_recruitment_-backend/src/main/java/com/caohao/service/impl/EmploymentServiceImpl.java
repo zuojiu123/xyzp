@@ -53,20 +53,36 @@ public class EmploymentServiceImpl implements EmploymentService {
         if (!"noLogin".equals(currentUsername)) {
             UserModel user = userDao.selectByUserName(currentUsername);
             if (user != null) {
+                // 检查投递状态
                 EmploymentUserParam employmentUserParam = new EmploymentUserParam();
                 employmentUserParam.setUserId(user.getId());
                 employmentUserParam.setEmploymentId(id);
+                employmentUserParam.setType(1); // 只查询投递记录，不包括收藏
                 List<EmploymentUserModel> employmentUserModels = employmentUserDao.queryAllByLimit(employmentUserParam);
                 if (employmentUserModels.size()>0){
                     employmentModel.setUserStatus("have");
                 }else {
                     employmentModel.setUserStatus("no-have");
                 }
+                
+                // 检查收藏状态
+                EmploymentUserParam collectParam = new EmploymentUserParam();
+                collectParam.setUserId(user.getId());
+                collectParam.setEmploymentId(id);
+                collectParam.setType(2); // 只查询收藏记录
+                List<EmploymentUserModel> collectModels = employmentUserDao.queryAllByLimit(collectParam);
+                if (collectModels.size()>0){
+                    employmentModel.setIsCollected(true);
+                }else {
+                    employmentModel.setIsCollected(false);
+                }
             } else {
                 employmentModel.setUserStatus("no-have");
+                employmentModel.setIsCollected(false);
             }
         } else {
             employmentModel.setUserStatus("no-have");
+            employmentModel.setIsCollected(false);
         }
         return employmentModel;
     }
@@ -221,6 +237,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         EmploymentUserParam employmentUserParam = new EmploymentUserParam();
         employmentUserParam.setUserId(user.getId());
         employmentUserParam.setEmploymentId(employmentId);
+        employmentUserParam.setType(2); // 只查询收藏记录
         List<EmploymentUserModel> employmentUserModels = employmentUserDao.queryAllByLimit(employmentUserParam);
         if (employmentUserModels.size() > 0) {
             throw new RuntimeException("已经收藏过该职位");
@@ -230,6 +247,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         employmentUserParam.setId(IDGenerator.StringID());
         employmentUserParam.setCreateTime(DateUtil.getCurrentTimeMillis());
         employmentUserParam.setDeleted(0);
+        employmentUserParam.setType(2); // 设置为收藏类型
         // 从用户表中获取用户信息，填充name和phone字段（这些字段在表结构中是NOT NULL的）
         employmentUserParam.setName(user.getRealName() != null ? user.getRealName() : user.getNickName() != null ? user.getNickName() : user.getUserName());
         employmentUserParam.setPhone(user.getPhone() != null ? user.getPhone() : "");
@@ -257,6 +275,7 @@ public class EmploymentServiceImpl implements EmploymentService {
         EmploymentUserParam employmentUserParam = new EmploymentUserParam();
         employmentUserParam.setUserId(user.getId());
         employmentUserParam.setEmploymentId(employmentId);
+        employmentUserParam.setType(2); // 只删除收藏记录，不包括投递
         int deleteResult = employmentUserDao.deleteByUserIdAndEmploymentId(employmentUserParam);
         if (deleteResult == 0) {
             throw new RuntimeException("未收藏该职位");

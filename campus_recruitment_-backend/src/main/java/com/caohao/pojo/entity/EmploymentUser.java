@@ -61,6 +61,10 @@ public class EmploymentUser implements Serializable {
      * 回复人
      */
     private String replyUser;
+    /**
+     * 类型：1-投递，2-收藏
+     */
+    private Integer type;
 
 
 
