@@ -50,10 +50,15 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public CompanyModel queryById(String id) {
+        // 先更新阅读次数
+        this.companyDao.updateViewCount(id);
+        // 再查询公司信息
         CompanyModel companyModel = this.companyDao.queryById(id);
         if (companyModel != null) {
             List<EmploymentModel> employmentModels = employmentDao.selectByCompanyId(id);
             companyModel.setEmploymentModels(employmentModels);
+            // 设置职位数量
+            companyModel.setJobCount(employmentModels.size());
         }
         return companyModel;
     }

@@ -17,6 +17,7 @@
         <result property="number" column="number" jdbcType="INTEGER"/>
         <result property="category" column="category" jdbcType="VARCHAR"/>
         <result property="companyLogo" column="company_logo" jdbcType="VARCHAR"/>
+        <result property="viewCount" column="view_count" jdbcType="INTEGER"/>
         <result property="nature" column="nature" jdbcType="VARCHAR"/>
         <result property="userName" column="user_name" jdbcType="VARCHAR"/>
         <result property="userEmail" column="user_email" jdbcType="VARCHAR"/>
@@ -26,7 +27,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="CompanyMap">
         select
-          id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo
+          id, company_number, name, description, user_id, create_time, update_time, status, processor, reply_time, reply_content, number, category, nature, company_logo, view_count
         from company
         where id = #{id}
     </select>
@@ -35,7 +36,7 @@
     <select id="queryAllByLimit" resultMap="CompanyMap">
         select
           c.id, c.company_number, c.name, c.description, c.user_id, c.create_time, c.update_time, 
-          c.status, c.processor, c.reply_time, c.reply_content, c.number, c.category, c.nature, c.company_logo,
+          c.status, c.processor, c.reply_time, c.reply_content, c.number, c.category, c.nature, c.company_logo, c.view_count,
           u.real_name as user_name, u.user_name as user_email, u.phone as user_phone
         from company c
         left join user u on c.user_id = u.id
@@ -188,6 +189,11 @@
     <delete id="deleteById">
         delete from company where id = #{id}
     </delete>
+    
+    <!--更新阅读次数-->
+    <update id="updateViewCount">
+        update company set view_count = view_count + 1 where id = #{id}
+    </update>
 
     <!--获取公司总数-->
     <select id="getTotalCount" resultType="int">

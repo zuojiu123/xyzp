@@ -73,5 +73,10 @@ public class Company implements Serializable {
      */
     private String companyLogo;
 
+    /**
+     * 人气热度（阅读次数）
+     */
+    private Integer viewCount;
+
 }
 

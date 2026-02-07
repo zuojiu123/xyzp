@@ -89,5 +89,10 @@ public interface CompanyDao extends BaseMapper<Company> {
      */
     int getCountByStatus(@Param("status") String status);
 
+    /**
+     * 更新阅读次数
+     */
+    int updateViewCount(@Param("id") String id);
+
 }
 

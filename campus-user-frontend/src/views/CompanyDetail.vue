@@ -55,7 +55,7 @@
           <!-- 在招职位列表 -->
           <div class="content-card">
             <div class="card-title-row">
-              <div class="card-title">在招职位 <span class="highlight-count">({{ jobList.length }})</span></div>
+              <div class="card-title">在招职位 <span class="highlight-count">({{ company.jobCount || 0 }})</span></div>
             </div>
 
             <div class="jobs-list-wrapper">
