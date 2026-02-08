@@ -42,6 +42,15 @@
               </div>
             </div>
             <button
+              class="template-main-btn"
+              @click="goToTemplates"
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zM12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              <span>简历模版</span>
+            </button>
+            <button
               class="upload-main-btn"
               @click="handleUploadClick"
               :class="{ 'disabled': resumeList.length >= 3 }"
@@ -894,7 +903,10 @@
           hour: '2-digit', minute: '2-digit'
         })
       },
-      handleSearch() { /* computed handles it */ }
+      handleSearch() { /* computed handles it */ },
+      goToTemplates() {
+        this.$router.push('/resume-templates')
+      }
     }
   }
   </script>
@@ -1080,6 +1092,51 @@
     font-weight: 400;
   }
   
+  /* Template Main Button */
+  .template-main-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(255,107,0,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .template-main-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .template-main-btn:hover::before {
+    left: 100%;
+  }
+  
+  .template-main-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,107,0,0.3);
+    background: linear-gradient(135deg, var(--c-primary-light), var(--c-primary));
+  }
+  
+  .template-main-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 16px rgba(255,107,0,0.2);
+  }
+
   /* Upload Main Button */
   .upload-main-btn {
     display: flex;
