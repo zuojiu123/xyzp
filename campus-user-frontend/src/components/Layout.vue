@@ -49,6 +49,7 @@
               </div>
               <el-dropdown-menu slot="dropdown" class="custom-dropdown">
                 <el-dropdown-item command="profile" icon="el-icon-user">个人中心</el-dropdown-item>
+                <el-dropdown-item command="resume" icon="el-icon-document">简历管理</el-dropdown-item>
                 <el-dropdown-item command="logout" divided icon="el-icon-switch-button" style="color: #f56c6c;">退出登录</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -139,6 +140,9 @@ export default {
       switch (command) {
         case 'profile':
           this.$router.push('/profile')
+          break
+        case 'resume':
+          this.$router.push('/resume')
           break
         case 'logout':
           this.logout()
