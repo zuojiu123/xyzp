@@ -208,6 +208,9 @@
   </template>
   
   <script>
+  import html2canvas from 'html2canvas'
+  import { jsPDF } from 'jspdf'
+
   export default {
     name: 'ResumeBuilder',
     data() {
@@ -284,12 +287,55 @@
           this.resumeData[type].splice(index, 1);
         }).catch(() => {});
       },
-      exportPDF() {
-        this.exporting = true;
-        setTimeout(() => {
-          this.exporting = false;
-          this.$message.success('PDF 已生成并开始下载（演示）');
-        }, 1500);
+      async exportPDF() {
+        const el = document.getElementById('resume-preview-area')
+        if (!el) {
+          this.$message.error('未找到简历预览区域')
+          return
+        }
+        this.exporting = true
+        try {
+          const scroller = el.closest('.preview-scroller')
+          if (scroller) scroller.scrollTop = 0
+
+          const canvas = await html2canvas(el, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0
+          })
+
+          const imgData = canvas.toDataURL('image/png', 1.0)
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+          const pdfWidth = pdf.internal.pageSize.getWidth()
+          const pdfHeight = pdf.internal.pageSize.getHeight()
+          const imgWidth = pdfWidth
+          const imgHeight = (canvas.height * pdfWidth) / canvas.width
+
+          let heightLeft = imgHeight
+          let position = 0
+
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pdfHeight
+
+          while (heightLeft > 0) {
+            position -= pdfHeight
+            pdf.addPage()
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
+            heightLeft -= pdfHeight
+          }
+
+          const baseName = (this.resumeData.base.name || '简历').replace(/[/\\?%*:|"<>]/g, '')
+          pdf.save(`${baseName}_简历.pdf`)
+          this.$message.success('PDF 已生成并开始下载')
+        } catch (e) {
+          console.error(e)
+          this.$message.error('导出失败，请稍后重试')
+        } finally {
+          this.exporting = false
+        }
       }
     }
   }
