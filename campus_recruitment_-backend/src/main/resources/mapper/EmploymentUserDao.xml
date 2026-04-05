@@ -268,6 +268,19 @@
         select count(*) from employment_user where deleted = 0
     </select>
 
+    <select id="countByReplyStatus" resultType="int">
+        select count(*) from employment_user where deleted = 0 and reply_status = #{replyStatus}
+    </select>
+
+    <select id="countByResumeRecordIdAndCompanyId" resultType="int">
+        select count(1)
+        from employment_user eu
+        inner join employment e on eu.employment_id = e.id
+        where eu.deleted = 0
+          and eu.resume = #{resumeRecordId}
+          and e.company_id = #{companyId}
+    </select>
+
     <!--通过用户ID和职位ID删除数据-->
     <delete id="deleteByUserIdAndEmploymentId" parameterType="com.caohao.pojo.param.EmploymentUserParam">
         delete from employment_user where user_id = #{userId} and employment_id = #{employmentId}

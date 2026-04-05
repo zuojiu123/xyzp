@@ -5,6 +5,9 @@
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleQuery">
         查询
       </el-button>
+      <el-button class="filter-item" type="info" icon="el-icon-refresh" @click="resetUserFilter">
+        重置
+      </el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="addUser">
         新增用户
       </el-button>
@@ -71,8 +74,8 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-popconfirm title="确定要删除此条数据吗？" @confirm="handleDelete(row)">
-            <el-button slot="reference" size="mini" type="danger">
+          <el-popconfirm title="确定要删除该用户吗？此操作不可恢复。" @confirm="handleDelete(row)">
+            <el-button slot="reference" size="mini" type="danger" :disabled="isCurrentUser(row.row)">
               删除
             </el-button>
           </el-popconfirm>
@@ -80,7 +83,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getUserList" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="loadUserList" />
 
     <!-- 弹框 -->
     <el-dialog :visible.sync="dialogFormVisible" :title="type === 'add'? '新增数据' : '修改数据'">
@@ -117,6 +120,12 @@ import { mapState } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/time'
 
+function formatErr (err) {
+  if (err == null) return '操作失败'
+  if (typeof err === 'string') return err
+  return err.message || String(err)
+}
+
 export default {
   components: { Pagination },
   filters: {
@@ -143,6 +152,7 @@ export default {
       },
       visible: false,
       total: 0,
+      userListUseQuery: false,
       rules: {
         userName: [
           { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -174,21 +184,50 @@ export default {
   },
 
   mounted () {
-    this.getUserList()
+    this.loadUserList()
   },
   methods: {
-    // 获取用户列表
-    getUserList () {
-      const params = {
-        pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize
+    isCurrentUser (row) {
+      try {
+        const me = JSON.parse(localStorage.getItem('userInfo') || '{}')
+        return me && row && me.userName === row.userName
+      } catch (e) {
+        return false
       }
-      this.$store.dispatch('getUserList', params).then(res => {
-        this.total = res.total
-        this.listLoading = false
-      }).catch(err => {
-        console.log(err)
-      })
+    },
+
+    loadUserList () {
+      this.listLoading = true
+      const finish = () => { this.listLoading = false }
+      if (this.userListUseQuery) {
+        const params = {
+          pageNum: this.listQuery.pageNum,
+          pageSize: this.listQuery.pageSize,
+          condition: { userName: (this.listQuery.userName || '').trim() }
+        }
+        this.$store.dispatch('queryUser', params).then(res => {
+          this.total = res.total
+        }).catch(err => {
+          this.$message.error(formatErr(err) || '加载失败')
+        }).finally(finish)
+      } else {
+        const params = {
+          pageNum: this.listQuery.pageNum,
+          pageSize: this.listQuery.pageSize
+        }
+        this.$store.dispatch('getUserList', params).then(res => {
+          this.total = res.total
+        }).catch(err => {
+          this.$message.error(formatErr(err) || '加载失败')
+        }).finally(finish)
+      }
+    },
+
+    resetUserFilter () {
+      this.listQuery.userName = ''
+      this.listQuery.pageNum = 1
+      this.userListUseQuery = false
+      this.loadUserList()
     },
 
     // 清空form表单
@@ -218,6 +257,10 @@ export default {
 
     // 删除用户
     handleDelete (row) {
+      if (this.isCurrentUser(row.row)) {
+        this.$message.warning('不能删除当前登录账号')
+        return
+      }
       this.$store.dispatch('deleteUser', row.row.id).then(res => {
         this.$notify({
           title: 'Success',
@@ -225,9 +268,9 @@ export default {
           type: 'success',
           duration: 2000
         })
-        this.getUserList()
+        this.loadUserList()
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error(formatErr(err))
       })
     },
 
@@ -244,10 +287,9 @@ export default {
               duration: 2000
             })
             this.resetrForm()
-            this.getUserList()
+            this.loadUserList()
           }).catch(err => {
-            this.$message.error(err)
-            this.$message.error('error')
+            this.$message.error(formatErr(err))
           })
         } else {
           return false
@@ -267,9 +309,9 @@ export default {
             })
             this.dialogFormVisible = false
             this.resetrForm()
-            this.getUserList()
+            this.loadUserList()
           }).catch(err => {
-            this.$message.error(err)
+            this.$message.error(formatErr(err))
           })
         } else {
           return false
@@ -280,17 +322,8 @@ export default {
     // 按条件查询用户
     handleQuery () {
       this.listQuery.pageNum = 1
-      const params = {
-        pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize,
-        condition: { userName: this.listQuery.userName }
-      }
-      this.$store.dispatch('queryUser', params).then(res => {
-        this.total = res.total
-      }).catch(err => {
-        this.$message.error('查询失败')
-        console.log(err)
-      })
+      this.userListUseQuery = true
+      this.loadUserList()
     },
 
     // 获取角色文本

@@ -20,6 +20,11 @@
             </div>
           </div>
         </div>
+
+        <div class="template-hint-banner">
+          <i class="el-icon-info"></i>
+          <span>完成编辑后请导出 PDF，再到「简历管理」上传，以便投递职位时使用与后台一致的简历文件。</span>
+        </div>
   
         <!-- Filters & Grid -->
         <div class="main-content">
@@ -348,12 +353,12 @@
     background-color: #f3f4f6;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     color: #1f2937;
-    --primary: #4f46e5;
+    --primary: #ff6b00;
   }
   
   /* ================= 1. Gallery View Styles ================= */
   .header-section {
-    background: linear-gradient(135deg, #4f46e5 0%, #818cf8 100%);
+    background: linear-gradient(135deg, #ff6b00 0%, #ff9e56 100%);
     color: white;
     padding: 40px 0;
     position: relative;
@@ -433,8 +438,25 @@
     color: #6b7280;
   }
   
-  .filter-tab:hover { color: #4f46e5; }
-  .filter-tab.active { background: #4f46e5; color: white; }
+  .filter-tab:hover { color: #ff6b00; }
+  .filter-tab.active { background: #ff6b00; color: white; }
+
+  .template-hint-banner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 24px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+  .template-hint-banner .el-icon-info {
+    color: #ff6b00;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
   
   .templates-grid {
     display: grid;

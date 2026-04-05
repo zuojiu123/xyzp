@@ -67,15 +67,14 @@ const user = {
 
     // 登出
     logOut({ commit, state }) {
-      commit('SET_TOKEN', '')
       removeToken()
       localStorage.removeItem('company')
+      return Promise.resolve()
     },
 
     // 前端 登出
-    FedLogOut({ commit }) {
+    FedLogOut() {
       return new Promise(resolve => {
-        commit('SET_TOKEN', '')
         removeToken()
         resolve()
       })

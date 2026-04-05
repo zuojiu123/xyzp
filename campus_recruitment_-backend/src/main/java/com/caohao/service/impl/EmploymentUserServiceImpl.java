@@ -1,15 +1,14 @@
 package com.caohao.service.impl;
 
-import com.caohao.common.enums.impl.EmploymentReplyStatus;
-import com.caohao.common.enums.impl.EmploymentUserStatus;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
+import com.caohao.controller.websocket.server.WebsocketServer;
 import com.caohao.dao.CompanyDao;
 import com.caohao.dao.EmploymentDao;
-import com.caohao.dao.UserResumeDao;
-import com.caohao.pojo.entity.Company;
-import com.caohao.pojo.entity.EmploymentUser;
 import com.caohao.dao.EmploymentUserDao;
+import com.caohao.dao.UserDao;
+import com.caohao.dao.UserResumeDao;
+import com.caohao.pojo.model.UserModel;
 import com.caohao.pojo.model.CompanyModel;
 import com.caohao.pojo.model.EmploymentModel;
 import com.caohao.pojo.model.EmploymentUserModel;
@@ -17,11 +16,16 @@ import com.caohao.pojo.param.EmploymentParam;
 import com.caohao.pojo.param.EmploymentUserParam;
 import com.caohao.security.util.GetTokenInfoUtil;
 import com.caohao.service.EmploymentUserService;
-import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import org.springframework.stereotype.Service;
+
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +50,11 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
     
     @Resource
     private com.caohao.service.UserService userService;
+
+    @Resource
+    private UserDao userDao;
+
+    private static final Gson GSON = new Gson();
 
     /**
      * 通过ID查询单条数据
@@ -105,6 +114,15 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
         employmentUser.setUserId(currentUser.getId());
         // 设置类型为投递
         employmentUser.setType(1);
+        if (employmentUser.getReplyStatus() == null || employmentUser.getReplyStatus().isEmpty()) {
+            employmentUser.setReplyStatus("Wait_For_Reply");
+        }
+        if (employmentUser.getUserStatus() == null || employmentUser.getUserStatus().isEmpty()) {
+            employmentUser.setUserStatus("Wait_For_Reply");
+        }
+        if (employmentUser.getDeleted() == null) {
+            employmentUser.setDeleted(0);
+        }
 
         this.employmentUserDao.insert(employmentUser);
         return employmentUser;
@@ -118,9 +136,48 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
      */
     @Override
     public EmploymentUserModel update(EmploymentUserParam employmentUser) {
+        EmploymentUserModel existing = this.employmentUserDao.queryById(employmentUser.getId());
+        String oldReplyStatus = existing != null ? existing.getReplyStatus() : null;
+
         employmentUser.setReplyTime(DateUtil.getCurrentTimeMillis());
+        if (employmentUser.getReplyStatus() != null) {
+            String rs = employmentUser.getReplyStatus();
+            if ("Agree_With_Induction".equals(rs)) {
+                employmentUser.setUserStatus("Pass");
+            } else if ("Refused_Entry".equals(rs) || "Rejected".equals(rs)) {
+                employmentUser.setUserStatus("Reject");
+            }
+        }
+
         this.employmentUserDao.update(employmentUser);
-        return this.queryById(employmentUser.getId());
+        EmploymentUserModel result = this.queryById(employmentUser.getId());
+        if (existing != null && employmentUser.getReplyStatus() != null
+                && !Objects.equals(employmentUser.getReplyStatus(), oldReplyStatus)) {
+            pushApplicationStatusToApplicant(existing.getUserId(), result);
+        }
+        return result;
+    }
+
+    private void pushApplicationStatusToApplicant(String applicantUserId, EmploymentUserModel result) {
+        if (applicantUserId == null || result == null) {
+            return;
+        }
+        try {
+            UserModel applicant = userDao.queryById(applicantUserId);
+            if (applicant == null || applicant.getUserName() == null) {
+                return;
+            }
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "application_status");
+            payload.put("replyStatus", result.getReplyStatus());
+            payload.put("userStatus", result.getUserStatus());
+            payload.put("replyContent", result.getReplyContent());
+            payload.put("employmentId", result.getEmploymentId());
+            payload.put("id", result.getId());
+            WebsocketServer.pushMessage(null, GSON.toJson(payload), applicant.getUserName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -182,5 +239,13 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
     @Override
     public int getTotalCount() {
         return employmentUserDao.getTotalCount();
+    }
+
+    @Override
+    public int countByReplyStatus(String replyStatus) {
+        if (replyStatus == null || replyStatus.isEmpty()) {
+            return 0;
+        }
+        return employmentUserDao.countByReplyStatus(replyStatus);
     }
 }

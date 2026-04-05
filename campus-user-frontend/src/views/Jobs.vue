@@ -153,8 +153,8 @@
           </div>
         </template>
 
-        <!-- 空状态 -->
-        <template v-else>
+        <!-- 空状态（避免首屏加载时闪一下空列表） -->
+        <template v-else-if="!loading">
           <div class="empty-state">
             <el-empty description="暂无符合条件的职位" :image-size="200"></el-empty>
           </div>
@@ -234,7 +234,6 @@ export default {
         if (this.filters.companyScale) params.companyScale = this.filters.companyScale
         params.sortBy = this.sortBy
 
-        console.log('职位筛选参数:', params)
         const response = await this.$api.employment.getJobList(this.currentPage, this.pageSize, params)
         this.jobList = response.list || []
         this.total = response.total || 0
@@ -281,6 +280,7 @@ export default {
     handlePageChange(page) {
       this.currentPage = page
       this.loadJobs()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     },
     formatTime(timestamp) {
       if (!timestamp) return '刚刚'
@@ -295,9 +295,16 @@ export default {
   },
   mounted() {
     if (this.$route.query.keyword) {
-      this.filters.keyword = this.$route.query.keyword
+      this.filters.keyword = String(this.$route.query.keyword)
     }
     this.loadJobs()
+  },
+  watch: {
+    '$route.query.keyword'(val) {
+      this.filters.keyword = val != null ? String(val) : ''
+      this.currentPage = 1
+      this.loadJobs()
+    }
   }
 }
 </script>

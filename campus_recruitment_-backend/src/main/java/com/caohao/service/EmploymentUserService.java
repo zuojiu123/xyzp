@@ -67,4 +67,9 @@ public interface EmploymentUserService {
      * 获取申请总数
      */
     int getTotalCount();
+
+    /**
+     * 按回复状态统计数量
+     */
+    int countByReplyStatus(String replyStatus);
 }

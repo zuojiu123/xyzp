@@ -80,13 +80,16 @@
 
                   <div class="company-info-row">
                     <span class="co-name">{{ job.companyModel ? job.companyModel.name : '未知公司' }}</span>
-                    <el-tag size="mini" type="info" effect="plain" class="scale-tag">不需要融资</el-tag>
+                    <el-tag size="mini" type="info" effect="plain" class="scale-tag">
+                      {{ (job.companyModel && (job.companyModel.nature || job.companyModel.category)) || '企业招聘' }}
+                    </el-tag>
                   </div>
 
                   <div class="tags-container">
-                    <span class="tag-pill"><i class="el-icon-location-outline"></i> {{ job.position }}</span>
-                    <span class="tag-pill"><i class="el-icon-suitcase"></i> 3-5年</span>
-                    <span class="tag-pill"><i class="el-icon-reading"></i> 本科</span>
+                    <span class="tag-pill" v-if="job.position"><i class="el-icon-location-outline"></i> {{ job.position }}</span>
+                    <span class="tag-pill" v-if="job.education"><i class="el-icon-reading"></i> {{ job.education }}</span>
+                    <span class="tag-pill" v-if="job.experience"><i class="el-icon-suitcase"></i> {{ job.experience }}</span>
+                    <span class="tag-pill" v-if="!job.position && !job.education && !job.experience"><i class="el-icon-info"></i> 详情见职位页</span>
                   </div>
                 </div>
 
@@ -99,7 +102,7 @@
                     </div>
                     <span class="apply-text">{{ job.applicationCount || 0 }} 人刚刚申请</span>
                   </div>
-                  <button class="action-btn">立即沟通</button>
+                  <button type="button" class="action-btn" @click.stop="viewJob(job.id)">查看详情</button>
                 </div>
               </div>
             </el-col>
@@ -143,8 +146,9 @@
 
                   <!-- 底部标签与箭头 -->
                   <div class="bottom-tags">
-                    <div class="tag-item">{{ job.position }}</div>
-                    <div class="tag-item">全职</div>
+                    <div class="tag-item" v-if="job.position">{{ job.position }}</div>
+                    <div class="tag-item" v-if="job.education">{{ job.education }}</div>
+                    <div class="tag-item" v-if="!job.position && !job.education">校招</div>
                     <div class="action-arrow">
                       <i class="el-icon-right"></i>
                     </div>
@@ -180,17 +184,46 @@
                   <h4 class="co-title">{{ company.name }}</h4>
 
                   <div class="co-tags-row">
-                    <span class="co-tag-pill">互联网</span>
-                    <span class="co-tag-pill">{{ company.number || '100+' }}人</span>
+                    <span class="co-tag-pill">{{ company.category || '优质企业' }}</span>
+                    <span class="co-tag-pill">{{ formatCompanySize(company.number) }}</span>
                   </div>
 
                   <p class="co-desc-text">{{ company.description || '暂无详细介绍，点击查看更多信息...' }}</p>
 
                   <!-- 4. 底部按钮 -->
-                  <button class="co-visit-btn" @click="viewCompany(company.id)">
+                  <button type="button" class="co-visit-btn" @click.stop="viewCompany(company.id)">
                     查看热招职位
                     <i class="el-icon-arrow-right"></i>
                   </button>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+
+      <!-- === 求职资讯 === -->
+      <div class="section-block bg-light" v-if="homeArticles.length">
+        <div class="container">
+          <div class="section-header">
+            <div class="header-left">
+              <h2 class="section-title">求职资讯 <span class="highlight-dot">.</span></h2>
+              <p class="section-subtitle">面试技巧与求职干货，助力拿 Offer</p>
+            </div>
+            <el-button type="text" class="more-btn" @click="$router.push('/articles')">更多攻略 <i class="el-icon-right"></i></el-button>
+          </div>
+          <el-row :gutter="24">
+            <el-col :xs="24" :sm="12" :md="8" v-for="article in homeArticles" :key="article.id">
+              <div class="article-snippet-card" @click="goArticle(article.id)">
+                <div class="snippet-meta">
+                  <span class="snippet-type" v-if="article.type">{{ articleTypeLabel(article.type) }}</span>
+                  <span class="snippet-time">{{ formatArticleTime(article.createTime) }}</span>
+                </div>
+                <h3 class="snippet-title">{{ article.title }}</h3>
+                <p class="snippet-excerpt">{{ excerpt(article.content) }}</p>
+                <div class="snippet-foot">
+                  <span><i class="el-icon-view"></i> {{ article.viewCount || 0 }}</span>
+                  <span class="snippet-more">阅读全文 <i class="el-icon-right"></i></span>
                 </div>
               </div>
             </el-col>
@@ -203,6 +236,8 @@
 </template>
 
 <script>
+import { articleTypeLabel } from '@/utils/articleDisplay'
+
 export default {
   name: 'Home',
   data() {
@@ -217,7 +252,7 @@ export default {
         },
         {
           id: 2,
-          title: '2024 校园招聘季',
+          title: '2026 校园招聘季',
           description: '面向应届毕业生的专属通道，开启职场第一步',
           image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'
         }
@@ -230,7 +265,8 @@ export default {
       ],
       hotJobs: [],
       latestJobs: [],
-      hotCompanies: []
+      hotCompanies: [],
+      homeArticles: []
     }
   },
   computed: {
@@ -295,6 +331,42 @@ export default {
       } else { this.latestJobs = mockJobs; }
     },
 
+    articleTypeLabel,
+
+    formatCompanySize(n) {
+      if (n == null || n === '') return '规模待定'
+      if (typeof n === 'number') return `${n} 人规模`
+      return String(n).includes('人') ? n : `${n} 人`
+    },
+
+    excerpt(content) {
+      if (!content) return '点击查看全文…'
+      const text = String(content).replace(/<[^>]+>/g, '').trim()
+      return text.length > 72 ? text.slice(0, 72) + '…' : text
+    },
+
+    formatArticleTime(t) {
+      if (!t) return ''
+      const ts = String(t).length === 10 ? t * 1000 : t
+      const d = new Date(ts)
+      if (Number.isNaN(d.getTime())) return ''
+      return `${d.getMonth() + 1}/${d.getDate()}`
+    },
+
+    goArticle(id) {
+      this.$router.push(`/article/${id}`)
+    },
+
+    async loadHomeArticles() {
+      if (!this.$api || !this.$api.article) return
+      try {
+        const res = await this.$api.article.getArticleList(1, 6, {})
+        this.homeArticles = (res.list || []).slice(0, 3)
+      } catch (e) {
+        this.homeArticles = []
+      }
+    },
+
     async loadHotCompanies() {
       const mockCompanies = Array(8).fill(0).map((_, i) => ({
         id: i + 300,
@@ -325,10 +397,13 @@ export default {
     viewCompany(id) { this.$router.push(`/company/${id}`) }
   },
   mounted() {
-    this.loadStats()
-    this.loadHotJobs()
-    this.loadLatestJobs()
-    this.loadHotCompanies()
+    Promise.all([
+      this.loadStats(),
+      this.loadHotJobs(),
+      this.loadLatestJobs(),
+      this.loadHotCompanies(),
+      this.loadHomeArticles()
+    ]).catch(() => {})
   }
 }
 </script>
@@ -940,6 +1015,73 @@ export default {
   100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
+.article-snippet-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1px solid #eef2f6;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 20px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+.article-snippet-card:hover {
+  border-color: rgba(255, 107, 0, 0.35);
+  box-shadow: 0 12px 24px rgba(255, 107, 0, 0.08);
+  transform: translateY(-3px);
+}
+.snippet-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.snippet-type {
+  background: #fff7ed;
+  color: #ea580c;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.snippet-title {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.snippet-excerpt {
+  margin: 0;
+  flex: 1;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.snippet-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.snippet-more {
+  color: #ff6b00;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .hero-title { font-size: 32px; }
   .stats-floating-bar { margin-top: 0; }
@@ -948,5 +1090,6 @@ export default {
   .more-btn { margin-top: 10px; }
   .job-card-premium, .company-card-premium { height: auto; padding-bottom: 20px;}
   .co-card-header { height: 60px; }
+  .article-snippet-card { height: auto; min-height: 180px; }
 }
 </style>

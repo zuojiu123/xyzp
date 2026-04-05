@@ -4,6 +4,8 @@ import com.caohao.pojo.entity.UserResume;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -65,4 +67,9 @@ public interface UserResumeService {
      * @return 简历信息
      */
     UserResume uploadResume(MultipartFile file) throws Exception;
+
+    /**
+     * 将简历文件写入响应流（需登录；管理员、简历所有者、收到该投递的企业用户可读）
+     */
+    void writeResumeToResponse(String resumeRecordId, boolean inline, HttpServletResponse response) throws IOException;
 }

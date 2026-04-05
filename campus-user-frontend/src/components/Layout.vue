@@ -86,7 +86,8 @@
 </template>
 
 <script>
-// 逻辑部分保持原样，未做修改
+import { connectRecruitmentWs, disconnectRecruitmentWs } from '@/utils/recruitmentWs'
+
 export default {
   name: 'Layout',
   data() {
@@ -98,10 +99,17 @@ export default {
   mounted() {
     this.loadUserInfo()
     this.activeIndex = this.$route.path
+    this.syncRecruitmentWs()
   },
   watch: {
     '$route'(to) {
       this.activeIndex = to.path
+    },
+    userInfo: {
+      handler() {
+        this.syncRecruitmentWs()
+      },
+      deep: true
     }
   },
   methods: {
@@ -116,6 +124,15 @@ export default {
           console.error('解析用户信息失败:', e)
           this.clearUserInfo()
         }
+      }
+    },
+
+    syncRecruitmentWs() {
+      const u = this.userInfo
+      if (u && u.userName && u.role !== 'Enterprise_User') {
+        connectRecruitmentWs(u.userName)
+      } else {
+        disconnectRecruitmentWs()
       }
     },
 
@@ -163,6 +180,7 @@ export default {
     },
 
     clearUserInfo() {
+      disconnectRecruitmentWs()
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
       this.userInfo = null

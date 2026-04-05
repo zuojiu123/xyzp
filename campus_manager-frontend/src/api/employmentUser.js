@@ -5,7 +5,6 @@ import { getResult } from '@/utils/result'
 * 获取用户列表
 */
 export function getEmploymentUserList(params) {
-  console.log(params.params)
   // 如果是管理端请求，使用不同的接口
   const isAdmin = params.params && params.params.showAll
   const url = isAdmin

@@ -55,6 +55,12 @@ public class StatisticsController {
             statistics.put("articleCount", articleService.getTotalCount());
             statistics.put("pendingCompanyCount", companyService.getPendingCount());
             statistics.put("pendingEmploymentCount", employmentService.getPendingCount());
+            statistics.put("pendingApplicationCount",
+                    employmentUserService.countByReplyStatus("Wait_For_Reply"));
+            statistics.put("approvedApplicationCount",
+                    employmentUserService.countByReplyStatus("Agree_With_Induction"));
+            statistics.put("rejectedApplicationCount",
+                    employmentUserService.countByReplyStatus("Refused_Entry"));
             
             return Result.ok(statistics);
         } catch (Exception e) {

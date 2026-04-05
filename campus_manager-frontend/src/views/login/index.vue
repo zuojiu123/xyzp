@@ -64,6 +64,9 @@
 </template>
 
 <script>
+import { removeToken } from '@/utils/auth'
+import { isStoredAdmin } from '@/utils/userRole'
+
 export default {
   name: 'Login',
   data () {
@@ -109,11 +112,11 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('login', this.loginForm).then(res => {
-            const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-            if (userInfo.role === 'Admin') {
+            if (isStoredAdmin()) {
               this.$message.success('登录成功！')
               this.$router.push({ path: this.redirect || '/' })
             } else {
+              removeToken()
               this.$message.error('只有管理员才能登录后台管理系统')
             }
             this.loading = false

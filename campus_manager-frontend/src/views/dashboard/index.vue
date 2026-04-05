@@ -7,8 +7,8 @@
         <p class="welcome-subtitle">今天是 {{ currentDate }}，系统运行正常</p>
       </div>
       <div class="weather-info">
-        <i class="el-icon-sunny" />
-        <span>晴朗 25°C</span>
+        <i class="el-icon-data-line" />
+        <span>数据已同步</span>
       </div>
     </div>
 
@@ -22,7 +22,9 @@
           <div class="stat-content">
             <div class="stat-number">{{ userCount }}</div>
             <div class="stat-label">用户总数</div>
-            <div class="stat-trend">+12% 较上月</div>
+            <div class="stat-trend">
+              实时统计
+            </div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart user-chart" />
@@ -38,7 +40,9 @@
           <div class="stat-content">
             <div class="stat-number">{{ companyCount }}</div>
             <div class="stat-label">企业总数</div>
-            <div class="stat-trend">+8% 较上月</div>
+            <div class="stat-trend">
+              实时统计
+            </div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart company-chart" />
@@ -54,7 +58,9 @@
           <div class="stat-content">
             <div class="stat-number">{{ jobCount }}</div>
             <div class="stat-label">职位总数</div>
-            <div class="stat-trend">+15% 较上月</div>
+            <div class="stat-trend">
+              实时统计
+            </div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart job-chart" />
@@ -70,7 +76,9 @@
           <div class="stat-content">
             <div class="stat-number">{{ resumeCount }}</div>
             <div class="stat-label">简历投递</div>
-            <div class="stat-trend">+23% 较上月</div>
+            <div class="stat-trend">
+              实时统计
+            </div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart resume-chart" />
@@ -115,8 +123,8 @@
             <el-button type="warning" icon="el-icon-suitcase" @click="$router.push('/employment/index')">
               职位管理
             </el-button>
-            <el-button type="info" icon="el-icon-document" @click="$router.push('/employmentUser/index')">
-              简历管理
+            <el-button type="info" icon="el-icon-document" @click="$router.push('/resume/index')">
+              简历投递管理
             </el-button>
           </div>
         </el-card>
@@ -152,11 +160,15 @@
               </template>
             </el-table-column>
             <el-table-column prop="title" label="标题" />
-            <el-table-column prop="count" label="数量" width="80" />
+            <el-table-column prop="count" label="数量" width="100">
+              <template slot-scope="scope">
+                <span :class="{ 'text-muted': scope.row.count === 0 }">{{ scope.row.count }}</span>
+              </template>
+            </el-table-column>
             <el-table-column label="操作" width="120">
               <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="handleTask(scope.row)">
-                  处理
+                <el-button size="mini" type="primary" :disabled="scope.row.count === 0" @click="handleTask(scope.row)">
+                  去处理
                 </el-button>
               </template>
             </el-table-column>
@@ -169,6 +181,7 @@
 
 <script>
 import * as echarts from 'echarts'
+import { getDashboardStatistics } from '@/api/statistics'
 
 export default {
   name: 'Dashboard',
@@ -184,29 +197,13 @@ export default {
         day: 'numeric',
         weekday: 'long'
       }),
-      pendingTasks: [
-        {
-          type: '企业审核',
-          title: '待审核企业',
-          count: 5,
-          tagType: 'warning',
-          route: '/company/index'
-        },
-        {
-          type: '职位审核',
-          title: '待审核职位',
-          count: 12,
-          tagType: 'info',
-          route: '/employment/index'
-        }
-      ],
+      pendingTasks: [],
       trendChart: null,
       pieChart: null
     }
   },
   mounted() {
     this.loadStatistics()
-    this.setTestData()
     this.initCharts()
   },
   beforeDestroy() {
@@ -219,93 +216,59 @@ export default {
   },
   methods: {
     async loadStatistics() {
-      console.log('开始加载统计数据...')
-
-      // 获取用户统计
       try {
-        const userRes = await this.$store.dispatch('getUserList', { pageNum: 1, pageSize: 1 })
-        console.log('用户数据:', userRes)
-        this.userCount = userRes.total || userRes.size || 0
-      } catch (error) {
-        console.error('获取用户数据失败:', error)
+        const data = await getDashboardStatistics()
+        this.userCount = data.userCount || 0
+        this.companyCount = data.companyCount || 0
+        this.jobCount = data.jobCount || 0
+        this.resumeCount = data.applicationCount || 0
+        this.updatePendingTasks(data)
+        this.updateCharts()
+      } catch (e) {
+        const msg = (e && e.message) || '加载统计数据失败'
+        this.$message.error(msg)
+        this.pendingTasks = []
       }
-
-      // 获取企业统计
-      try {
-        const companyRes = await this.$store.dispatch('getCompanyList', { pageNum: 1, pageSize: 100 })
-        console.log('企业数据:', companyRes)
-        this.companyCount = companyRes.total || companyRes.list?.length || 0
-      } catch (error) {
-        console.error('获取企业数据失败:', error)
-      }
-
-      // 获取职位统计
-      try {
-        const jobRes = await this.$store.dispatch('getEmploymentList', { pageNum: 1, pageSize: 1 })
-        console.log('职位数据:', jobRes)
-        this.jobCount = jobRes.total || jobRes.size || 0
-      } catch (error) {
-        console.error('获取职位数据失败:', error)
-      }
-
-      // 获取简历统计
-      try {
-        const resumeRes = await this.$store.dispatch('getEmploymentUserList', {
-          pageNum: 1,
-          pageSize: 1,
-          params: {}
-        })
-        console.log('简历数据:', resumeRes)
-        this.resumeCount = resumeRes.total || resumeRes.size || 0
-      } catch (error) {
-        console.error('获取简历数据失败:', error)
-      }
-
-      // 更新待处理事项
-      this.updatePendingTasks()
-
-      console.log('统计数据加载完成:', {
-        userCount: this.userCount,
-        companyCount: this.companyCount,
-        jobCount: this.jobCount,
-        resumeCount: this.resumeCount
-      })
     },
 
-    updatePendingTasks() {
-      // 更新待处理事项数量
+    updatePendingTasks(data) {
+      const pendingCompany = (data && data.pendingCompanyCount) || 0
+      const pendingJob = (data && data.pendingEmploymentCount) || 0
+      const pendingApply = (data && data.pendingApplicationCount) || 0
       this.pendingTasks = [
         {
           type: '企业审核',
           title: '待审核企业',
-          count: Math.floor(this.companyCount * 0.2), // 假设20%需要审核
+          count: pendingCompany,
           tagType: 'warning',
-          route: '/company/index'
+          route: '/company/index',
+          query: { status: 'Check_Pending' }
         },
         {
           type: '职位审核',
           title: '待审核职位',
-          count: Math.floor(this.jobCount * 0.15), // 假设15%需要审核
+          count: pendingJob,
           tagType: 'info',
-          route: '/employment/index'
+          route: '/employment/index',
+          query: { status: '0' }
+        },
+        {
+          type: '投递处理',
+          title: '待处理投递',
+          count: pendingApply,
+          tagType: 'success',
+          route: '/resume/index',
+          query: { replyStatus: 'Wait_For_Reply' }
         }
       ]
     },
 
     handleTask(task) {
-      this.$router.push(task.route)
-    },
-
-    setTestData() {
-      // 设置测试数据，防止显示为0
-      setTimeout(() => {
-        if (this.userCount === 0) this.userCount = 1256
-        if (this.companyCount === 0) this.companyCount = 168
-        if (this.jobCount === 0) this.jobCount = 892
-        if (this.resumeCount === 0) this.resumeCount = 3247
-        this.updatePendingTasks()
-        this.updateCharts()
-      }, 2000)
+      if (task.query && Object.keys(task.query).length) {
+        this.$router.push({ path: task.route, query: task.query })
+      } else {
+        this.$router.push(task.route)
+      }
     },
 
     initCharts() {
@@ -322,7 +285,8 @@ export default {
 
       const option = {
         title: {
-          text: '近7天数据趋势',
+          text: '近7天数据趋势（示意）',
+          subtext: '后端未提供按日统计，仅供版面展示',
           textStyle: {
             fontSize: 14,
             color: '#333'
@@ -395,7 +359,7 @@ export default {
 
       const option = {
         title: {
-          text: '数据分布',
+          text: '数据分布（实时）',
           textStyle: {
             fontSize: 14,
             color: '#333'
@@ -621,5 +585,9 @@ export default {
       color: #606266;
     }
   }
+}
+
+.text-muted {
+  color: #c0c4cc;
 }
 </style>

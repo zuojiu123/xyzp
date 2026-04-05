@@ -1,5 +1,5 @@
 <template>
-  <div class="job-detail-page">
+  <div class="job-detail-page" v-loading="detailLoading">
     <!-- 1. 顶部职位信息栏 (Header) -->
     <div class="job-header-card">
       <div class="container header-container">
@@ -12,7 +12,7 @@
           <div class="meta-row">
             <span class="meta-tag" v-if="job.position"><i class="el-icon-location-outline"></i> {{ job.position }}</span>
             <span class="meta-tag" v-if="job.education"><i class="el-icon-reading"></i> {{ job.education }}</span>
-            <span class="meta-tag" v-if="job.experience"><i class="el-icon-suitcase"></i> {{ job.experience || '经验不限' }}</span>
+            <span class="meta-tag" v-if="job.experience"><i class="el-icon-suitcase"></i> {{ job.experience }}</span>
             <span class="publish-time">发布于 {{ formatTime(job.createTime) }}</span>
           </div>
         </div>
@@ -22,8 +22,7 @@
               type="primary"
               class="apply-btn-lg"
               @click="showApplyDialog"
-              :disabled="job.userStatus === 'have'"
-              :loading="loading">
+              :disabled="job.userStatus === 'have'">
             {{ job.userStatus === 'have' ? '已投递' : '立即沟通' }}
           </el-button>
           <div class="action-links">
@@ -144,7 +143,7 @@
           <el-upload
               class="resume-uploader"
               drag
-              :action="uploadUrl"
+              :action="resumeUploadAction"
               :headers="uploadHeaders"
               :on-success="handleResumeSuccess"
               :on-error="handleResumeError"
@@ -174,7 +173,7 @@ export default {
   data() {
     return {
       job: {},
-      loading: false,
+      detailLoading: false,
       applyDialogVisible: false,
       submitting: false,
       collectLoading: false,
@@ -186,7 +185,6 @@ export default {
         resume: ''
       },
       resumeFileList: [],
-      uploadUrl: 'http://localhost:3030/userResume/upload',
       uploadHeaders: {},
       applyRules: {
         name: [
@@ -203,19 +201,28 @@ export default {
       }
     }
   },
+  computed: {
+    resumeUploadAction() {
+      if (process.env.VUE_APP_UPLOAD_URL) return process.env.VUE_APP_UPLOAD_URL
+      if (typeof window !== 'undefined') {
+        return `${window.location.origin}/api/userResume/upload`
+      }
+      return '/api/userResume/upload'
+    }
+  },
   methods: {
     async loadJobDetail() {
-      this.loading = true
+      this.detailLoading = true
       try {
         const jobId = this.$route.params.id
         const jobData = await this.$api.employment.getJobById(jobId)
         this.job = jobData || {}
-        // 检查收藏状态
         await this.checkCollectStatus()
       } catch (error) {
         console.error('获取职位详情失败:', error)
+        this.$message.error('职位信息加载失败')
       } finally {
-        this.loading = false
+        this.detailLoading = false
       }
     },
 
@@ -269,19 +276,27 @@ export default {
     },
 
     handleShare() {
-      // 构建当前职位详情页的完整URL
       const jobId = this.job.id
       const shareUrl = `${window.location.origin}/job/${jobId}`
-      
-      // 使用Clipboard API复制链接到剪贴板
-      navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-          this.$message.success('链接已复制到剪贴板，您可以分享给好友了')
-        })
-        .catch(err => {
-          console.error('复制失败:', err)
-          this.$message.error('复制链接失败，请手动复制')
-        })
+      const done = () => this.$message.success('链接已复制到剪贴板，您可以分享给好友了')
+      const fail = () => this.$message.warning(`请手动复制链接：${shareUrl}`)
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(done).catch(fail)
+        return
+      }
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = shareUrl
+        ta.style.position = 'fixed'
+        ta.style.left = '-9999px'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+        done()
+      } catch (e) {
+        fail()
+      }
     },
 
     // 简单的福利处理，假设是逗号分隔的字符串
@@ -382,6 +397,13 @@ export default {
 
   async mounted() {
     await this.loadJobDetail()
+  },
+  watch: {
+    '$route.params.id'(newId, oldId) {
+      if (newId && newId !== oldId) {
+        this.loadJobDetail()
+      }
+    }
   }
 }
 </script>

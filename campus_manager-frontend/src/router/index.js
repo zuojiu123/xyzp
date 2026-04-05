@@ -112,17 +112,17 @@ export const constantRouterMap = [
       }
     ]
   },
-  // {
-  //   path: '/feedback',
-  //   component: Layout,
-  //   meta: { role: 'admin' },
-  //   children: [{
-  //     path: 'index',
-  //     name: 'Feedback',
-  //     component: () => import('@/views/feedback/index'),
-  //     meta: { title: '反馈管理', icon: 'form' }
-  //   }]
-  // },
+  {
+    path: '/feedback',
+    component: Layout,
+    meta: { role: 'admin' },
+    children: [{
+      path: 'index',
+      name: 'Feedback',
+      component: () => import('@/views/feedback/index'),
+      meta: { title: '反馈管理', icon: 'form' }
+    }]
+  },
   {
     path: '/employmentUser',
     component: Layout,

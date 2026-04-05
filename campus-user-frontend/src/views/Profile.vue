@@ -42,8 +42,8 @@
             <el-table-column prop="phone" label="联系电话" width="120"></el-table-column>
             <el-table-column prop="userStatus" label="申请状态" width="120">
               <template slot-scope="scope">
-                <el-tag :type="getStatusType(scope.row.userStatus)">
-                  {{ getStatusText(scope.row.userStatus) }}
+                <el-tag :type="getStatusType(scope.row.userStatus || scope.row.replyStatus)">
+                  {{ getStatusText(scope.row.userStatus || scope.row.replyStatus) }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -226,7 +226,10 @@ export default {
       const statusMap = {
         'Wait_For_Reply': 'warning',
         'Pass': 'success',
-        'Reject': 'danger'
+        'Reject': 'danger',
+        'Agree_With_Induction': 'success',
+        'Refused_Entry': 'danger',
+        'Rejected': 'danger'
       }
       return statusMap[status] || 'info'
     },
@@ -235,7 +238,10 @@ export default {
       const statusMap = {
         'Wait_For_Reply': '待回复',
         'Pass': '通过',
-        'Reject': '拒绝'
+        'Reject': '拒绝',
+        'Agree_With_Induction': '通过',
+        'Refused_Entry': '未通过',
+        'Rejected': '未通过'
       }
       return statusMap[status] || '未知'
     },

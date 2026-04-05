@@ -60,9 +60,9 @@
               :style="{animationDelay: index * 0.05 + 's'}">
 
             <!-- 文章封面/图标区 -->
-            <div class="article-cover" :class="getCoverClass(article.type)">
+            <div class="article-cover" :class="coverClass(article.type)">
               <div class="cover-icon-wrapper">
-                <i :class="getArticleIcon(article.type)"></i>
+                <i :class="typeIcon(article.type)"></i>
               </div>
             </div>
 
@@ -70,7 +70,7 @@
             <div class="article-content">
               <div class="content-top">
                 <div class="title-row">
-                  <span class="category-tag" v-if="article.type">{{ article.type }}</span>
+                  <span class="category-tag" v-if="article.type">{{ typeLabel(article.type) }}</span>
                   <h3 class="article-title">{{ article.title }}</h3>
                 </div>
                 <p class="article-summary">{{ getArticleSummary(article.content) }}</p>
@@ -161,6 +161,8 @@
 </template>
 
 <script>
+import { articleTypeLabel, articleTypeIcon, articleCoverClass } from '@/utils/articleDisplay'
+
 export default {
   name: 'Articles',
   data() {
@@ -196,6 +198,9 @@ export default {
     }
   },
   methods: {
+    typeLabel: articleTypeLabel,
+    typeIcon: articleTypeIcon,
+    coverClass: articleCoverClass,
     // 加载用户信息
     loadUserInfo() {
       const userInfoStr = localStorage.getItem('userInfo')
@@ -289,9 +294,7 @@ export default {
       this.loading = true
       try {
         let response
-        // 检查是否为"我的文章"标签（name为用户ID）
         if (this.userInfo && this.activeTab === this.userInfo.id.toString()) {
-          // 获取用户自己的文章
           const token = localStorage.getItem('token')
           if (!token) {
             this.$message.warning('请先登录后查看我的文章')
@@ -301,7 +304,6 @@ export default {
           }
           response = await this.$api.article.getUserArticles(this.currentPage, this.pageSize)
         } else {
-          // 获取所有文章
           const params = {}
           if (this.activeTab !== 'all') {
             params.type = this.activeTab
@@ -339,21 +341,6 @@ export default {
       if (!content) return '暂无内容简介...'
       const text = content.replace(/<[^>]+>/g, '')
       return text.length > 120 ? text.substring(0, 120) + '...' : text
-    },
-    getArticleIcon(type) {
-      const iconMap = {
-        '经验分享': 'el-icon-reading',
-        '求职心得': 'el-icon-notebook-2',
-        '面试技巧': 'el-icon-chat-line-round'
-      }
-      return iconMap[type] || 'el-icon-document'
-    },
-    // 根据类型返回不同的背景色类名
-    getCoverClass(type) {
-      if (type === '经验分享') return 'bg-blue'
-      if (type === '求职心得') return 'bg-purple'
-      if (type === '面试技巧') return 'bg-orange'
-      return 'bg-default'
     },
     formatTime(timestamp) {
       if (!timestamp) return ''

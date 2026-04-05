@@ -180,7 +180,12 @@ export default {
     getUserResumeList: () => api.get('/userResume/user'),
     getResumeList: (pageNum, pageSize, params) => api.post(`/userResume/${pageNum}/${pageSize}`, params),
     getResumeById: (id) => api.get(`/userResume/${id}`),
-    createResume: (data) => api.post('/userResume', data),
+    uploadResume: (file) => {
+      const fd = new FormData()
+      fd.append('file', file)
+      return api.post('/userResume/upload', fd)
+    },
+    createResume: (data) => api.post('/userResume/add', data),
     updateResume: (data) => api.put('/userResume', data),
     deleteResume: (id) => api.delete(`/userResume/${id}`)
   },

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
@@ -51,6 +53,20 @@ public class UserResumeController extends SuperController {
         } catch (Exception e) {
             return Result.failed("简历上传失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * 下载/预览简历文件（需登录：管理员、附件所有者、收到该投递的企业用户）
+     */
+    /**
+     * 使用 /attachment/{id} 避免与下方 {@code GET /userResume/{id}} 查询接口在部分环境下的路径匹配歧义。
+     */
+    @ApiOperation("下载或预览简历文件")
+    @GetMapping("/attachment/{id}")
+    public void downloadResumeFile(@PathVariable("id") String id,
+                                   @RequestParam(value = "inline", defaultValue = "false") boolean inline,
+                                   HttpServletResponse response) throws IOException {
+        this.userResumeService.writeResumeToResponse(id, inline, response);
     }
 
     /**

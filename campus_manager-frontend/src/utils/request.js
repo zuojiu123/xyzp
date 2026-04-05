@@ -1,32 +1,53 @@
 import axios from 'axios'
-// import store from '../store'
-// import { getToken } from '@/utils/auth'
+import { Message } from 'element-ui'
+import { getToken, removeToken } from '@/utils/auth'
 
-export function request (config) {
-  // 创建axios的实例
+const baseURL = process.env.VUE_APP_BASE_API || 'http://localhost:3030'
+
+export function request(config) {
   const instance = axios.create({
-    // baseURL: 'http://192.168.0.103:3030',
-    baseURL: 'http://localhost:3030',
-    timeout: 10000
+    baseURL,
+    timeout: 15000
   })
-  // axios.interceptors  全局拦截
-  // 请求拦截
-  instance.interceptors.request.use(config => {
-    if (localStorage.getItem('recruit-Token')) {
-      config.headers['Authorization'] = localStorage.getItem('recruit-Token') // 让每个请求携带自定义token 请根据实际情况自行修改
+
+  instance.interceptors.request.use(
+    cfg => {
+      const token = getToken()
+      if (token) {
+        const v = String(token).trim()
+        cfg.headers.Authorization = /^bearer\s+/i.test(v) ? v : `Bearer ${v}`
+      }
+      return cfg
+    },
+    error => Promise.reject(error)
+  )
+
+  instance.interceptors.response.use(
+    res => res,
+    err => {
+      const status = err.response && err.response.status
+      const msg =
+        (err.response && err.response.data && err.response.data.msg) ||
+        err.message ||
+        '网络请求失败'
+
+      if (status === 401) {
+        removeToken()
+        if (!window.location.pathname.includes('/login')) {
+          Message.error('登录已过期，请重新登录')
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+        }
+      } else if (status === 403) {
+        Message.error('没有权限执行该操作')
+      } else if (!err.response) {
+        Message.error('无法连接服务器，请检查后端是否启动或接口地址')
+      } else {
+        Message.error(msg)
+      }
+
+      return Promise.reject(err)
     }
-    return config
-  },
-  error => {
-    // Promise.reject(error)
-    console.log(error)
-  })
-  // 响应拦截
-  instance.interceptors.response.use(res => {
-    return res
-  }, err => {
-    console.log(err + 123213213)
-  })
-  // 3.发送真正的网络请求
+  )
+
   return instance(config)
 }

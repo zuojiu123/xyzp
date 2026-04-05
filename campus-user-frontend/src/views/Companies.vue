@@ -98,7 +98,12 @@
                   <!-- Logo与基本信息 -->
                   <div class="company-header-block">
                     <div class="logo-box">
-                      <img v-if="company.companyLogo" :src="company.companyLogo" :alt="company.name" class="real-logo" @error="handleLogoError">
+                      <img
+                        v-if="company.companyLogo && !logoFailed[company.id]"
+                        :src="company.companyLogo"
+                        :alt="company.name"
+                        class="real-logo"
+                        @error="handleLogoError(company.id)">
                       <div v-else class="text-logo">
                         {{ company.name.substring(0, 1) }}
                       </div>
@@ -148,8 +153,7 @@
           </div>
         </template>
 
-        <!-- 空状态 -->
-        <template v-else>
+        <template v-else-if="!loading">
           <el-empty description="暂无符合条件的企业" :image-size="200"></el-empty>
         </template>
       </div>
@@ -202,6 +206,7 @@ export default {
       ],
       sortBy: 'createTime',
       companyList: [],
+      logoFailed: {},
       loading: false,
       currentPage: 1,
       pageSize: 9,
@@ -217,17 +222,19 @@ export default {
         if (this.filters.city) params.cityFilter = this.filters.city
         if (this.filters.industry) params.industryFilter = this.filters.industry
         if (this.filters.scale) {
-          const [minScale, maxScale] = this.filters.scale.split('-')
-          if (minScale) params.minNumber = parseInt(minScale)
-          if (maxScale && maxScale !== '+') {
-            params.maxNumber = parseInt(maxScale)
-          } else if (maxScale === '+') {
-            params.minNumber = parseInt(minScale)
+          const s = this.filters.scale
+          if (s.endsWith('+')) {
+            const n = parseInt(s, 10)
+            if (!isNaN(n)) params.minNumber = n
+          } else {
+            const parts = s.split('-')
+            const lo = parts[0] !== '' ? parseInt(parts[0], 10) : NaN
+            const hi = parts[1] !== '' && parts[1] !== undefined ? parseInt(parts[1], 10) : NaN
+            if (!isNaN(lo)) params.minNumber = lo
+            if (!isNaN(hi)) params.maxNumber = hi
           }
         }
         params.sortBy = this.sortBy
-
-        console.log('企业筛选参数:', params)
         const response = await this.$api.company.getCompanyList(this.currentPage, this.pageSize, params)
         this.companyList = response.list || []
         this.total = response.total || 0
@@ -267,13 +274,13 @@ export default {
     viewCompany(id) {
       this.$router.push(`/company/${id}`)
     },
-    handleLogoError(event) {
-      event.target.style.display = 'none'
-      event.target.parentNode.innerHTML = '<div class="text-logo">企</div>'
+    handleLogoError(companyId) {
+      this.$set(this.logoFailed, companyId, true)
     },
     handlePageChange(page) {
       this.currentPage = page
       this.loadCompanies()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   },
   mounted() {

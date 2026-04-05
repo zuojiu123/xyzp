@@ -85,6 +85,17 @@ public interface EmploymentUserDao extends BaseMapper<EmploymentUser> {
     int getTotalCount();
 
     /**
+     * 按回复状态统计申请数量
+     */
+    int countByReplyStatus(@Param("replyStatus") String replyStatus);
+
+    /**
+     * 某企业是否收到过指定简历附件（user_resume 主键）的投递
+     */
+    int countByResumeRecordIdAndCompanyId(@Param("resumeRecordId") String resumeRecordId,
+                                          @Param("companyId") String companyId);
+
+    /**
      * 通过用户ID和职位ID删除数据
      */
     int deleteByUserIdAndEmploymentId(EmploymentUserParam employmentUser);

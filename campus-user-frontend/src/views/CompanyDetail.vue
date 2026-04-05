@@ -1,5 +1,5 @@
 <template>
-  <div class="company-detail-page">
+  <div class="company-detail-page" v-loading="loading">
     <!-- 1. 企业封面背景图 (Header Banner) -->
     <div class="company-banner">
       <div class="banner-overlay"></div>
@@ -12,7 +12,12 @@
         <div class="profile-main">
           <!-- Logo 悬浮 -->
           <div class="logo-wrapper">
-            <img v-if="company.companyLogo" :src="company.companyLogo" :alt="company.name" @error="handleLogoError" class="real-logo">
+            <img
+              v-if="company.companyLogo && !logoLoadFailed"
+              :src="company.companyLogo"
+              :alt="company.name"
+              class="real-logo"
+              @error="logoLoadFailed = true">
             <div v-else class="text-logo">
               {{ company.name ? company.name.substring(0, 1) : '企' }}
             </div>
@@ -145,43 +150,35 @@ export default {
     return {
       company: {},
       jobList: [],
-      loading: false
+      loading: false,
+      logoLoadFailed: false
     }
   },
   methods: {
     async loadCompanyDetail() {
       this.loading = true
+      this.logoLoadFailed = false
       try {
         const id = this.$route.params.id
-        // 模拟数据或API调用
-        if (!this.$api.company.getCompanyDetail) {
-          this.company = {
-            id: id,
-            name: '示例科技公司',
-            description: '我们是一家致力于技术创新的领先企业，提供优厚的薪资待遇和广阔的发展空间。',
-            number: '500-999',
-            industry: '互联网/软件',
-            address: '上海市浦东新区张江高科',
-            jobCount: 12,
-            viewCount: 3456
-          }
-          await this.loadCompanyJobs()
-          return
-        }
-
         const response = await this.$api.company.getCompanyDetail(id)
         this.company = response || {}
         await this.loadCompanyJobs()
       } catch (error) {
         console.error('获取公司详情失败:', error)
+        this.$message.error('企业信息加载失败')
         this.company = { name: '未知企业' }
+        this.jobList = []
       } finally {
         this.loading = false
       }
     },
     async loadCompanyJobs() {
+      if (!this.company || !this.company.id) {
+        this.jobList = []
+        return
+      }
       try {
-        const response = await this.$api.employment.getJobList(1, 10, {
+        const response = await this.$api.employment.getJobList(1, 50, {
           companyId: this.company.id
         })
         this.jobList = response.list || []
@@ -192,10 +189,6 @@ export default {
     viewJob(id) {
       this.$router.push(`/job/${id}`)
     },
-    handleLogoError(event) {
-      event.target.style.display = 'none'
-      event.target.parentNode.innerHTML = '<div class="text-logo">企</div>'
-    },
     formatTime(timestamp) {
       if (!timestamp) return ''
       const date = new Date(timestamp)
@@ -204,6 +197,13 @@ export default {
   },
   mounted() {
     this.loadCompanyDetail()
+  },
+  watch: {
+    '$route.params.id'(newId, oldId) {
+      if (newId && newId !== oldId) {
+        this.loadCompanyDetail()
+      }
+    }
   }
 }
 </script>

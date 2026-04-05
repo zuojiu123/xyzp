@@ -2,8 +2,16 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="listQuery.companyName" placeholder="请输入公司名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleQuery" />
+      <el-select v-model="listQuery.status" placeholder="审核状态" clearable style="width: 140px;" class="filter-item" @change="handleQuery">
+        <el-option label="待审核" value="Check_Pending" />
+        <el-option label="审核通过" value="Approve" />
+        <el-option label="审核未通过" value="Audit_Failed" />
+      </el-select>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleQuery">
         查询
+      </el-button>
+      <el-button class="filter-item" type="info" icon="el-icon-refresh" @click="resetFilter">
+        重置
       </el-button>
       <!-- <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="addCompany">
         Add
@@ -112,15 +120,18 @@
           <span>{{ row.processor || '--' }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="200">
+      <el-table-column align="center" label="操作" width="260">
         <template slot-scope="row">
-          <el-button v-if="row.row.status === 'Check_Pending'" type="primary" size="mini" @click="updateData(row)">
+          <el-button v-if="statusCode(row.row.status) === 'Check_Pending'" type="primary" size="mini" @click="handleUpdate(row)">
             审核
           </el-button>
-          <el-tag v-if="row.row.status === 'Approve'" type="success">
+          <el-button v-if="statusCode(row.row.status) === 'Check_Pending'" type="success" size="mini" plain @click="quickApprove(row)">
+            一键通过
+          </el-button>
+          <el-tag v-if="statusCode(row.row.status) === 'Approve'" type="success">
             审核通过
           </el-tag>
-          <el-tag v-if="row.row.status === 'Audit_Failed'" type="danger">
+          <el-tag v-if="statusCode(row.row.status) === 'Audit_Failed'" type="danger">
             审核未通过
           </el-tag>
           <el-popconfirm title="确定要删除此条数据吗？" @confirm="handleDelete(row)">
@@ -132,10 +143,10 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getCompanyList" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="loadCompanyList" />
 
     <!-- 弹框 -->
-    <el-dialog :visible.sync="dialogFormVisible" :title="type === 'add'? '新增数据' : '修改数据'">
+    <el-dialog :visible.sync="dialogFormVisible" :title="dialogStatus === 'create' ? '新增企业' : '企业审核'">
       <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="信用编码" prop="companyNumber">
           <el-input v-model="temp.companyNumber" placeholder="请输入" />
@@ -172,7 +183,7 @@
         <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?addData():updateData()">
+        <el-button type="primary" @click="submitCompanyDialog">
           确定
         </el-button>
       </div>
@@ -199,7 +210,8 @@ export default {
       listQuery: {
         pageNum: 1,
         pageSize: 10,
-        companyName: ''
+        companyName: '',
+        status: null
       },
       listLoading: true,
       companyName: '',
@@ -216,7 +228,8 @@ export default {
         nature: ''
       },
       visible: false,
-      total: 0
+      total: 0,
+      auditCompanyId: null
     }
   },
   computed: {
@@ -229,8 +242,8 @@ export default {
     })
   },
   mounted () {
-    this.getCompanyList()
-    // this.getRoleList()
+    this.applyRouteQuery()
+    this.loadCompanyList()
     this.$store.dispatch('getCompanyStatusEnum', 'CompanyStatusEnum')
     this.$store.dispatch('getCompanyNatureEnum', 'CompanyNatureEnum')
     this.$store.dispatch('getCompanyCategoryEnum', 'CompanyCategoryEnum')
@@ -256,18 +269,42 @@ export default {
       this.$store.dispatch('getCompanyRoleList', 'CompanyRoleEnum')
     },
 
-    // 获取用户列表
-    getCompanyList () {
+    applyRouteQuery () {
+      const q = this.$route.query || {}
+      if (q.status) {
+        this.listQuery.status = q.status
+      }
+    },
+
+    loadCompanyList () {
+      this.listLoading = true
+      const condition = {}
+      if (this.listQuery.companyName) condition.name = this.listQuery.companyName
+      if (this.listQuery.status != null && this.listQuery.status !== '') {
+        condition.status = this.listQuery.status
+      }
       const params = {
         pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize
+        pageSize: this.listQuery.pageSize,
+        condition
       }
-      this.$store.dispatch('getCompanyList', params).then(res => {
+      this.$store.dispatch('queryCompany', params).then(res => {
         this.total = res.total
-        this.listLoading = false
       }).catch(err => {
-        console.log(err)
+        this.$message.error((err && err.message) || '加载企业列表失败')
+      }).finally(() => {
+        this.listLoading = false
       })
+    },
+
+    resetFilter () {
+      this.listQuery = {
+        pageNum: 1,
+        pageSize: 10,
+        companyName: '',
+        status: null
+      }
+      this.loadCompanyList()
     },
 
     // 清空form表单
@@ -294,21 +331,42 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    // 修改用户弹窗
+    // 审核/编辑弹窗
     handleUpdate (row) {
       this.type = ''
       this.dialogFormVisible = true
+      this.auditCompanyId = row.row.id
       this.temp = Object.assign({}, row.row)
-      this.temp.status = row.row.status.enumCode
-      this.temp.nature = row.row.nature.enumCode
-      this.temp.category = row.row.category.enumCode
+      const pickEnum = (v) => (v && typeof v === 'object' && v.enumCode) ? v.enumCode : v
+      this.temp.status = pickEnum(row.row.status)
+      this.temp.nature = pickEnum(row.row.nature)
+      this.temp.category = pickEnum(row.row.category)
       this.dialogStatus = 'update'
+    },
+
+    submitCompanyDialog () {
+      if (this.dialogStatus === 'create') {
+        this.addData()
+        return
+      }
+      if (!this.auditCompanyId) {
+        this.$message.error('缺少企业 ID')
+        return
+      }
+      const payload = Object.assign({}, this.temp, { id: this.auditCompanyId })
+      this.$store.dispatch('updateCompany', payload).then(() => {
+        this.loadCompanyList()
+        this.$notify({ title: '成功', message: '保存成功', type: 'success', duration: 2000 })
+        this.dialogFormVisible = false
+      }).catch(err => {
+        this.$message.error((err && err.message) || '保存失败')
+      })
     },
 
     // 删除用户
     handleDelete (row) {
       this.$store.dispatch('deleteCompany', row.row.id).then(res => {
-        this.getCompanyList()
+        this.loadCompanyList()
         this.$notify({
           title: 'Success',
           message: '删除成功',
@@ -324,7 +382,7 @@ export default {
     addData () {
       this.$store.dispatch('addCompany', this.temp).then(res => {
         this.resetrForm()
-        this.getCompanyList()
+        this.loadCompanyList()
         this.$notify({
           title: 'Success',
           message: '添加成功',
@@ -336,54 +394,46 @@ export default {
         this.$message.error(err)
       })
     },
-    // 修改用户
-    updateData (row) {
-      this.$store.dispatch('updateCompany', { id: row.row.id, status: 'Approve' }).then(res => {
-        this.getCompanyList()
-        this.$notify({
-          title: 'Success',
-          message: '修改成功',
-          type: 'success',
-          duration: 2000
-        })
-        this.dialogFormVisible = false
+    quickApprove (row) {
+      this.$store.dispatch('updateCompany', { id: row.row.id, status: 'Approve' }).then(() => {
+        this.loadCompanyList()
+        this.$notify({ title: '成功', message: '已通过审核', type: 'success', duration: 2000 })
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error((err && err.message) || '操作失败')
       })
     },
 
-    // 按条件查询用户
     handleQuery () {
-      const params = {
-        pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize,
-        condition: { name: this.listQuery.companyName }
-      }
-      this.$store.dispatch('queryCompany', params).then(res => {
-        this.total = res.total
-      }).catch(err => {
-        console.log(err)
-      })
+      this.listQuery.pageNum = 1
+      this.loadCompanyList()
+    },
+
+    statusCode (status) {
+      if (status == null) return ''
+      if (typeof status === 'object' && status.enumCode) return status.enumCode
+      return status
     },
 
     // 获取状态文本
     getStatusText(status) {
+      const code = this.statusCode(status)
       const statusMap = {
         'Check_Pending': '待审核',
         'Approve': '审核通过',
         'Audit_Failed': '审核失败'
       }
-      return statusMap[status] || status
+      return statusMap[code] || (typeof status === 'object' && status.msg) || code || '--'
     },
 
     // 获取状态标签类型
     getStatusType(status) {
+      const code = this.statusCode(status)
       const typeMap = {
         'Check_Pending': 'warning',
         'Approve': 'success',
         'Audit_Failed': 'danger'
       }
-      return typeMap[status] || ''
+      return typeMap[code] || ''
     }
   }
 

@@ -74,8 +74,11 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="福利待遇" prop="treatment" width="120" show-overflow-tooltip />
-      <el-table-column align="center" label="用户ID" prop="userId" width="80" />
-      <el-table-column align="center" label="公司ID" prop="companyId" width="80" />
+      <el-table-column align="center" label="发布者" prop="userId" width="100" show-overflow-tooltip>
+        <template slot-scope="{row}">
+          <span>{{ row.userId || '—' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="创建时间" width="120">
         <template slot-scope="{row}">
           <span>{{ row.createTime | parseTime }}</span>
@@ -108,11 +111,14 @@
               操作<i class="el-icon-arrow-down el-icon--right"></i>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native="approveJob(row)">
+              <el-dropdown-item v-if="row.status === 0" @click.native="approveJob(row)">
                 <i class="el-icon-check" /> 通过审核
               </el-dropdown-item>
-              <el-dropdown-item @click.native="rejectJob(row)">
+              <el-dropdown-item v-if="row.status === 0" @click.native="rejectJob(row)">
                 <i class="el-icon-close" /> 驳回审核
+              </el-dropdown-item>
+              <el-dropdown-item v-if="row.status === 1 || row.status === 2" divided @click.native="reactivateJob(row)">
+                <i class="el-icon-refresh-left" /> 重新提交审核
               </el-dropdown-item>
               <el-dropdown-item @click.native="viewJob(row)">
                 <i class="el-icon-view" /> 查看详情
@@ -316,19 +322,27 @@ export default {
     })
   },
   mounted () {
+    this.applyRouteQuery()
     this.getEmploymentList()
-    // this.getRoleList()
     this.$store.dispatch('getEmploymentEducationEnum', 'EmploymentEducationEnum')
     this.$store.dispatch('getEmploymentReplyStatus', 'EmploymentReplyStatus')
-    // this.$store.dispatch('getEmploymentUserStatus', 'EmploymentUserStatus')
   },
   methods: {
     getRowKeys (row) {
       return row.id
     },
+    applyRouteQuery () {
+      const q = this.$route.query || {}
+      if (q.status !== undefined && q.status !== null && q.status !== '') {
+        const n = Number(q.status)
+        if (!Number.isNaN(n)) {
+          this.listQuery.status = n
+        }
+      }
+    },
+
     expandChange (row, expandedRows) {
       const that = this
-      console.log(expandedRows)
       if (expandedRows.length) { // 说明展开了
         that.expands = []
         if (row) {
@@ -340,6 +354,7 @@ export default {
     },
     // 获取职位列表（管理端显示所有状态）
     getEmploymentList () {
+      this.listLoading = true
       // 构建筛选条件
       const condition = {}
       if (this.listQuery.title) condition.title = this.listQuery.title
@@ -355,14 +370,11 @@ export default {
         condition: Object.keys(condition).length > 0 ? condition : null
       }
 
-      console.log('获取职位列表参数：', params)
       this.$store.dispatch('getEmploymentList', params).then(res => {
-        console.log('获取到的职位数据：', res)
         this.total = res.total
         this.listLoading = false
       }).catch(err => {
-        console.error('获取职位列表失败：', err)
-        this.$message.error('获取职位列表失败')
+        this.$message.error((err && err.message) || '获取职位列表失败')
         this.listLoading = false
       })
     },
@@ -394,6 +406,10 @@ export default {
     },
     // 审核通过
     approveJob (row) {
+      if (row.status !== 0) {
+        this.$message.warning('仅「待审核」职位可通过审核')
+        return
+      }
       const statusText = this.getStatusText(row.status)
       this.$confirm(`当前状态：${statusText}\n确认通过该职位审核并发布？`, '审核确认', {
         confirmButtonText: '确定',
@@ -407,6 +423,10 @@ export default {
     },
     // 驳回职位
     rejectJob (row) {
+      if (row.status !== 0) {
+        this.$message.warning('仅「待审核」职位可驳回')
+        return
+      }
       const statusText = this.getStatusText(row.status)
       this.$prompt(`当前状态：${statusText}\n请输入驳回原因`, '驳回职位', {
         confirmButtonText: '确定',
@@ -453,9 +473,7 @@ export default {
     },
     // 更新职位状态
     updateEmploymentStatus (temp, message) {
-      console.log('更新职位状态：', temp)
       this.$store.dispatch('updateEmployment', temp).then(res => {
-        console.log('更新成功：', res)
         this.$notify({
           title: 'Success',
           message: message,
@@ -465,8 +483,7 @@ export default {
         // 刷新列表显示所有状态
         this.getEmploymentList()
       }).catch(err => {
-        console.error('更新失败：', err)
-        this.$message.error('操作失败：' + err)
+        this.$message.error((err && err.message) ? `操作失败：${err.message}` : '操作失败')
       })
     },
 
@@ -537,13 +554,13 @@ export default {
         pageSize: this.listQuery.pageSize,
         condition: condition
       }
-      console.log('查询参数：', params)
+      this.listLoading = true
       this.$store.dispatch('queryEmployment', params).then(res => {
-        console.log('查询结果：', res)
         this.total = res.total
       }).catch(err => {
-        console.error('查询失败：', err)
-        this.$message.error('查询失败')
+        this.$message.error((err && err.message) || '查询失败')
+      }).finally(() => {
+        this.listLoading = false
       })
     },
     // 重置查询

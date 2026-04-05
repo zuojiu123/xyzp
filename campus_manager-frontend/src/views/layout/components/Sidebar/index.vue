@@ -10,6 +10,7 @@
 import { mapGetters } from 'vuex'
 import variables from '@/styles/variables.scss'
 import SidebarItem from './SidebarItem'
+import { getStoredUserAuthority } from '@/utils/userRole'
 
 export default {
   components: { SidebarItem },
@@ -18,19 +19,15 @@ export default {
       'sidebar'
     ]),
     routes () {
-      let list
-      if (JSON.parse(localStorage.getItem('userInfo')).role[0].authority === 'Admin') {
-        list = this.$router.options.routes.filter(item => {
-          return (item.meta.role && item.meta.role === 'admin') || (item.meta.role && item.meta.role === 'user')
-        })
+      const authority = getStoredUserAuthority()
+      const all = this.$router.options.routes || []
+      if (authority === 'Admin') {
+        return all.filter(item => item.meta && (item.meta.role === 'admin' || item.meta.role === 'user'))
       }
-      if (JSON.parse(localStorage.getItem('userInfo')).role[0].authority === 'Enterprise_User') {
-        list = this.$router.options.routes.filter(item => {
-          return (item.meta.role && item.meta.role === 'company') || (item.meta.role && item.meta.role === 'user')
-        })
+      if (authority === 'Enterprise_User') {
+        return all.filter(item => item.meta && (item.meta.role === 'company' || item.meta.role === 'user'))
       }
-      // return this.$router.options.routes
-      return list
+      return []
     },
     variables () {
       return variables

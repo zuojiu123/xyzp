@@ -1,63 +1,89 @@
 <template>
-  <div class="company-dashboard">
+  <div class="company-dashboard" v-loading="pageLoading">
     <div class="container">
-      <h2>欢迎回来，{{ companyInfo.name || '企业用户' }}</h2>
-      
-      <!-- 统计卡片 -->
-      <el-row :gutter="20" class="stats-row">
-        <el-col :span="6">
-          <el-card class="stat-card">
-            <div class="stat-content">
-              <div class="stat-number">{{ stats.totalJobs }}</div>
-              <div class="stat-label">发布职位</div>
+      <header class="page-head">
+        <div class="head-text">
+          <h1 class="title">{{ companyInfo.name || '企业工作台' }}</h1>
+          <p class="sub">管理职位、处理投递、维护企业形象</p>
+        </div>
+        <div class="head-actions">
+          <el-button type="primary" plain icon="el-icon-plus" @click="$router.push('/company/jobs')">发布职位</el-button>
+          <el-button icon="el-icon-document" @click="$router.push('/company/applications')">申请管理</el-button>
+          <el-button icon="el-icon-office-building" @click="$router.push('/company/profile')">企业资料</el-button>
+        </div>
+      </header>
+
+      <el-row :gutter="16" class="stats-row">
+        <el-col :xs="12" :sm="12" :md="6" v-for="(card, i) in statCards" :key="card.key">
+          <div class="stat-card" :class="'accent-' + i">
+            <div class="stat-inner">
+              <span class="stat-num">{{ card.value }}</span>
+              <span class="stat-label">{{ card.label }}</span>
             </div>
-            <i class="el-icon-suitcase stat-icon"></i>
+            <i :class="[card.icon, 'stat-ico']"></i>
+          </div>
+        </el-col>
+      </el-row>
+
+      <el-row :gutter="16" class="chart-row">
+        <el-col :xs="24" :lg="14">
+          <el-card shadow="never" class="panel-card">
+            <div slot="header" class="panel-header">
+              <span>近 7 日投递趋势</span>
+              <span class="panel-hint">按投递时间统计</span>
+            </div>
+            <div ref="applicationChart" class="chart-box"></div>
           </el-card>
         </el-col>
-        <el-col :span="6">
-          <el-card class="stat-card">
-            <div class="stat-content">
-              <div class="stat-number">{{ stats.totalApplications }}</div>
-              <div class="stat-label">收到申请</div>
+        <el-col :xs="24" :lg="10">
+          <el-card shadow="never" class="panel-card">
+            <div slot="header" class="panel-header">
+              <span>投递状态分布</span>
             </div>
-            <i class="el-icon-user stat-icon"></i>
-          </el-card>
-        </el-col>
-        <el-col :span="6">
-          <el-card class="stat-card">
-            <div class="stat-content">
-              <div class="stat-number">{{ stats.pendingApplications }}</div>
-              <div class="stat-label">待处理</div>
-            </div>
-            <i class="el-icon-time stat-icon"></i>
-          </el-card>
-        </el-col>
-        <el-col :span="6">
-          <el-card class="stat-card">
-            <div class="stat-content">
-              <div class="stat-number">{{ stats.hiredCount }}</div>
-              <div class="stat-label">已录用</div>
-            </div>
-            <i class="el-icon-check stat-icon"></i>
+            <div ref="statusChart" class="chart-box chart-pie"></div>
           </el-card>
         </el-col>
       </el-row>
 
-      <!-- 图表区域 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-card>
-            <div slot="header">申请趋势</div>
-            <div ref="applicationChart" style="height: 300px;"></div>
-          </el-card>
-        </el-col>
-        <el-col :span="12">
-          <el-card>
-            <div slot="header">申请状态分布</div>
-            <div ref="statusChart" style="height: 300px;"></div>
-          </el-card>
-        </el-col>
-      </el-row>
+      <el-card shadow="never" class="panel-card shortcuts-card">
+        <div slot="header" class="panel-header">
+          <span>常用入口</span>
+        </div>
+        <div class="shortcuts">
+          <div class="sc-item" @click="$router.push('/company/jobs')">
+            <i class="el-icon-suitcase"></i>
+            <div>
+              <strong>职位管理</strong>
+              <p>发布、编辑、上下线职位</p>
+            </div>
+            <i class="el-icon-arrow-right sc-arrow"></i>
+          </div>
+          <div class="sc-item" @click="$router.push('/company/applications')">
+            <i class="el-icon-user"></i>
+            <div>
+              <strong>申请管理</strong>
+              <p>筛选简历、通过或拒绝候选人</p>
+            </div>
+            <i class="el-icon-arrow-right sc-arrow"></i>
+          </div>
+          <div class="sc-item" @click="$router.push('/company/profile')">
+            <i class="el-icon-edit-outline"></i>
+            <div>
+              <strong>企业资料</strong>
+              <p>完善介绍与行业信息，提升曝光</p>
+            </div>
+            <i class="el-icon-arrow-right sc-arrow"></i>
+          </div>
+          <div v-if="companyInfo.id" class="sc-item" @click="openPublicPage">
+            <i class="el-icon-view"></i>
+            <div>
+              <strong>预览企业主页</strong>
+              <p>求职者端看到的公开页面</p>
+            </div>
+            <i class="el-icon-arrow-right sc-arrow"></i>
+          </div>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
@@ -65,157 +91,190 @@
 <script>
 import * as echarts from 'echarts'
 
+function toMs(t) {
+  if (t == null) return null
+  if (typeof t === 'number') return t > 1e12 ? t : t * 1000
+  const n = Number(t)
+  if (!Number.isNaN(n)) return n > 1e12 ? n : n * 1000
+  const d = new Date(t)
+  return d.getTime()
+}
+
 export default {
   name: 'CompanyDashboard',
   data() {
     return {
+      pageLoading: false,
       companyInfo: {},
       stats: {
         totalJobs: 0,
         totalApplications: 0,
         pendingApplications: 0,
-        hiredCount: 0
+        hiredCount: 0,
+        rejectedCount: 0
       },
+      applications: [],
       applicationChart: null,
       statusChart: null
     }
   },
+  computed: {
+    statCards() {
+      return [
+        { key: 'jobs', label: '我的职位', value: this.stats.totalJobs, icon: 'el-icon-suitcase' },
+        { key: 'apps', label: '收到申请', value: this.stats.totalApplications, icon: 'el-icon-message' },
+        { key: 'pend', label: '待处理', value: this.stats.pendingApplications, icon: 'el-icon-time' },
+        { key: 'hire', label: '已录用', value: this.stats.hiredCount, icon: 'el-icon-circle-check' }
+      ]
+    }
+  },
   async mounted() {
     await this.loadData()
-    this.initCharts()
+    this.$nextTick(() => this.initOrUpdateCharts())
+    window.addEventListener('resize', this.onResize)
   },
   beforeDestroy() {
-    if (this.applicationChart) {
-      this.applicationChart.dispose()
-    }
-    if (this.statusChart) {
-      this.statusChart.dispose()
-    }
+    window.removeEventListener('resize', this.onResize)
+    this.disposeCharts()
   },
   methods: {
+    onResize() {
+      this.applicationChart && this.applicationChart.resize()
+      this.statusChart && this.statusChart.resize()
+    },
+    disposeCharts() {
+      if (this.applicationChart) {
+        this.applicationChart.dispose()
+        this.applicationChart = null
+      }
+      if (this.statusChart) {
+        this.statusChart.dispose()
+        this.statusChart = null
+      }
+    },
+    openPublicPage() {
+      const route = this.$router.resolve({ name: 'CompanyDetail', params: { id: this.companyInfo.id } })
+      window.open(route.href, '_blank')
+    },
     async loadData() {
+      this.pageLoading = true
       try {
         this.companyInfo = await this.$api.company.getCurrentCompany()
-        
         if (!this.companyInfo || !this.companyInfo.id) {
           this.$message.warning('请先完善企业信息')
           this.$router.push('/company/register')
           return
         }
-        
-        // 获取职位数据
-        const jobsData = await this.$api.employment.getUserJobs(1, 100)
+
+        const [jobsData, applicationsData] = await Promise.all([
+          this.$api.employment.getUserJobs(1, 500),
+          this.$api.employmentUser.getCompanyApplications(1, 2000, { companyId: this.companyInfo.id })
+        ])
+
         const jobs = jobsData.list || []
-        
-        // 获取申请数据
-        const applicationsData = await this.$api.employmentUser.getCompanyApplications(1, 100, {
-          companyId: this.companyInfo.id
-        })
         const applications = applicationsData.list || []
-        
-        // 统计数据
+        this.applications = applications
+
+        const isPending = a => a.replyStatus === 'Wait_For_Reply'
+        const isHired = a => a.replyStatus === 'Agree_With_Induction'
+        const isRejected = a => a.replyStatus === 'Rejected' || a.replyStatus === 'Refused_Entry'
+
         this.stats = {
           totalJobs: jobs.length,
           totalApplications: applications.length,
-          pendingApplications: applications.filter(a => a.replyStatus === 'Wait_For_Reply').length,
-          hiredCount: applications.filter(a => a.replyStatus === 'Agree_With_Induction').length
+          pendingApplications: applications.filter(isPending).length,
+          hiredCount: applications.filter(isHired).length,
+          rejectedCount: applications.filter(isRejected).length
         }
-      } catch (error) {
-        console.error('加载数据失败:', error)
+      } catch (e) {
+        console.error(e)
+        this.$message.error('加载工作台数据失败')
+      } finally {
+        this.pageLoading = false
       }
     },
-    
-    initCharts() {
-      this.initApplicationChart()
-      this.initStatusChart()
+    buildTrendSeries() {
+      const labels = []
+      const dayKeys = []
+      const now = new Date()
+      now.setHours(0, 0, 0, 0)
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now)
+        d.setDate(d.getDate() - i)
+        labels.push(`${d.getMonth() + 1}/${d.getDate()}`)
+        dayKeys.push(d.toDateString())
+      }
+      const counts = Array(7).fill(0)
+      this.applications.forEach(a => {
+        const ms = toMs(a.createTime)
+        if (ms == null || Number.isNaN(ms)) return
+        const d = new Date(ms)
+        d.setHours(0, 0, 0, 0)
+        const idx = dayKeys.indexOf(d.toDateString())
+        if (idx >= 0) counts[idx]++
+      })
+      return { labels, counts }
     },
-    
-    initApplicationChart() {
-      this.applicationChart = echarts.init(this.$refs.applicationChart)
-      
-      const option = {
-        tooltip: {
-          trigger: 'axis'
-        },
-        xAxis: {
-          type: 'category',
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        },
-        yAxis: {
-          type: 'value'
-        },
+    initOrUpdateCharts() {
+      if (!this.$refs.applicationChart || !this.$refs.statusChart) return
+
+      const brand = '#ff6b00'
+      const { labels, counts } = this.buildTrendSeries()
+
+      if (!this.applicationChart) {
+        this.applicationChart = echarts.init(this.$refs.applicationChart)
+      }
+      this.applicationChart.setOption({
+        tooltip: { trigger: 'axis' },
+        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+        xAxis: { type: 'category', data: labels, boundaryGap: false },
+        yAxis: { type: 'value', minInterval: 1 },
         series: [
           {
-            name: '申请数',
+            name: '投递数',
             type: 'line',
             smooth: true,
-            data: [12, 18, 15, 22, 28, 16, 10],
-            itemStyle: {
-              color: '#409EFF'
-            },
+            data: counts,
+            itemStyle: { color: brand },
             areaStyle: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-                { offset: 1, color: 'rgba(64, 158, 255, 0.1)' }
+                { offset: 0, color: 'rgba(255, 107, 0, 0.25)' },
+                { offset: 1, color: 'rgba(255, 107, 0, 0.02)' }
               ])
             }
           }
         ]
+      })
+
+      const other = Math.max(
+        0,
+        this.stats.totalApplications - this.stats.pendingApplications - this.stats.hiredCount - this.stats.rejectedCount
+      )
+      const pieData = [
+        { value: this.stats.pendingApplications, name: '待处理', itemStyle: { color: '#e6a23c' } },
+        { value: this.stats.hiredCount, name: '已录用', itemStyle: { color: '#67c23a' } },
+        { value: this.stats.rejectedCount, name: '已拒绝', itemStyle: { color: '#f56c6c' } },
+        { value: other, name: '其他', itemStyle: { color: '#909399' } }
+      ].filter(d => d.value > 0)
+
+      if (!this.statusChart) {
+        this.statusChart = echarts.init(this.$refs.statusChart)
       }
-      
-      this.applicationChart.setOption(option)
-    },
-    
-    initStatusChart() {
-      this.statusChart = echarts.init(this.$refs.statusChart)
-      
-      const option = {
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          bottom: '5%',
-          left: 'center'
-        },
+      this.statusChart.setOption({
+        tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+        legend: { bottom: 0, left: 'center' },
         series: [
           {
-            name: '申请状态',
+            name: '状态',
             type: 'pie',
-            radius: ['40%', '70%'],
-            avoidLabelOverlap: false,
-            itemStyle: {
-              borderRadius: 10,
-              borderColor: '#fff',
-              borderWidth: 2
-            },
-            label: {
-              show: false,
-              position: 'center'
-            },
-            emphasis: {
-              label: {
-                show: true,
-                fontSize: 20,
-                fontWeight: 'bold'
-              }
-            },
-            labelLine: {
-              show: false
-            },
-            data: [
-              { value: this.stats.pendingApplications, name: '待处理', itemStyle: { color: '#E6A23C' } },
-              { value: this.stats.hiredCount, name: '已录用', itemStyle: { color: '#67C23A' } },
-              { 
-                value: this.stats.totalApplications - this.stats.pendingApplications - this.stats.hiredCount, 
-                name: '已拒绝', 
-                itemStyle: { color: '#F56C6C' } 
-              }
-            ]
+            radius: ['42%', '68%'],
+            center: ['50%', '46%'],
+            itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
+            label: { show: true, formatter: '{b}\n{c}' },
+            data: pieData.length ? pieData : [{ value: 1, name: '暂无数据', itemStyle: { color: '#e4e7ed' } }]
           }
         ]
-      }
-      
-      this.statusChart.setOption(option)
+      })
     }
   }
 }
@@ -223,9 +282,9 @@ export default {
 
 <style scoped>
 .company-dashboard {
-  padding: 20px;
-  background: #f5f5f5;
   min-height: calc(100vh - 120px);
+  padding: 24px 20px 40px;
+  background: #f8fafc;
 }
 
 .container {
@@ -233,46 +292,192 @@ export default {
   margin: 0 auto;
 }
 
-h2 {
-  margin-bottom: 20px;
-  color: #333;
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.sub {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.head-actions .el-button {
+  margin-left: 0;
+  margin-right: 8px;
+  margin-bottom: 8px;
 }
 
 .stats-row {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .stat-card {
   position: relative;
-  overflow: hidden;
-}
-
-.stat-card .el-card__body {
+  background: #fff;
+  border-radius: 12px;
   padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+  min-height: 108px;
 }
 
-.stat-content {
-  flex: 1;
+.stat-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 12px 0 0 12px;
 }
 
-.stat-number {
-  font-size: 32px;
-  font-weight: bold;
-  color: #409EFF;
-  margin-bottom: 5px;
+.accent-0::before { background: #ff6b00; }
+.accent-1::before { background: #3b82f6; }
+.accent-2::before { background: #e6a23c; }
+.accent-3::before { background: #67c23a; }
+
+.stat-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.stat-num {
+  display: block;
+  font-size: 28px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
 }
 
 .stat-label {
-  color: #666;
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.stat-ico {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 40px;
+  color: #ff6b00;
+  opacity: 0.12;
+}
+
+.accent-1 .stat-ico { color: #3b82f6; }
+.accent-2 .stat-ico { color: #e6a23c; }
+.accent-3 .stat-ico { color: #67c23a; }
+
+.chart-row {
+  margin-bottom: 16px;
+}
+
+.panel-card {
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  margin-bottom: 16px;
+}
+
+.panel-card >>> .el-card__header {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.panel-hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.chart-box {
+  height: 300px;
+}
+
+.chart-pie {
+  height: 320px;
+}
+
+.shortcuts-card .shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.sc-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafbfc;
+}
+
+.sc-item:hover {
+  border-color: rgba(255, 107, 0, 0.35);
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.08);
+}
+
+.sc-item > .el-icon-suitcase,
+.sc-item > .el-icon-user,
+.sc-item > .el-icon-edit-outline,
+.sc-item > .el-icon-view {
+  font-size: 28px;
+  color: #ff6b00;
+  flex-shrink: 0;
+}
+
+.sc-item strong {
+  display: block;
+  color: #1e293b;
+  font-size: 15px;
+}
+
+.sc-item p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.sc-arrow {
+  margin-left: auto;
+  color: #cbd5e1;
   font-size: 14px;
 }
 
-.stat-icon {
-  font-size: 48px;
-  color: #409EFF;
-  opacity: 0.3;
+@media (max-width: 768px) {
+  .head-actions {
+    width: 100%;
+  }
 }
 </style>

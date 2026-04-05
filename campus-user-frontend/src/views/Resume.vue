@@ -14,6 +14,7 @@
             <div>
               <h1 class="page-title">简历管理中心</h1>
               <p class="page-subtitle">管理您的简历，轻松应对各种求职机会</p>
+              <p class="page-subtitle page-hint">简历已保存至服务器，与职位投递中上传的附件同源，便于企业查看。</p>
             </div>
           </div>
           <div class="header-right">
@@ -23,22 +24,22 @@
                 <div class="quota-bar">
                   <div 
                     class="quota-bar-fill" 
-                    :style="{ width: (resumeList.length / 3 * 100) + '%' }"
+                    :style="{ width: (Math.min(resumeList.length / maxResumeCount, 1) * 100) + '%' }"
                   ></div>
                 </div>
                 <div class="quota-dots">
                   <div 
-                    v-for="(dot, index) in 3" 
-                    :key="index"
+                    v-for="slot in maxResumeCount" 
+                    :key="'q-' + slot"
                     class="quota-dot"
-                    :class="{ 'active': index < resumeList.length }"
+                    :class="{ 'active': slot <= resumeList.length }"
                   >
-                    <svg v-if="index < resumeList.length" viewBox="0 0 24 24" width="10" height="10" fill="white">
+                    <svg v-if="slot <= resumeList.length" viewBox="0 0 24 24" width="10" height="10" fill="white">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                     </svg>
                   </div>
                 </div>
-                <span class="quota-num">{{ resumeList.length }}<span class="quota-divider">/</span>3</span>
+                <span class="quota-num">{{ resumeList.length }}<span class="quota-divider">/</span>{{ maxResumeCount }}</span>
               </div>
             </div>
             <button
@@ -53,7 +54,7 @@
             <button
               class="upload-main-btn"
               @click="handleUploadClick"
-              :class="{ 'disabled': resumeList.length >= 3 }"
+              :class="{ 'disabled': resumeList.length >= maxResumeCount }"
             >
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                 <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
@@ -143,7 +144,7 @@
       </div>
   
       <!-- 主要内容区域 -->
-      <div class="content-section">
+      <div class="content-section" v-loading="listLoading">
         <div class="content-inner">
           <!-- 网格视图 -->
           <transition-group 
@@ -191,7 +192,7 @@
                 </div>
                 <!-- 文件类型角标 -->
                 <div class="file-type-badge" :class="'type-' + resume.type">
-                  {{ resume.type === 'word' ? 'DOC' : resume.type.toUpperCase() }}
+                  {{ typeBadgeLabel(resume) }}
                 </div>
               </div>
   
@@ -489,7 +490,7 @@
               </div>
               <div v-if="deleteTargetResume" class="delete-file-card">
                 <div class="sf-icon" :class="'type-' + deleteTargetResume.type">
-                  {{ deleteTargetResume.type === 'word' ? 'DOC' : deleteTargetResume.type.toUpperCase() }}
+                  {{ typeBadgeLabel(deleteTargetResume) }}
                 </div>
                 <div class="sf-info">
                   <div class="sf-name">{{ deleteTargetResume.name }}</div>
@@ -576,13 +577,19 @@
   </template>
   
   <script>
+  import { fetchResumeBlob } from '@/utils/resumeFile'
+
+  const RESUME_META_KEY = 'resumeMetaV1'
+
   export default {
     name: 'ResumeManager',
     data() {
       return {
+        maxResumeCount: 3,
         resumeList: [],
+        listLoading: false,
         searchKeyword: '',
-        sortBy: 'updatedAt',
+        sortBy: 'createdAt',
         viewMode: 'grid',
         showSortMenu: false,
         dialogVisible: false,
@@ -594,6 +601,7 @@
         isDragging: false,
         selectedFile: null,
         previewUrl: '',
+        previewBlobUrl: '',
         previewType: '',
         previewResumeName: '简历预览',
         toasts: [],
@@ -612,20 +620,22 @@
         ]
       }
     },
-  
+
     computed: {
       filteredList() {
         let result = [...this.resumeList]
         if (this.searchKeyword) {
           const kw = this.searchKeyword.toLowerCase()
           result = result.filter(r =>
-            r.name.toLowerCase().includes(kw) ||
+            (r.name && r.name.toLowerCase().includes(kw)) ||
+            (r.note && r.note.toLowerCase().includes(kw)) ||
             (r.tags && r.tags.some(t => t.toLowerCase().includes(kw)))
           )
         }
         result.sort((a, b) => {
           if (this.sortBy === 'isDefault') return (b.isDefault ? 1 : 0) - (a.isDefault ? 1 : 0)
-          return new Date(b[this.sortBy]) - new Date(a[this.sortBy])
+          const key = this.sortBy === 'updatedAt' ? 'createdAt' : this.sortBy
+          return new Date(b[key]) - new Date(a[key])
         })
         return result
       },
@@ -634,33 +644,122 @@
         return opt ? opt.label : '排序'
       },
       deleteTargetResume() {
-        return this.resumeList.find(r => r.id === this.currentResumeId) || null
+        const id = this.currentResumeId
+        return this.resumeList.find(r => String(r.id) === String(id)) || null
       }
     },
-  
+
+    watch: {
+      previewDialogVisible(val) {
+        if (!val) this.revokePreviewUrl()
+      }
+    },
+
     mounted() {
       this.loadResumes()
       document.addEventListener('click', this.closeSortMenu)
     },
     beforeDestroy() {
       document.removeEventListener('click', this.closeSortMenu)
+      this.revokePreviewUrl()
     },
-  
+
     methods: {
-      loadResumes() {
+      readMeta() {
         try {
-          const data = localStorage.getItem('userResumes')
-          if (data) this.resumeList = JSON.parse(data)
-        } catch (e) { /* ignore */ }
+          const raw = localStorage.getItem(RESUME_META_KEY)
+          if (!raw) return { byId: {}, defaultId: null }
+          const j = JSON.parse(raw)
+          return { byId: j.byId || {}, defaultId: j.defaultId || null }
+        } catch (e) {
+          return { byId: {}, defaultId: null }
+        }
       },
-      saveResumes() {
-        localStorage.setItem('userResumes', JSON.stringify(this.resumeList))
+      writeMeta(meta) {
+        localStorage.setItem(RESUME_META_KEY, JSON.stringify({
+          byId: meta.byId || {},
+          defaultId: meta.defaultId || null
+        }))
+      },
+      stripExtension(filename) {
+        if (!filename) return ''
+        const i = filename.lastIndexOf('.')
+        return i > 0 ? filename.slice(0, i) : filename
+      },
+      extFromFilename(filename) {
+        if (!filename) return ''
+        const i = filename.lastIndexOf('.')
+        return i > 0 ? filename.slice(i + 1) : ''
+      },
+      extensionToType(ext) {
+        const e = (ext || '').toLowerCase()
+        if (e === 'pdf') return 'pdf'
+        if (e === 'doc' || e === 'docx') return 'word'
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(e)) return 'image'
+        return 'other'
+      },
+      mapServerResume(row, meta) {
+        const id = String(row.id)
+        const m = meta.byId[id] || {}
+        const ext = (row.extension || this.extFromFilename(row.resumeName || '')).toLowerCase()
+        const fallbackName = this.stripExtension(row.resumeName || '') || '简历'
+        const displayName = m.customName != null && String(m.customName).trim() !== ''
+          ? String(m.customName).trim()
+          : fallbackName
+        const ts = row.createTime ? new Date(row.createTime).toISOString() : new Date().toISOString()
+        return {
+          id,
+          name: displayName,
+          resumeName: row.resumeName,
+          extension: ext,
+          type: this.extensionToType(ext),
+          size: null,
+          tags: Array.isArray(m.tags) ? [...m.tags] : [],
+          note: m.note || '',
+          isDefault: meta.defaultId != null && String(meta.defaultId) === id,
+          createdAt: ts,
+          updatedAt: ts
+        }
+      },
+      reconcileDefault(meta) {
+        const ids = this.resumeList.map(r => String(r.id))
+        if (!ids.length) {
+          meta.defaultId = null
+          this.writeMeta(meta)
+          return
+        }
+        if (!meta.defaultId || !ids.includes(String(meta.defaultId))) {
+          meta.defaultId = ids[0]
+          this.writeMeta(meta)
+        }
+        this.resumeList.forEach(r => {
+          r.isDefault = String(r.id) === String(meta.defaultId)
+        })
+      },
+      async loadResumes() {
+        const token = localStorage.getItem('token')
+        if (!token) {
+          this.resumeList = []
+          return
+        }
+        this.listLoading = true
+        try {
+          const list = await this.$api.userResume.getUserResumeList()
+          const meta = this.readMeta()
+          const rows = Array.isArray(list) ? list : []
+          this.resumeList = rows.map(r => this.mapServerResume(r, meta))
+          this.reconcileDefault(meta)
+        } catch (e) {
+          this.showToast(e.message || '加载简历失败', 'error')
+          this.resumeList = []
+        } finally {
+          this.listLoading = false
+        }
       },
       closeSortMenu(e) {
         if (!e.target.closest('.sort-dropdown')) this.showSortMenu = false
       },
-  
-      // Toast
+
       showToast(message, type = 'info') {
         const id = Date.now() + Math.random()
         this.toasts.push({ id, message, type })
@@ -668,11 +767,17 @@
           this.toasts = this.toasts.filter(t => t.id !== id)
         }, 3000)
       },
-  
-      // Upload
+
+      typeBadgeLabel(resume) {
+        if (!resume) return ''
+        if (resume.type === 'word') return 'DOC'
+        if (resume.type === 'other') return (resume.extension || 'FILE').toUpperCase()
+        return String(resume.type).toUpperCase()
+      },
+
       handleUploadClick() {
-        if (this.resumeList.length >= 3) {
-          this.showToast('最多只能上传 3 份简历', 'error')
+        if (this.resumeList.length >= this.maxResumeCount) {
+          this.showToast(`最多只能上传 ${this.maxResumeCount} 份简历`, 'error')
           return
         }
         this.showUploadDialog()
@@ -720,8 +825,7 @@
         if (idx > -1) this.formData.tags.splice(idx, 1)
         else this.formData.tags.push(tag)
       },
-  
-      // Submit
+
       submitForm() {
         this.formErrors = {}
         if (!this.formData.name.trim()) {
@@ -733,39 +837,38 @@
           return
         }
         this.submitLoading = true
-        if (this.editMode) this.updateResume()
-        else this.uploadFile()
+        if (this.editMode) this.updateResumeRecord()
+        else this.uploadResumeToServer()
       },
-      uploadFile() {
-        const file = this.formData.file
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const resume = {
-            id: Date.now().toString(),
-            name: this.formData.name.trim(),
-            type: this.getFileType(file.name),
-            size: file.size,
-            content: e.target.result,
+      async uploadResumeToServer() {
+        try {
+          const server = await this.$api.userResume.uploadResume(this.formData.file)
+          const newId = String(server.id)
+          const newExt = (server.extension || this.extFromFilename(server.resumeName || '') || 'pdf').toLowerCase()
+          await this.$api.userResume.updateResume({
+            id: newId,
+            resumeName: `${this.formData.name.trim()}.${newExt}`
+          })
+          const meta = this.readMeta()
+          meta.byId[newId] = {
             tags: [...this.formData.tags],
             note: this.formData.note.trim(),
-            isDefault: this.resumeList.length === 0,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
+            customName: this.formData.name.trim()
           }
-          this.resumeList.push(resume)
-          this.saveResumes()
+          if (!meta.defaultId || !this.resumeList.length) {
+            meta.defaultId = newId
+          }
+          this.writeMeta(meta)
+          await this.loadResumes()
           this.dialogVisible = false
-          this.submitLoading = false
           this.showToast('简历上传成功', 'success')
-        }
-        reader.onerror = () => {
-          this.showToast('文件读取失败', 'error')
+        } catch (e) {
+          this.showToast(e.message || '上传失败', 'error')
+        } finally {
           this.submitLoading = false
         }
-        reader.readAsDataURL(file)
       },
-  
-      // Edit
+
       editResume(resume) {
         this.editMode = true
         this.currentResumeId = resume.id
@@ -779,105 +882,152 @@
         this.formErrors = {}
         this.dialogVisible = true
       },
-      updateResume() {
-        const idx = this.resumeList.findIndex(r => r.id === this.currentResumeId)
-        if (idx === -1) { this.submitLoading = false; return }
-  
-        const updated = {
-          ...this.resumeList[idx],
-          name: this.formData.name.trim(),
-          tags: [...this.formData.tags],
-          note: this.formData.note.trim(),
-          updatedAt: new Date().toISOString()
-        }
-  
-        if (this.formData.file) {
-          const file = this.formData.file
-          const reader = new FileReader()
-          reader.onload = (e) => {
-            updated.type = this.getFileType(file.name)
-            updated.size = file.size
-            updated.content = e.target.result
-            this.$set(this.resumeList, idx, updated)
-            this.saveResumes()
-            this.dialogVisible = false
-            this.submitLoading = false
-            this.showToast('简历更新成功', 'success')
-          }
-          reader.onerror = () => {
-            this.showToast('文件读取失败', 'error')
-            this.submitLoading = false
-          }
-          reader.readAsDataURL(file)
-        } else {
-          this.$set(this.resumeList, idx, updated)
-          this.saveResumes()
-          this.dialogVisible = false
+      async updateResumeRecord() {
+        const id = String(this.currentResumeId)
+        const idx = this.resumeList.findIndex(r => String(r.id) === id)
+        if (idx === -1) {
           this.submitLoading = false
+          return
+        }
+        const r = this.resumeList[idx]
+        const ext = (r.extension || this.getFileExtension(r.type) || 'pdf').toLowerCase()
+
+        try {
+          if (this.formData.file) {
+            const meta = this.readMeta()
+            const wasDefault = String(meta.defaultId) === id
+            const server = await this.$api.userResume.uploadResume(this.formData.file)
+            const newId = String(server.id)
+            await this.$api.userResume.deleteResume(id)
+            const prev = meta.byId[id] || {}
+            delete meta.byId[id]
+            meta.byId[newId] = {
+              tags: [...this.formData.tags],
+              note: this.formData.note.trim(),
+              customName: this.formData.name.trim()
+            }
+            if (wasDefault) meta.defaultId = newId
+            this.writeMeta(meta)
+            const newExt = (server.extension || this.extFromFilename(server.resumeName || '') || ext).toLowerCase()
+            await this.$api.userResume.updateResume({
+              id: newId,
+              resumeName: `${this.formData.name.trim()}.${newExt}`
+            })
+          } else {
+            await this.$api.userResume.updateResume({
+              id,
+              resumeName: `${this.formData.name.trim()}.${ext}`
+            })
+            const meta = this.readMeta()
+            meta.byId[id] = {
+              ...(meta.byId[id] || {}),
+              tags: [...this.formData.tags],
+              note: this.formData.note.trim(),
+              customName: this.formData.name.trim()
+            }
+            this.writeMeta(meta)
+          }
+          await this.loadResumes()
+          this.dialogVisible = false
           this.showToast('简历更新成功', 'success')
+        } catch (e) {
+          this.showToast(e.message || '更新失败', 'error')
+        } finally {
+          this.submitLoading = false
         }
       },
       getCurrentFileName() {
         if (!this.currentResumeId) return ''
-        const r = this.resumeList.find(r => r.id === this.currentResumeId)
-        return r ? r.name + '.' + this.getFileExtension(r.type) : ''
+        const r = this.resumeList.find(x => String(x.id) === String(this.currentResumeId))
+        if (r && r.resumeName) return r.resumeName
+        return r ? `${r.name}.${r.extension || this.getFileExtension(r.type)}` : ''
       },
-  
-      // Preview
-      previewResume(resume) {
-        this.previewUrl = resume.content
-        this.previewType = resume.type
+
+      revokePreviewUrl() {
+        if (this.previewBlobUrl) {
+          URL.revokeObjectURL(this.previewBlobUrl)
+          this.previewBlobUrl = ''
+        }
+        this.previewUrl = ''
+        this.previewType = ''
+      },
+
+      async previewResume(resume) {
+        this.revokePreviewUrl()
         this.previewResumeName = resume.name
         this.currentResumeId = resume.id
         this.previewDialogVisible = true
-      },
-  
-      // Download
-      downloadResume(resume) {
-        const link = document.createElement('a')
-        link.href = resume.content
-        link.download = resume.name + '.' + this.getFileExtension(resume.type)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        this.showToast('开始下载...', 'info')
-      },
-      downloadPreviewResume() {
-        const resume = this.resumeList.find(r => r.id === this.currentResumeId)
-        if (resume) this.downloadResume(resume)
-      },
-  
-      // Default
-      setDefaultResume(id) {
-        this.resumeList.forEach(r => { r.isDefault = false })
-        const r = this.resumeList.find(r => r.id === id)
-        if (r) {
-          r.isDefault = true
-          this.saveResumes()
-          this.showToast('已设为默认简历', 'success')
+        try {
+          const blob = await fetchResumeBlob(resume.id)
+          const url = URL.createObjectURL(blob)
+          this.previewBlobUrl = url
+          this.previewUrl = url
+          if (resume.type === 'pdf') this.previewType = 'pdf'
+          else if (resume.type === 'image') this.previewType = 'image'
+          else this.previewType = 'other'
+        } catch (e) {
+          this.showToast(e.message || '预览失败', 'error')
+          this.previewDialogVisible = false
         }
       },
-  
-      // Delete
+
+      async downloadResume(resume) {
+        try {
+          const blob = await fetchResumeBlob(resume.id)
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          const ext = (resume.extension || this.getFileExtension(resume.type)).toLowerCase()
+          const base = (resume.resumeName && this.stripExtension(resume.resumeName)) || resume.name
+          a.download = `${base}.${ext}`
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+          this.showToast('开始下载...', 'info')
+        } catch (e) {
+          this.showToast(e.message || '下载失败', 'error')
+        }
+      },
+      downloadPreviewResume() {
+        const resume = this.resumeList.find(x => String(x.id) === String(this.currentResumeId))
+        if (resume) this.downloadResume(resume)
+      },
+
+      setDefaultResume(id) {
+        const meta = this.readMeta()
+        meta.defaultId = String(id)
+        this.writeMeta(meta)
+        this.resumeList.forEach(r => {
+          r.isDefault = String(r.id) === String(id)
+        })
+        this.showToast('已设为默认简历', 'success')
+      },
+
       confirmDelete(id) {
         this.currentResumeId = id
         this.deleteDialogVisible = true
       },
-      deleteResume() {
-        const idx = this.resumeList.findIndex(r => r.id === this.currentResumeId)
-        if (idx !== -1) {
-          const wasDefault = this.resumeList[idx].isDefault
-          this.resumeList.splice(idx, 1)
-          if (wasDefault && this.resumeList.length > 0) {
-            this.resumeList[0].isDefault = true
-          }
-          this.saveResumes()
+      async deleteResume() {
+        const id = String(this.currentResumeId)
+        if (!id) {
+          this.deleteDialogVisible = false
+          return
+        }
+        try {
+          await this.$api.userResume.deleteResume(id)
+          const meta = this.readMeta()
+          delete meta.byId[id]
+          if (String(meta.defaultId) === id) meta.defaultId = null
+          this.writeMeta(meta)
+          await this.loadResumes()
           this.deleteDialogVisible = false
           this.showToast('简历已删除', 'success')
+        } catch (e) {
+          this.showToast(e.message || '删除失败', 'error')
         }
       },
-  
-      // Utils
+
       getFileType(filename) {
         const ext = filename.split('.').pop().toLowerCase()
         if (ext === 'pdf') return 'pdf'
@@ -890,7 +1040,8 @@
         return map[type] || 'file'
       },
       formatFileSize(size) {
-        if (!size) return '0 B'
+        if (size == null || size === '') return '—'
+        if (size === 0) return '0 B'
         if (size < 1024) return size + ' B'
         if (size < 1048576) return (size / 1024).toFixed(1) + ' KB'
         return (size / 1048576).toFixed(1) + ' MB'
@@ -1012,6 +1163,14 @@
     color: rgba(255,255,255,0.8);
     margin-top: 4px;
     font-weight: 400;
+  }
+
+  .page-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.72);
+    max-width: 420px;
+    line-height: 1.45;
   }
   
   .header-right {
@@ -1579,6 +1738,11 @@
   .file-type-badge.type-image {
     background: #f0fdf4;
     color: #16a34a;
+  }
+
+  .file-type-badge.type-other {
+    background: #f3f4f6;
+    color: #6b7280;
   }
   
   /* Card Body */

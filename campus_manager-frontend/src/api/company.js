@@ -8,7 +8,7 @@ export function getCompanyList(params) {
   return request({
     url: `company/${params.pageNum}/${params.pageSize}`,
     method: 'post',
-    data: {}
+    data: { showAll: true }
   }).then(res => getResult(res))
 }
 
@@ -48,10 +48,11 @@ export function deleteCompany(id) {
 * 按条件信息
 */
 export function queryCompany(params) {
+  const body = Object.assign({ showAll: true }, params.condition || {})
   return request({
     url: `company/${params.pageNum}/${params.pageSize}`,
     method: 'post',
-    data: params.condition
+    data: body
   }).then(res => getResult(res))
 }
 

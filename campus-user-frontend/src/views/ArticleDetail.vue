@@ -9,7 +9,7 @@
           <div class="article-header">
             <div class="meta-row">
               <el-tag size="small" type="primary" effect="plain" class="category-tag" v-if="article.type">
-                {{ article.type }}
+                {{ typeLabel(article.type) }}
               </el-tag>
               <span class="publish-time">{{ formatTime(article.createTime) }}</span>
             </div>
@@ -198,7 +198,8 @@
 </template>
 
 <script>
-// 逻辑部分保持完全一致
+import { articleTypeLabel } from '@/utils/articleDisplay'
+
 export default {
   name: 'ArticleDetail',
   data() {
@@ -219,20 +220,21 @@ export default {
     }
   },
   methods: {
+    typeLabel: articleTypeLabel,
     async loadArticle() {
       this.loading = true
       try {
-        const id = this.$route.params.id
+        const id = String(this.$route.params.id)
         const response = await this.$api.article.getArticleById(id)
         this.article = response || {}
-        
-        // 从localStorage获取用户的点赞和收藏状态
+
         const token = localStorage.getItem('token')
         if (token) {
-          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
-          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
-          this.article.isLiked = likedArticles.includes(id)
-          this.article.isCollected = collectedArticles.includes(id)
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]').map(String)
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]').map(String)
+          const aid = this.article.id != null ? String(this.article.id) : id
+          this.article.isLiked = likedArticles.includes(aid)
+          this.article.isCollected = collectedArticles.includes(aid)
         } else {
           this.article.isLiked = false
           this.article.isCollected = false
@@ -289,12 +291,11 @@ export default {
       }
     },
 
-    showReplyInput(commentId) {
-      this.replyingToCommentId = commentId;
-      this.replyingToSpecificId = specificId;
-      // 设置 placeholder 显示的名字
-      this.replyingToUser = targetName ? `@${targetName}` : '';
-      this.replyContent = '';
+    showReplyInput(commentId, specificId = null, targetName = '') {
+      this.replyingToCommentId = commentId
+      this.replyingToSpecificId = specificId
+      this.replyingToUser = targetName ? `@${targetName}` : ''
+      this.replyContent = ''
     },
 
     cancelReply() {
@@ -341,12 +342,12 @@ export default {
       }
       this.liking = true
       try {
+        const aid = String(this.article.id)
         if (this.article.isLiked) {
           this.article.thumbUp = await this.$api.article.unlikeArticle(this.article.id)
           this.$message.success('取消点赞成功')
-          // 从localStorage中移除
-          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
-          const index = likedArticles.indexOf(this.article.id)
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]').map(String)
+          const index = likedArticles.indexOf(aid)
           if (index > -1) {
             likedArticles.splice(index, 1)
             localStorage.setItem('likedArticles', JSON.stringify(likedArticles))
@@ -354,10 +355,9 @@ export default {
         } else {
           this.article.thumbUp = await this.$api.article.likeArticle(this.article.id)
           this.$message.success('点赞成功')
-          // 保存到localStorage
-          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]')
-          if (!likedArticles.includes(this.article.id)) {
-            likedArticles.push(this.article.id)
+          const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]').map(String)
+          if (!likedArticles.includes(aid)) {
+            likedArticles.push(aid)
             localStorage.setItem('likedArticles', JSON.stringify(likedArticles))
           }
         }
@@ -379,12 +379,12 @@ export default {
       }
       this.collecting = true
       try {
+        const aid = String(this.article.id)
         if (this.article.isCollected) {
           this.article.collectNumber = await this.$api.article.uncollectArticle(this.article.id)
           this.$message.success('取消收藏成功')
-          // 从localStorage中移除
-          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
-          const index = collectedArticles.indexOf(this.article.id)
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]').map(String)
+          const index = collectedArticles.indexOf(aid)
           if (index > -1) {
             collectedArticles.splice(index, 1)
             localStorage.setItem('collectedArticles', JSON.stringify(collectedArticles))
@@ -392,10 +392,9 @@ export default {
         } else {
           this.article.collectNumber = await this.$api.article.collectArticle(this.article.id)
           this.$message.success('收藏成功')
-          // 保存到localStorage
-          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]')
-          if (!collectedArticles.includes(this.article.id)) {
-            collectedArticles.push(this.article.id)
+          const collectedArticles = JSON.parse(localStorage.getItem('collectedArticles') || '[]').map(String)
+          if (!collectedArticles.includes(aid)) {
+            collectedArticles.push(aid)
             localStorage.setItem('collectedArticles', JSON.stringify(collectedArticles))
           }
         }
@@ -429,6 +428,16 @@ export default {
   async mounted() {
     await this.loadArticle()
     await this.loadComments()
+  },
+  watch: {
+    '$route.params.id'(newId, oldId) {
+      if (newId && newId !== oldId) {
+        this.loadArticle()
+        this.loadComments()
+        this.cancelReply()
+        this.newComment = ''
+      }
+    }
   }
 }
 </script>
