@@ -16,11 +16,11 @@ CREATE TABLE `user` (
                         `address` varchar(255) DEFAULT NULL COMMENT '居住地址',
                         `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
                         `role` varchar(20) NOT NULL DEFAULT '0' COMMENT '用户角色：Normal_User-普通用户，Admin-管理员，Enterprise_User-企业用户',
-                        `integral` int(11) DEFAULT 500 COMMENT '积分',
-                        `credit` int(11) DEFAULT 5 COMMENT '信誉度',
+                        `integral` int(11) DEFAULT '500' COMMENT '积分',
+                        `credit` int(11) DEFAULT '5' COMMENT '信誉度',
                         `create_time` bigint(20) NOT NULL COMMENT '创建时间',
                         `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
-                        `deleted` int(11) DEFAULT 0 COMMENT '逻辑删除',
+                        `deleted` int(11) DEFAULT '0' COMMENT '逻辑删除',
                         PRIMARY KEY (`id`),
                         UNIQUE KEY `uk_user_name` (`user_name`),
                         UNIQUE KEY `uk_email` (`email`)
@@ -33,6 +33,7 @@ CREATE TABLE `company` (
                            `name` varchar(100) NOT NULL COMMENT '公司名称',
                            `description` text COMMENT '公司描述',
                            `company_logo` varchar(255) DEFAULT NULL COMMENT '公司Logo',
+                           `view_count` int(11) DEFAULT '0' COMMENT '人气热度（阅读次数）',
                            `user_id` varchar(32) NOT NULL COMMENT '用户ID',
                            `status` varchar(20) DEFAULT 'Check_Pending' COMMENT '审核状态：Check_Pending-待审核，Approve-审核通过，Audit_Failed-审核失败',
                            `category` varchar(20) DEFAULT NULL COMMENT '公司类别',
@@ -60,9 +61,10 @@ CREATE TABLE `employment` (
                               `max_salary` varchar(20) DEFAULT NULL COMMENT '最高薪资',
                               `salary` varchar(50) DEFAULT NULL COMMENT '薪资范围',
                               `treatment` text COMMENT '福利待遇',
-                              `status` int(11) DEFAULT 0 COMMENT '状态：0-待审核，1-审核通过，2-驳回',
+                              `status` int(11) DEFAULT '0' COMMENT '状态：0-待审核，1-审核通过，2-驳回',
                               `create_time` bigint(20) NOT NULL COMMENT '创建时间',
                               `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
+                              `collect_number` int(11) DEFAULT '0' COMMENT '收藏数',
                               PRIMARY KEY (`id`),
                               KEY `idx_company_id` (`company_id`),
                               KEY `idx_user_id` (`user_id`)
@@ -79,11 +81,15 @@ CREATE TABLE `employment_user` (
                                    `resume` varchar(255) DEFAULT NULL COMMENT '简历文件路径',
                                    `reply_status` varchar(20) DEFAULT 'Wait_For_Reply' COMMENT '回复状态：Wait_For_Reply-等待回复，Agree_With_Induction-同意入职',
                                    `user_status` varchar(20) DEFAULT 'Normal' COMMENT '用户状态',
+                                   `recruit_stage` varchar(32) DEFAULT 'SUBMITTED' COMMENT '招聘流程阶段',
+                                   `interview_time` bigint(20) DEFAULT NULL COMMENT '面试/邀约时间戳',
+                                   `interview_remark` varchar(500) DEFAULT NULL COMMENT '面试或流程备注',
                                    `reply_user` varchar(32) DEFAULT NULL COMMENT '回复人',
+                                   `type` int(11) DEFAULT '1' COMMENT '类型：1-投递，2-收藏',
                                    `reply_content` text COMMENT '回复内容',
                                    `reply_time` bigint(20) DEFAULT NULL COMMENT '回复时间',
                                    `create_time` bigint(20) NOT NULL COMMENT '创建时间',
-                                   `deleted` int(11) DEFAULT 0 COMMENT '逻辑删除',
+                                   `deleted` int(11) DEFAULT '0' COMMENT '逻辑删除',
                                    PRIMARY KEY (`id`),
                                    KEY `idx_employment_id` (`employment_id`),
                                    KEY `idx_user_id` (`user_id`)
@@ -94,11 +100,12 @@ CREATE TABLE `article` (
                            `id` varchar(32) NOT NULL COMMENT '文章ID',
                            `title` varchar(200) NOT NULL COMMENT '文章标题',
                            `content` longtext COMMENT '文章内容',
-                           `pic_path` varchar(255) DEFAULT NULL COMMENT '封面图片',
+                           `pic_path` varchar(2000) DEFAULT NULL COMMENT '封面图片',
                            `user_id` varchar(32) NOT NULL COMMENT '发布用户ID',
                            `type` varchar(20) DEFAULT NULL COMMENT '文章类型',
-                           `collect_number` int(11) DEFAULT 0 COMMENT '收藏数',
-                           `thumb_up` int(11) DEFAULT 0 COMMENT '点赞数',
+                           `collect_number` int(11) DEFAULT '0' COMMENT '收藏数',
+                           `thumb_up` int(11) DEFAULT '0' COMMENT '点赞数',
+                           `view_count` int(11) DEFAULT '0' COMMENT '阅读数',
                            `create_time` bigint(20) NOT NULL COMMENT '创建时间',
                            `update_time` bigint(20) DEFAULT NULL COMMENT '更新时间',
                            PRIMARY KEY (`id`),
@@ -138,7 +145,7 @@ CREATE TABLE `comment_reply_relation` (
                                           `reply_info_id` varchar(32) NOT NULL COMMENT '回复ID',
                                           `comments_id` varchar(32) NOT NULL COMMENT '评论ID',
                                           `parent_reply_id` varchar(32) DEFAULT NULL COMMENT '父回复ID',
-                                          `type` int(11) DEFAULT 1 COMMENT '类型',
+                                          `type` int(11) DEFAULT '1' COMMENT '类型',
                                           `create_time` bigint(20) NOT NULL COMMENT '创建时间',
                                           PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='评论回复关系表';
@@ -151,7 +158,12 @@ CREATE TABLE `user_resume` (
                                `resume_url` varchar(255) NOT NULL COMMENT '简历文件路径',
                                `type` varchar(20) DEFAULT NULL COMMENT '文件类型',
                                `extension` varchar(10) DEFAULT NULL COMMENT '文件扩展名',
-                               `resume_type` int(11) DEFAULT 1 COMMENT '简历类型',
+                               `resume_type` int(11) DEFAULT '1' COMMENT '简历类型',
+                               `parsed_name` varchar(100) DEFAULT NULL COMMENT '解析：姓名',
+                               `parsed_phone` varchar(50) DEFAULT NULL COMMENT '解析：手机',
+                               `parsed_email` varchar(100) DEFAULT NULL COMMENT '解析：邮箱',
+                               `parsed_education` varchar(255) DEFAULT NULL COMMENT '解析：学历',
+                               `parsed_summary` varchar(2000) DEFAULT NULL COMMENT '解析：摘要',
                                `create_time` bigint(20) NOT NULL COMMENT '创建时间',
                                PRIMARY KEY (`id`),
                                KEY `idx_user_id` (`user_id`)
@@ -163,8 +175,8 @@ CREATE TABLE `feedback` (
                             `title` varchar(200) NOT NULL COMMENT '反馈标题',
                             `content` text NOT NULL COMMENT '反馈内容',
                             `user_id` varchar(32) NOT NULL COMMENT '反馈用户ID',
-                            `type` int(11) NOT NULL DEFAULT 0 COMMENT '反馈类型：1bug反馈，2建议，3投诉',
-                            `status` int(11) DEFAULT 0 COMMENT '处理状态：0未回复，1已回复',
+                            `type` int(11) NOT NULL DEFAULT '0' COMMENT '反馈类型：1bug反馈，2建议，3投诉',
+                            `status` varchar(20) DEFAULT 'Pending' COMMENT '处理状态',
                             `reply_content` text COMMENT '回复内容',
                             `reply_user_id` varchar(32) DEFAULT NULL COMMENT '回复用户ID',
                             `reply_time` bigint(20) DEFAULT NULL COMMENT '回复时间',
@@ -185,3 +197,38 @@ CREATE TABLE `area_selection` (
                                   `sequence` varchar(10) DEFAULT NULL COMMENT '排序',
                                   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区选择表';
+
+CREATE TABLE `article_like` (
+                                `id` varchar(32) NOT NULL COMMENT '点赞ID',
+                                `article_id` varchar(32) NOT NULL COMMENT '文章ID',
+                                `user_id` varchar(32) NOT NULL COMMENT '用户ID',
+                                `create_time` bigint(20) NOT NULL COMMENT '点赞时间',
+                                PRIMARY KEY (`id`),
+                                UNIQUE KEY `uk_article_user` (`article_id`,`user_id`),
+                                KEY `idx_article_id` (`article_id`),
+                                KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章点赞表';
+
+CREATE TABLE `article_collect` (
+                                   `id` varchar(32) NOT NULL COMMENT '收藏ID',
+                                   `article_id` varchar(32) NOT NULL COMMENT '文章ID',
+                                   `user_id` varchar(32) NOT NULL COMMENT '用户ID',
+                                   `create_time` bigint(20) NOT NULL COMMENT '收藏时间',
+                                   PRIMARY KEY (`id`),
+                                   UNIQUE KEY `uk_article_user` (`article_id`,`user_id`),
+                                   KEY `idx_article_id` (`article_id`),
+                                   KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文章收藏表';
+
+CREATE TABLE `area_selection` (
+                                  `id` varchar(32) NOT NULL COMMENT '地区ID',
+                                  `code` varchar(20) NOT NULL COMMENT '行政区划代码',
+                                  `name` varchar(50) NOT NULL COMMENT '地区名称',
+                                  `parent_code` varchar(20) DEFAULT NULL COMMENT '上级代码',
+                                  `level` varchar(10) DEFAULT NULL COMMENT '级别',
+                                  `hot` int(11) DEFAULT '0' COMMENT '是否热门城市',
+                                  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+                                  `sequence` varchar(10) DEFAULT NULL COMMENT '排序',
+                                  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区选择表';
+
