@@ -1,27 +1,28 @@
 #app {
-
-  // 主体区域 Main container
   .main-container {
     min-height: 100%;
-    transition: margin-left .28s;
     margin-left: $sideBarWidth;
     position: relative;
+    transition: margin-left .28s ease;
+    background: transparent;
   }
 
-  // 侧边栏 Sidebar container
   .sidebar-container {
-    transition: width 0.28s;
+    transition: width .28s ease;
     width: $sideBarWidth !important;
     height: 100%;
     position: fixed;
-    font-size: 0px;
+    font-size: 0;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 1001;
     overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18%),
+      linear-gradient(180deg, $menuBg 0%, #0d1b2a 100%);
+    box-shadow: 18px 0 40px rgba(11, 25, 47, 0.18);
 
-    //reset element-ui css
     .horizontal-collapse-transition {
       transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
     }
@@ -35,7 +36,7 @@
     }
 
     .el-scrollbar__bar.is-vertical {
-      right: 0px;
+      right: 3px;
     }
 
     .is-horizontal {
@@ -49,16 +50,26 @@
     }
 
     .svg-icon {
-      margin-right: 16px;
+      margin-right: 14px;
     }
 
     .el-menu {
       border: none;
       height: 100%;
       width: 100% !important;
+      background: transparent;
     }
 
-    // menu hover
+    .el-menu-item,
+    .el-submenu__title {
+      height: 50px;
+      line-height: 50px;
+      margin: 6px 12px;
+      border-radius: 14px;
+      color: $menuText !important;
+      transition: all .22s ease;
+    }
+
     .submenu-title-noDropdown,
     .el-submenu__title {
       &:hover {
@@ -66,14 +77,26 @@
       }
     }
 
-    .is-active>.el-submenu__title {
+    .el-menu-item:hover,
+    .el-menu-item:focus {
+      background-color: $menuHover !important;
+      color: #fff !important;
+    }
+
+    .el-menu-item.is-active {
+      background: linear-gradient(135deg, rgba(255, 122, 24, 0.9), rgba(255, 154, 61, 0.88)) !important;
+      color: $menuActiveText !important;
+      box-shadow: 0 12px 24px rgba(255, 122, 24, 0.22);
+    }
+
+    .is-active > .el-submenu__title {
       color: $subMenuActiveText !important;
     }
 
-    & .nest-menu .el-submenu>.el-submenu__title,
+    & .nest-menu .el-submenu > .el-submenu__title,
     & .el-submenu .el-menu-item {
-      min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      min-width: calc(#{$sideBarWidth} - 24px) !important;
+      background-color: rgba(16, 32, 51, 0.86) !important;
 
       &:hover {
         background-color: $subMenuHover !important;
@@ -83,27 +106,27 @@
 
   .hideSidebar {
     .sidebar-container {
-      width: 36px !important;
+      width: 64px !important;
     }
 
     .main-container {
-      margin-left: 36px;
+      margin-left: 64px;
     }
 
     .submenu-title-noDropdown {
-      padding-left: 10px !important;
+      padding-left: 18px !important;
       position: relative;
 
       .el-tooltip {
-        padding: 0 10px !important;
+        padding: 0 18px !important;
       }
     }
 
     .el-submenu {
       overflow: hidden;
 
-      &>.el-submenu__title {
-        padding-left: 10px !important;
+      & > .el-submenu__title {
+        padding-left: 18px !important;
 
         .el-submenu__icon-arrow {
           display: none;
@@ -112,16 +135,12 @@
     }
 
     .el-menu--collapse {
-      .el-submenu {
-        &>.el-submenu__title {
-          &>span {
-            height: 0;
-            width: 0;
-            overflow: hidden;
-            visibility: hidden;
-            display: inline-block;
-          }
-        }
+      .el-submenu > .el-submenu__title > span {
+        height: 0;
+        width: 0;
+        overflow: hidden;
+        visibility: hidden;
+        display: inline-block;
       }
     }
   }
@@ -130,48 +149,29 @@
     min-width: $sideBarWidth !important;
   }
 
-  // 适配移动端, Mobile responsive
   .mobile {
     .main-container {
-      margin-left: 0px;
+      margin-left: 0;
     }
 
     .sidebar-container {
-      transition: transform .28s;
+      transition: transform .28s ease;
       width: $sideBarWidth !important;
     }
 
     &.hideSidebar {
       .sidebar-container {
         pointer-events: none;
-        transition-duration: 0.3s;
+        transition-duration: .3s;
         transform: translate3d(-$sideBarWidth, 0, 0);
       }
     }
   }
 
   .withoutAnimation {
-
     .main-container,
     .sidebar-container {
       transition: none;
-    }
-  }
-}
-
-// when menu collapsed
-.el-menu--vertical {
-  &>.el-menu {
-    .svg-icon {
-      margin-right: 16px;
-    }
-  }
-
-  .nest-menu .el-submenu>.el-submenu__title,
-  .el-menu-item {
-    &:hover {
-      // You can use $subMenuHover
-      background-color: $menuHover !important;
     }
   }
 }

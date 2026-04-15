@@ -1,17 +1,27 @@
-//sidebar
-$menuText:#bfcbd9;
-$menuActiveText:#409EFF;
-$subMenuActiveText:#f4f4f5; //https://github.com/ElemeFE/element/issues/12951
+// Sidebar palette
+$menuText: #d8e1f2;
+$menuActiveText: #ffffff;
+$subMenuActiveText: #ffffff;
 
-$menuBg:#304156;
-$menuHover:#263445;
+$menuBg: #14213d;
+$menuHover: #1d325d;
 
-$subMenuBg:#1f2d3d;
-$subMenuHover:#001528;
+$subMenuBg: #102033;
+$subMenuHover: #1a3157;
 
-$sideBarWidth: 180px;
+$sideBarWidth: 220px;
 
-// the :export directive is the magic sauce for webpack
+// Global admin tokens
+$adminPrimary: #ff7a18;
+$adminPrimarySoft: #fff1e7;
+$adminAccent: #2f80ed;
+$adminSurface: #ffffff;
+$adminBackground: #f4f7fb;
+$adminBorder: #e7edf6;
+$adminText: #1f2a44;
+$adminMuted: #7b879c;
+$adminShadow: 0 18px 40px rgba(20, 33, 61, 0.08);
+
 :export {
   menuText: $menuText;
   menuActiveText: $menuActiveText;

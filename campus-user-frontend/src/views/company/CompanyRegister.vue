@@ -2,8 +2,8 @@
   <div class="company-register">
     <div class="container">
       <el-card class="register-card">
-        <h2>企业注册</h2>
-        <el-form :model="form" :rules="rules" ref="form" label-width="120px">
+        <h2>企业信息完善</h2>
+        <el-form ref="form" :model="form" :rules="rules" label-width="120px">
           <el-form-item label="公司名称" prop="name">
             <el-input v-model="form.name" placeholder="请输入公司名称"></el-input>
           </el-form-item>
@@ -11,7 +11,7 @@
             <el-input v-model="form.companyNumber" placeholder="请输入营业执照号"></el-input>
           </el-form-item>
           <el-form-item label="公司规模" prop="number">
-            <el-select v-model="form.number" placeholder="请选择公司规模">
+            <el-select v-model="form.number" placeholder="请选择公司规模" style="width: 100%">
               <el-option label="1-50人" :value="50"></el-option>
               <el-option label="51-200人" :value="200"></el-option>
               <el-option label="201-500人" :value="500"></el-option>
@@ -20,16 +20,16 @@
             </el-select>
           </el-form-item>
           <el-form-item label="公司描述" prop="description">
-            <el-input 
-              type="textarea" 
-              v-model="form.description" 
+            <el-input
+              v-model="form.description"
+              type="textarea"
               :rows="4"
               placeholder="请简单介绍一下公司情况"
             ></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm" :loading="loading">
-              提交注册
+            <el-button type="primary" :loading="loading" @click="submitForm">
+              提交企业信息
             </el-button>
             <el-button @click="$router.go(-1)">返回</el-button>
           </el-form-item>
@@ -44,6 +44,7 @@ export default {
   name: 'CompanyRegister',
   data() {
     return {
+      existingCompanyId: '',
       form: {
         name: '',
         companyNumber: '',
@@ -68,20 +69,47 @@ export default {
       loading: false
     }
   },
+  async mounted() {
+    await this.loadExistingCompany()
+  },
   methods: {
+    async loadExistingCompany() {
+      try {
+        const company = await this.$api.company.getCurrentCompany()
+        if (!company || !company.id) {
+          return
+        }
+        this.existingCompanyId = company.id
+        this.form = {
+          name: company.name || '',
+          companyNumber: company.companyNumber || '',
+          number: company.number || '',
+          description: company.description || ''
+        }
+      } catch (error) {
+        this.existingCompanyId = ''
+      }
+    },
     submitForm() {
       this.$refs.form.validate(async (valid) => {
-        if (valid) {
-          this.loading = true
-          try {
+        if (!valid) return
+
+        this.loading = true
+        try {
+          if (this.existingCompanyId) {
+            await this.$api.company.updateCompany({
+              ...this.form,
+              id: this.existingCompanyId
+            })
+          } else {
             await this.$api.company.createCompany(this.form)
-            this.$message.success('企业注册成功，请等待审核')
-            this.$router.push('/company/dashboard')
-          } catch (error) {
-            this.$message.error('注册失败：' + (error.message || '未知错误'))
-          } finally {
-            this.loading = false
           }
+          this.$message.success('企业信息已提交，请等待审核')
+          this.$router.push('/company/dashboard')
+        } catch (error) {
+          this.$message.error('提交失败：' + (error.message || '未知错误'))
+        } finally {
+          this.loading = false
         }
       })
     }

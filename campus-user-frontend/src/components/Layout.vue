@@ -328,15 +328,28 @@ export default {
   gap: 10px;
 }
 
+.user-menu-area {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-height: 40px;
+}
+
 .notice-badge {
   display: flex;
   align-items: center;
+  line-height: 1;
 }
 
 .notice-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 8px;
   font-size: 20px;
   color: #64748b;
+  line-height: 1;
 }
 
 .notice-btn:hover {
@@ -347,10 +360,13 @@ export default {
 .user-dropdown-trigger {
   display: flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 20px;
   transition: background 0.3s;
+  line-height: 1;
+  min-height: 44px;
 }
 
 .user-dropdown-trigger:hover {
@@ -367,10 +383,19 @@ export default {
   font-size: 14px;
   color: #334155;
   font-weight: 500;
+  line-height: 1.2;
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.user-dropdown-trigger .el-icon--right {
+  margin-left: 2px;
+  margin-right: 0;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1;
 }
 
 /* 未登录状态按钮组 */

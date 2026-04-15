@@ -110,7 +110,10 @@ export default {
 
   // 邮件相关
   email: {
-    getAuthCode: (receiver) => api.get('/email/getAuthCode', { params: { receiver } })
+    getAuthCode: (receiver) => api.get('/email/getAuthCode', {
+      params: { receiver },
+      timeout: 30000
+    })
   },
 
   // 反馈相关

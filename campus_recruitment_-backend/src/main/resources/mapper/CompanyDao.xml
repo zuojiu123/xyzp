@@ -125,15 +125,27 @@
     </select>
     
     <select id="queryByUsername" resultMap="CompanyMap">
-        select * from company where user_id = #{username}
+        select *
+        from company
+        where user_id = #{username}
+        order by update_time desc, create_time desc
+        limit 1
     </select>
     
     <select id="queryByUserIdString" resultMap="CompanyMap">
-        select * from company where user_id = #{userId}
+        select *
+        from company
+        where user_id = #{userId}
+        order by update_time desc, create_time desc
+        limit 1
     </select>
 
     <select id="queryByUserId" resultMap="CompanyMap">
-        select * from company where user_id = #{userId}
+        select *
+        from company
+        where user_id = #{userId}
+        order by update_time desc, create_time desc
+        limit 1
     </select>
 
     <!--新增所有列-->

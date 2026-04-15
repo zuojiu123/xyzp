@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard">
-    <!-- 顶部欢迎区域 -->
     <div class="welcome-section">
       <div class="welcome-content">
         <h1 class="welcome-title">欢迎回来，管理员</h1>
@@ -12,7 +11,6 @@
       </div>
     </div>
 
-    <!-- 数据统计卡片 -->
     <el-row :gutter="24" class="stats-row">
       <el-col :span="6">
         <div class="stat-card user-card">
@@ -22,9 +20,7 @@
           <div class="stat-content">
             <div class="stat-number">{{ userCount }}</div>
             <div class="stat-label">用户总数</div>
-            <div class="stat-trend">
-              实时统计
-            </div>
+            <div class="stat-trend">实时统计</div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart user-chart" />
@@ -40,9 +36,7 @@
           <div class="stat-content">
             <div class="stat-number">{{ companyCount }}</div>
             <div class="stat-label">企业总数</div>
-            <div class="stat-trend">
-              实时统计
-            </div>
+            <div class="stat-trend">实时统计</div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart company-chart" />
@@ -58,9 +52,7 @@
           <div class="stat-content">
             <div class="stat-number">{{ jobCount }}</div>
             <div class="stat-label">职位总数</div>
-            <div class="stat-trend">
-              实时统计
-            </div>
+            <div class="stat-trend">实时统计</div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart job-chart" />
@@ -76,9 +68,7 @@
           <div class="stat-content">
             <div class="stat-number">{{ resumeCount }}</div>
             <div class="stat-label">简历投递</div>
-            <div class="stat-trend">
-              实时统计
-            </div>
+            <div class="stat-trend">实时统计</div>
           </div>
           <div class="stat-chart">
             <div class="mini-chart resume-chart" />
@@ -87,9 +77,9 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px;">
+    <el-row :gutter="20" class="dashboard-row">
       <el-col :span="12">
-        <el-card>
+        <el-card class="panel-card">
           <div slot="header">
             <span>数据趋势</span>
           </div>
@@ -98,7 +88,7 @@
       </el-col>
 
       <el-col :span="12">
-        <el-card>
+        <el-card class="panel-card">
           <div slot="header">
             <span>数据分布</span>
           </div>
@@ -107,9 +97,9 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px;">
+    <el-row :gutter="20" class="dashboard-row">
       <el-col :span="12">
-        <el-card>
+        <el-card class="panel-card">
           <div slot="header">
             <span>快速操作</span>
           </div>
@@ -131,7 +121,7 @@
       </el-col>
 
       <el-col :span="12">
-        <el-card>
+        <el-card class="panel-card">
           <div slot="header">
             <span>系统信息</span>
           </div>
@@ -145,9 +135,9 @@
       </el-col>
     </el-row>
 
-    <el-row style="margin-top: 20px;">
+    <el-row class="dashboard-row">
       <el-col :span="24">
-        <el-card>
+        <el-card class="panel-card">
           <div slot="header">
             <span>待处理事项</span>
           </div>
@@ -278,26 +268,22 @@ export default {
 
     initTrendChart() {
       this.trendChart = echarts.init(document.getElementById('trendChart'))
-      const userStyle = { color: '#667eea' }
-      const companyStyle = { color: '#f093fb' }
-      const jobStyle = { color: '#4facfe' }
-      const resumeStyle = { color: '#43e97b' }
+      const userStyle = { color: '#ff7a18' }
+      const companyStyle = { color: '#2f80ed' }
+      const jobStyle = { color: '#36cfc9' }
+      const resumeStyle = { color: '#67c23a' }
 
       const option = {
         title: {
-          text: '近7天数据趋势（示意）',
-          subtext: '后端未提供按日统计，仅供版面展示',
+          text: '近 7 天数据趋势（示意）',
+          subtext: '后端暂未提供按日统计，仅作版面展示',
           textStyle: {
             fontSize: 14,
-            color: '#333'
+            color: '#1f2a44'
           }
         },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          data: ['用户注册', '企业注册', '职位发布', '简历投递']
-        },
+        tooltip: { trigger: 'axis' },
+        legend: { data: ['用户注册', '企业注册', '职位发布', '简历投递'] },
         grid: {
           left: '3%',
           right: '4%',
@@ -309,9 +295,7 @@ export default {
           boundaryGap: false,
           data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
         },
-        yAxis: {
-          type: 'value'
-        },
+        yAxis: { type: 'value' },
         series: [
           {
             name: '用户注册',
@@ -352,22 +336,20 @@ export default {
 
     initPieChart() {
       this.pieChart = echarts.init(document.getElementById('pieChart'))
-      const userStyle = { color: '#667eea' }
-      const companyStyle = { color: '#f093fb' }
-      const jobStyle = { color: '#4facfe' }
-      const resumeStyle = { color: '#43e97b' }
+      const userStyle = { color: '#ff7a18' }
+      const companyStyle = { color: '#2f80ed' }
+      const jobStyle = { color: '#36cfc9' }
+      const resumeStyle = { color: '#67c23a' }
 
       const option = {
         title: {
           text: '数据分布（实时）',
           textStyle: {
             fontSize: 14,
-            color: '#333'
+            color: '#1f2a44'
           }
         },
-        tooltip: {
-          trigger: 'item'
-        },
+        tooltip: { trigger: 'item' },
         legend: {
           orient: 'vertical',
           left: 'left'
@@ -398,10 +380,10 @@ export default {
 
     updateCharts() {
       if (this.pieChart) {
-        const userStyle = { color: '#667eea' }
-        const companyStyle = { color: '#f093fb' }
-        const jobStyle = { color: '#4facfe' }
-        const resumeStyle = { color: '#43e97b' }
+        const userStyle = { color: '#ff7a18' }
+        const companyStyle = { color: '#2f80ed' }
+        const jobStyle = { color: '#36cfc9' }
+        const resumeStyle = { color: '#67c23a' }
 
         const option = {
           series: [
@@ -424,167 +406,174 @@ export default {
 
 <style scoped lang="scss">
 .dashboard {
-  padding: 24px;
-  background: #f5f7fa;
   min-height: 100vh;
+  padding: 24px;
+  background: transparent;
+}
 
-  .welcome-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 32px;
-    margin-bottom: 24px;
+.dashboard-row {
+  margin-top: 20px;
+}
+
+.welcome-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 34px 36px;
+  border-radius: 24px;
+  color: white;
+  background:
+    radial-gradient(circle at right top, rgba(255, 255, 255, 0.22), transparent 24%),
+    linear-gradient(135deg, #14213d 0%, #1c3560 58%, #2f80ed 100%);
+  box-shadow: 0 24px 50px rgba(20, 33, 61, 0.22);
+}
+
+.welcome-title {
+  margin: 0 0 8px;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.welcome-subtitle {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 18px;
+
+  i {
+    margin-right: 8px;
+    font-size: 24px;
+  }
+}
+
+.stats-row {
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border: 1px solid #e7edf6;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 16px 36px rgba(20, 33, 61, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 48px rgba(20, 33, 61, 0.12);
+  }
+}
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+
+  i {
+    font-size: 28px;
     color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3);
+  }
+}
 
-    .welcome-content {
-      .welcome-title {
-        font-size: 32px;
-        font-weight: 600;
-        margin: 0 0 8px 0;
-      }
-
-      .welcome-subtitle {
-        font-size: 16px;
-        opacity: 0.9;
-        margin: 0;
-      }
-    }
-
-    .weather-info {
-      display: flex;
-      align-items: center;
-      font-size: 18px;
-
-      i {
-        font-size: 24px;
-        margin-right: 8px;
-      }
-    }
+.stat-content {
+  .stat-number {
+    margin-bottom: 8px;
+    color: #1f2a44;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
   }
 
-  .stats-row {
-    margin-bottom: 24px;
+  .stat-label {
+    margin-bottom: 8px;
+    color: #7b879c;
+    font-size: 14px;
   }
 
-  .stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-
-    &:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-icon {
-      width: 64px;
-      height: 64px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-
-      i {
-        font-size: 28px;
-        color: white;
-      }
-    }
-
-    .stat-content {
-      .stat-number {
-        font-size: 36px;
-        font-weight: 700;
-        color: #1a202c;
-        line-height: 1;
-        margin-bottom: 8px;
-      }
-
-      .stat-label {
-        font-size: 14px;
-        color: #718096;
-        margin-bottom: 8px;
-      }
-
-      .stat-trend {
-        font-size: 12px;
-        color: #38a169;
-        font-weight: 500;
-      }
-    }
-
-    .stat-chart {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 60px;
-      height: 40px;
-
-      .mini-chart {
-        width: 100%;
-        height: 100%;
-        border-radius: 8px;
-        opacity: 0.1;
-      }
-    }
-
-    &.user-card {
-      .stat-icon {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-      }
-      .user-chart {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-      }
-    }
-
-    &.company-card {
-      .stat-icon {
-        background: linear-gradient(135deg, #f093fb, #f5576c);
-      }
-      .company-chart {
-        background: linear-gradient(135deg, #f093fb, #f5576c);
-      }
-    }
-
-    &.job-card {
-      .stat-icon {
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-      }
-      .job-chart {
-        background: linear-gradient(135deg, #4facfe, #00f2fe);
-      }
-    }
-
-    &.resume-card {
-      .stat-icon {
-        background: linear-gradient(135deg, #43e97b, #38f9d7);
-      }
-      .resume-chart {
-        background: linear-gradient(135deg, #43e97b, #38f9d7);
-      }
-    }
+  .stat-trend {
+    color: #ff7a18;
+    font-size: 12px;
+    font-weight: 500;
   }
+}
 
-  .quick-actions {
-    .el-button {
-      margin: 5px;
-    }
-  }
+.stat-chart {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 40px;
+}
 
-  .system-info {
-    p {
-      margin: 10px 0;
-      color: #606266;
-    }
+.mini-chart {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  opacity: 0.1;
+}
+
+.user-card .stat-icon,
+.user-chart {
+  background: linear-gradient(135deg, #ff7a18, #ffb347);
+}
+
+.company-card .stat-icon,
+.company-chart {
+  background: linear-gradient(135deg, #2f80ed, #56ccf2);
+}
+
+.job-card .stat-icon,
+.job-chart {
+  background: linear-gradient(135deg, #36cfc9, #5cdbd3);
+}
+
+.resume-card .stat-icon,
+.resume-chart {
+  background: linear-gradient(135deg, #67c23a, #95de64);
+}
+
+.panel-card {
+  overflow: hidden;
+  border: 1px solid #e7edf6;
+  border-radius: 20px;
+}
+
+.panel-card ::v-deep .el-card__header {
+  background: #f9fbff;
+  border-bottom: 1px solid #e7edf6;
+}
+
+.quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  .el-button {
+    margin: 0;
+    min-width: 140px;
   }
+}
+
+.system-info p {
+  margin: 10px 0;
+  color: #5f6f86;
 }
 
 .text-muted {
