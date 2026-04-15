@@ -318,6 +318,7 @@ public class EmploymentServiceImpl implements EmploymentService {
                 currentUser.getId(),
                 currentUser.getUserName()
         );
+        UserModel targetUser = null;
         userNotificationService.saveNotification(
                 result.getUserId(),
                 targetUser != null ? targetUser.getUserName() : null,
@@ -327,7 +328,7 @@ public class EmploymentServiceImpl implements EmploymentService {
                 "EMPLOYMENT",
                 result.getId()
         );
-        UserModel targetUser = userDao.queryById(result.getUserId());
+        targetUser = userDao.queryById(result.getUserId());
         if (targetUser != null && targetUser.getUserName() != null) {
             java.util.Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("type", "notification");
