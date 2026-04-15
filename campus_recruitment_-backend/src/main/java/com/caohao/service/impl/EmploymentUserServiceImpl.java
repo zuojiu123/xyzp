@@ -1,5 +1,6 @@
 package com.caohao.service.impl;
 
+import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
 import com.caohao.controller.websocket.server.WebsocketServer;
@@ -8,6 +9,7 @@ import com.caohao.dao.EmploymentDao;
 import com.caohao.dao.EmploymentUserDao;
 import com.caohao.dao.UserDao;
 import com.caohao.dao.UserResumeDao;
+import com.caohao.pojo.entity.UserResume;
 import com.caohao.pojo.model.UserModel;
 import com.caohao.pojo.model.CompanyModel;
 import com.caohao.pojo.model.EmploymentModel;
@@ -56,6 +58,22 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
 
     private static final Gson GSON = new Gson();
 
+    private UserModel requireCurrentUser() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userDao.selectByUserName(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        return currentUser;
+    }
+
+    private boolean isAdmin(UserModel user) {
+        return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
+
     /**
      * 通过ID查询单条数据
      *
@@ -94,22 +112,39 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
         employmentUser.setCreateTime(DateUtil.getCurrentTimeMillis());
         
         // 获取当前用户ID
-        String username = GetTokenInfoUtil.getUsername();
-        System.out.println("申请职位时获取到的用户名: " + username);
-        
-        // 检查用户是否已登录
-        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
-            System.out.println("用户未登录，username: " + username);
-            throw new RuntimeException("请先登录后再申请职位");
-        }
-        
-        com.caohao.pojo.model.UserModel currentUser = userService.selectByUserName(username);
-        if (currentUser == null) {
-            throw new RuntimeException("用户不存在，请重新登录");
-        }
-        
+        UserModel currentUser = requireCurrentUser();
+        String username = currentUser.getUserName();
         System.out.println("找到用户ID: " + currentUser.getId());
         System.out.println("用户名: " + username);
+
+        EmploymentModel employmentModel = employmentDao.queryById(employmentUser.getEmploymentId());
+        if (employmentModel == null) {
+            throw new RuntimeException("投递职位不存在");
+        }
+        if (employmentModel.getStatus() == null || employmentModel.getStatus() != 1) {
+            throw new RuntimeException("该职位暂不可投递");
+        }
+
+        EmploymentUserParam duplicateCheck = new EmploymentUserParam();
+        duplicateCheck.setUserId(currentUser.getId());
+        duplicateCheck.setEmploymentId(employmentUser.getEmploymentId());
+        duplicateCheck.setType(1);
+        List<EmploymentUserModel> existingApplications = employmentUserDao.queryAllByLimit(duplicateCheck);
+        if (existingApplications != null && !existingApplications.isEmpty()) {
+            throw new RuntimeException("请勿重复投递同一职位");
+        }
+
+        if (employmentUser.getResume() == null || employmentUser.getResume().trim().isEmpty()) {
+            throw new RuntimeException("请先选择可用简历后再投递");
+        }
+        UserResume selectedResume = userResumeDao.queryById(employmentUser.getResume());
+        if (selectedResume == null) {
+            throw new RuntimeException("所选简历不存在");
+        }
+        if (!currentUser.getId().equals(selectedResume.getUserId())) {
+            throw new RuntimeException("仅可投递本人上传的简历");
+        }
+
         // 使用用户ID
         employmentUser.setUserId(currentUser.getId());
         // 设置类型为投递
@@ -137,6 +172,22 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
     @Override
     public EmploymentUserModel update(EmploymentUserParam employmentUser) {
         EmploymentUserModel existing = this.employmentUserDao.queryById(employmentUser.getId());
+        if (existing == null) {
+            throw new RuntimeException("申请记录不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        EmploymentModel employmentModel = employmentDao.queryById(existing.getEmploymentId());
+        if (employmentModel == null) {
+            throw new RuntimeException("关联职位不存在");
+        }
+        CompanyModel companyModel = companyDao.queryById(employmentModel.getCompanyId());
+        boolean companyOwner = companyModel != null && currentUser.getId().equals(companyModel.getUserId());
+        if (!admin && !companyOwner) {
+            throw new RuntimeException("无权处理该申请记录");
+        }
+
         String oldReplyStatus = existing != null ? existing.getReplyStatus() : null;
 
         employmentUser.setReplyTime(DateUtil.getCurrentTimeMillis());
@@ -188,6 +239,20 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
      */
     @Override
     public boolean deleteById(String id) {
+        EmploymentUserModel existing = this.employmentUserDao.queryById(id);
+        if (existing == null) {
+            throw new RuntimeException("申请记录不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        boolean applicant = currentUser.getId().equals(existing.getUserId());
+        EmploymentModel employmentModel = employmentDao.queryById(existing.getEmploymentId());
+        CompanyModel companyModel = employmentModel == null ? null : companyDao.queryById(employmentModel.getCompanyId());
+        boolean companyOwner = companyModel != null && currentUser.getId().equals(companyModel.getUserId());
+        if (!admin && !applicant && !companyOwner) {
+            throw new RuntimeException("无权删除该申请记录");
+        }
         return this.employmentUserDao.deleteById(id) > 0;
     }
 
@@ -211,6 +276,19 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
 
     @Override
     public PageInfo<EmploymentUserModel> queryByPageCompany(EmploymentUserParam employmentUser, Integer pageNum, Integer pageSize) {
+        UserModel currentUser = requireCurrentUser();
+        if (!UserRoleEnum.Enterprise_User.name().equals(currentUser.getRole()) && !isAdmin(currentUser)) {
+            throw new RuntimeException("仅企业用户或管理员可查看企业申请记录");
+        }
+
+        if (!isAdmin(currentUser)) {
+            CompanyModel myCompany = companyDao.queryByUserId(currentUser.getId());
+            if (myCompany == null) {
+                throw new RuntimeException("当前企业账号未绑定企业信息");
+            }
+            employmentUser.setCompanyId(myCompany.getId());
+        }
+
         PageHelper.startPage(pageNum, pageSize);
         EmploymentParam employmentParam = new EmploymentParam();
         employmentParam.setCompanyId(employmentUser.getCompanyId());

@@ -1,5 +1,7 @@
 package com.caohao.service.impl;
 
+import com.caohao.common.enums.impl.CompanyStatusEnum;
+import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
 import com.caohao.dao.CompanyDao;
@@ -38,6 +40,22 @@ public class EmploymentServiceImpl implements EmploymentService {
     private EmploymentUserDao employmentUserDao;
     @Resource
     private UserDao userDao;
+
+    private UserModel requireCurrentUser() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userDao.selectByUserName(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        return currentUser;
+    }
+
+    private boolean isAdmin(UserModel user) {
+        return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
 
     /**
      * 通过ID查询单条数据
@@ -119,10 +137,9 @@ public class EmploymentServiceImpl implements EmploymentService {
         employment.setUpdateTime(DateUtil.getCurrentTimeMillis());
         
         // 获取当前用户的ID和公司ID
-        String username = GetTokenInfoUtil.getUsername();
-        UserModel user = userDao.selectByUserName(username);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
+        UserModel user = requireCurrentUser();
+        if (!UserRoleEnum.Enterprise_User.name().equals(user.getRole())) {
+            throw new RuntimeException("仅企业用户可发布职位");
         }
         employment.setUserId(user.getId());
         employment.setStatus(0); // 0=待审核
@@ -131,6 +148,9 @@ public class EmploymentServiceImpl implements EmploymentService {
         System.out.println("查询到的公司信息: " + companyModel);
         
         if (companyModel != null) {
+            if (!CompanyStatusEnum.Approve.name().equals(companyModel.getStatus())) {
+                throw new RuntimeException("企业信息审核通过后才能发布职位");
+            }
             employment.setCompanyId(companyModel.getId());
             System.out.println("使用当前企业账号对应的公司ID: " + companyModel.getId());
         } else {
@@ -148,6 +168,23 @@ public class EmploymentServiceImpl implements EmploymentService {
      */
     @Override
     public EmploymentModel update(EmploymentParam employment) {
+        EmploymentModel existing = this.employmentDao.queryById(employment.getId());
+        if (existing == null) {
+            throw new RuntimeException("职位信息不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        if (!admin && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权修改该职位信息");
+        }
+
+        employment.setUserId(existing.getUserId());
+        employment.setCompanyId(existing.getCompanyId());
+        employment.setCollectNumber(existing.getCollectNumber());
+        if (!admin) {
+            employment.setStatus(existing.getStatus());
+        }
         employment.setUpdateTime(DateUtil.getCurrentTimeMillis());
         this.employmentDao.update(employment);
         return this.queryById(employment.getId());
@@ -161,6 +198,17 @@ public class EmploymentServiceImpl implements EmploymentService {
      */
     @Override
     public boolean deleteById(String id) {
+        EmploymentModel existing = this.employmentDao.queryById(id);
+        if (existing == null) {
+            throw new RuntimeException("职位信息不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        if (!admin && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权删除该职位信息");
+        }
+
         employmentUserDao.deleteByEmployId(id);
         return this.employmentDao.deleteById(id) > 0;
     }
@@ -196,6 +244,10 @@ public class EmploymentServiceImpl implements EmploymentService {
 
     @Override
     public EmploymentModel auditEmployment(EmploymentParam employment) {
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser)) {
+            throw new RuntimeException("仅管理员可执行职位审核");
+        }
         employment.setUpdateTime(DateUtil.getCurrentTimeMillis());
         this.employmentDao.update(employment);
         return this.queryById(employment.getId());

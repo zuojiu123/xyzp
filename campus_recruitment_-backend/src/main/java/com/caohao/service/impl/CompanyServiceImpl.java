@@ -1,5 +1,7 @@
 package com.caohao.service.impl;
 
+import com.caohao.common.enums.impl.CompanyStatusEnum;
+import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
 import com.caohao.security.util.GetTokenInfoUtil;
@@ -41,6 +43,22 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Resource
     private UserDao userDao;
+
+    private UserModel requireCurrentUser() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userDao.selectByUserName(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        return currentUser;
+    }
+
+    private boolean isAdmin(UserModel user) {
+        return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
 
     /**
      * 通过ID查询单条数据
@@ -98,16 +116,12 @@ public class CompanyServiceImpl implements CompanyService {
         company.setUpdateTime(DateUtil.getCurrentTimeMillis());
         
         // 获取当前登录用户的ID
-        String username = GetTokenInfoUtil.getUsername();
-        UserModel user = userDao.selectByUserName(username);
-        if (user == null) {
-            throw new RuntimeException("用户不存在");
-        }
+        UserModel user = requireCurrentUser();
         company.setUserId(user.getId());
         
         // 设置默认状态为待审核
         if (company.getStatus() == null || company.getStatus().isEmpty()) {
-            company.setStatus("Check_Pending");
+            company.setStatus(CompanyStatusEnum.Check_Pending.name());
         }
         
         this.companyDao.insert(company);
@@ -122,6 +136,24 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public CompanyModel update(CompanyParam company) {
+        CompanyModel existing = this.companyDao.queryById(company.getId());
+        if (existing == null) {
+            throw new RuntimeException("公司信息不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        if (!admin && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权修改该企业信息");
+        }
+
+        company.setUserId(existing.getUserId());
+        if (!admin) {
+            company.setStatus(existing.getStatus());
+            company.setProcessor(existing.getProcessor());
+            company.setReplyTime(existing.getReplyTime());
+            company.setReplyContent(existing.getReplyContent());
+        }
         company.setUpdateTime(DateUtil.getCurrentTimeMillis());
         this.companyDao.update(company);
         return this.queryById(company.getId());
@@ -135,6 +167,17 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public boolean deleteById(String id) {
+        CompanyModel existing = this.companyDao.queryById(id);
+        if (existing == null) {
+            throw new RuntimeException("公司信息不存在");
+        }
+
+        UserModel currentUser = requireCurrentUser();
+        boolean admin = isAdmin(currentUser);
+        if (!admin && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权删除该企业信息");
+        }
+
         EmploymentParam employmentParam = new EmploymentParam();
         employmentParam.setCompanyId(id);
         List<EmploymentModel> employmentModels = employmentDao.queryAllByLimit(employmentParam);
@@ -170,6 +213,10 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public CompanyModel auditCompany(CompanyParam company) {
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser)) {
+            throw new RuntimeException("仅管理员可执行企业审核");
+        }
         company.setUpdateTime(DateUtil.getCurrentTimeMillis());
         company.setReplyTime(DateUtil.getCurrentTimeMillis());
         this.companyDao.update(company);

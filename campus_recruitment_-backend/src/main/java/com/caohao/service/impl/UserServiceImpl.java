@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
             company.setCreateTime(DateUtil.getCurrentTimeMillis());
             company.setUpdateTime(DateUtil.getCurrentTimeMillis());
             company.setUserId(user.getId()); // 使用用户ID
-            company.setStatus("Approve"); // 设置为已审核
+            company.setStatus(CompanyStatusEnum.Check_Pending.name());
             company.setName("待完善公司信息");
             company.setDescription("请在企业信息管理中完善公司信息");
             companyDao.insert(company);
@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
             company.setCreateTime(DateUtil.getCurrentTimeMillis());
             company.setUpdateTime(DateUtil.getCurrentTimeMillis());
             company.setUserId(user.getId());
-            company.setStatus("Approve"); // 直接设置为已审核，方便发布职位
+            company.setStatus(CompanyStatusEnum.Check_Pending.name());
             company.setName("待完善公司信息");
             company.setDescription("请在企业信息管理中完善公司信息");
             companyDao.insert(company);
