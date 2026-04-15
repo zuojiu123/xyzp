@@ -79,6 +79,29 @@
                 {{ row.description || '暂无公司简介' }}
               </div>
             </div>
+            <div class="detail-section" style="margin-top: 20px;">
+              <h4>审核日志</h4>
+              <el-table
+                v-loading="auditLogLoading[row.id]"
+                :data="companyAuditLogs[row.id] || []"
+                size="mini"
+                border
+                style="width: 100%;"
+              >
+                <el-table-column label="审核时间" width="160">
+                  <template slot-scope="{ row: log }">
+                    <span>{{ log.createTime | parseTime }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="审核人" prop="operatorName" width="120" />
+                <el-table-column label="原状态" prop="beforeStatus" width="120" />
+                <el-table-column label="新状态" prop="afterStatus" width="120" />
+                <el-table-column label="审核说明" prop="content" min-width="180" show-overflow-tooltip />
+              </el-table>
+              <div v-if="!auditLogLoading[row.id] && !(companyAuditLogs[row.id] && companyAuditLogs[row.id].length)" class="empty-log">
+                暂无审核日志
+              </div>
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -195,6 +218,7 @@
 import { mapState } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/time'
+import { getAuditLogList } from '@/api/auditLog'
 
 export default {
   components: { Pagination },
@@ -229,7 +253,9 @@ export default {
       },
       visible: false,
       total: 0,
-      auditCompanyId: null
+      auditCompanyId: null,
+      companyAuditLogs: {},
+      auditLogLoading: {}
     }
   },
   computed: {
@@ -259,10 +285,29 @@ export default {
         that.expands = []
         if (row) {
           that.expands.push(row.id)// 只展开当前行id
+          that.loadCompanyAuditLogs(row.id)
         }
       } else { // 说明收起了
         that.expands = []
       }
+    },
+    loadCompanyAuditLogs (companyId) {
+      if (!companyId) return
+      this.$set(this.auditLogLoading, companyId, true)
+      getAuditLogList({
+        pageNum: 1,
+        pageSize: 20,
+        condition: {
+          targetType: 'COMPANY',
+          targetId: companyId
+        }
+      }).then(res => {
+        this.$set(this.companyAuditLogs, companyId, res.list || [])
+      }).catch(() => {
+        this.$set(this.companyAuditLogs, companyId, [])
+      }).finally(() => {
+        this.$set(this.auditLogLoading, companyId, false)
+      })
     },
     // 获取用户角色枚举
     getRoleList () {
@@ -478,6 +523,12 @@ export default {
       background: white;
       border-radius: 6px;
       border-left: 4px solid #409eff;
+    }
+
+    .empty-log {
+      padding-top: 8px;
+      color: #909399;
+      font-size: 13px;
     }
   }
 }

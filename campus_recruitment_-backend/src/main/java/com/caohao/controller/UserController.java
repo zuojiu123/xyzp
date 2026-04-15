@@ -2,6 +2,7 @@ package com.caohao.controller;
 
 import com.caohao.common.Result;
 import com.caohao.common.SuperController;
+import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.pojo.entity.User;
 import com.caohao.pojo.model.UserModel;
 import com.caohao.pojo.param.UserParam;
@@ -29,6 +30,25 @@ public class UserController extends SuperController {
      */
     @Resource
     private UserService userService;
+
+    private UserModel requireCurrentUser() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userService.queryByUsername(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        return currentUser;
+    }
+
+    private void requireAdmin() {
+        UserModel currentUser = requireCurrentUser();
+        if (!UserRoleEnum.Admin.name().equals(currentUser.getRole())) {
+            throw new RuntimeException("仅管理员可执行该操作");
+        }
+    }
 
     @GetMapping("/username")
     public Result queryByUsername(){
@@ -61,6 +81,7 @@ public class UserController extends SuperController {
     public Result queryByPage(@RequestBody UserParam user,
                               @PathVariable("pageNum") Integer pageNum,
                               @PathVariable("pageSize") Integer pageSize) {
+        requireAdmin();
         return success(this.userService.queryByPage(user, pageNum, pageSize));
     }
 
@@ -79,6 +100,10 @@ public class UserController extends SuperController {
     @ApiOperation("通过主键查询单条数据")
     @GetMapping("/{id}")
     public Result queryById(@PathVariable("id") String id) {
+        UserModel currentUser = requireCurrentUser();
+        if (!UserRoleEnum.Admin.name().equals(currentUser.getRole()) && !id.equals(currentUser.getId())) {
+            return Result.failed("无权查看该用户信息");
+        }
         return success(this.userService.queryById(id));
     }
 
@@ -91,6 +116,7 @@ public class UserController extends SuperController {
     @ApiOperation("新增数据")
     @PostMapping
     public Result add(@RequestBody UserParam user) {
+        requireAdmin();
         return success(this.userService.insert(user));
     }
 
@@ -125,6 +151,7 @@ public class UserController extends SuperController {
     @ApiOperation("删除数据")
     @DeleteMapping("/{id}")
     public Result deleteById(@PathVariable("id") String id) {
+        requireAdmin();
         return success(this.userService.deleteById(id));
     }
 

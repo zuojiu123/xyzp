@@ -1,5 +1,6 @@
 package com.caohao.service.impl;
 
+import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
 import com.caohao.pojo.entity.UserResume;
@@ -56,6 +57,22 @@ public class UserResumeServiceImpl implements UserResumeService {
     @Value("${file.upload.path:./uploads/resumes/}")
     private String uploadPath;
 
+    private UserModel requireCurrentUser() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userDao.selectByUserName(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        return currentUser;
+    }
+
+    private boolean isAdmin(UserModel user) {
+        return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
+
     /**
      * 通过ID查询单条数据
      *
@@ -64,7 +81,15 @@ public class UserResumeServiceImpl implements UserResumeService {
      */
     @Override
     public UserResume queryById(String id) {
-        return this.userResumeDao.queryById(id);
+        UserResume resume = this.userResumeDao.queryById(id);
+        if (resume == null) {
+            return null;
+        }
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser) && !currentUser.getId().equals(resume.getUserId())) {
+            throw new RuntimeException("无权查看该简历信息");
+        }
+        return resume;
     }
 
     /**
@@ -77,6 +102,10 @@ public class UserResumeServiceImpl implements UserResumeService {
      */
     @Override
     public PageInfo<UserResume> queryByPage(UserResume userResume,  Integer pageNum, Integer pageSize) {
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser)) {
+            userResume.setUserId(currentUser.getId());
+        }
         PageHelper.startPage(pageNum, pageSize);
         List<UserResume> userResumes =this.userResumeDao.queryAllByLimit(userResume);
         return new PageInfo<>(userResumes);
@@ -90,6 +119,10 @@ public class UserResumeServiceImpl implements UserResumeService {
      */
     @Override
     public UserResume insert(UserResume userResume) {
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser)) {
+            userResume.setUserId(currentUser.getId());
+        }
         this.userResumeDao.insert(userResume);
         return userResume;
     }
@@ -102,6 +135,15 @@ public class UserResumeServiceImpl implements UserResumeService {
      */
     @Override
     public UserResume update(UserResume userResume) {
+        UserResume existing = this.userResumeDao.queryById(userResume.getId());
+        if (existing == null) {
+            throw new RuntimeException("简历不存在");
+        }
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser) && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权修改该简历");
+        }
+        userResume.setUserId(existing.getUserId());
         this.userResumeDao.update(userResume);
         return this.queryById(userResume.getId());
     }
@@ -114,6 +156,14 @@ public class UserResumeServiceImpl implements UserResumeService {
      */
     @Override
     public boolean deleteById(String id) {
+        UserResume existing = this.userResumeDao.queryById(id);
+        if (existing == null) {
+            throw new RuntimeException("简历不存在");
+        }
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser) && !currentUser.getId().equals(existing.getUserId())) {
+            throw new RuntimeException("无权删除该简历");
+        }
         return this.userResumeDao.deleteById(id) > 0;
     }
 
@@ -123,6 +173,10 @@ public class UserResumeServiceImpl implements UserResumeService {
         UserModel user = userDao.selectByUserName(username);
         if (user == null) {
             throw new RuntimeException("用户不存在");
+        }
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser) && !currentUser.getId().equals(user.getId())) {
+            throw new RuntimeException("无权查看该用户简历列表");
         }
         return userResumeDao.getResumeByUserName(user.getId());
     }
@@ -160,11 +214,7 @@ public class UserResumeServiceImpl implements UserResumeService {
         Files.copy(file.getInputStream(), filePath);
 
         // 获取当前用户ID
-        String username = GetTokenInfoUtil.getUsername();
-        UserModel user = userDao.selectByUserName(username);
-        if (user == null) {
-            throw new Exception("用户不存在，请重新登录");
-        }
+        UserModel user = requireCurrentUser();
         
         // 创建简历记录
         UserResume userResume = new UserResume();

@@ -22,6 +22,9 @@
         </el-menu>
 
         <div class="user-info">
+          <el-badge :value="unreadCount" :hidden="!unreadCount" class="notice-badge">
+            <el-button type="text" class="notice-btn" icon="el-icon-bell" @click="goNotifications"></el-button>
+          </el-badge>
           <el-dropdown @command="handleCommand">
             <span class="user-name">
               <el-avatar :size="32" icon="el-icon-user-solid"></el-avatar>
@@ -29,6 +32,7 @@
               <i class="el-icon-arrow-down"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="notifications">通知中心</el-dropdown-item>
               <el-dropdown-item command="logout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -47,11 +51,14 @@
 </template>
 
 <script>
+import { connectRecruitmentWs, disconnectRecruitmentWs } from '@/utils/recruitmentWs'
+
 export default {
   name: 'CompanyLayout',
   data() {
     return {
-      userInfo: {}
+      userInfo: {},
+      unreadCount: 0
     }
   },
   mounted() {
@@ -59,14 +66,45 @@ export default {
     if (userInfo) {
       this.userInfo = JSON.parse(userInfo)
     }
+    this.syncRecruitmentWs()
+    this.loadUnreadCount()
+    window.addEventListener('recruitment-notification', this.handleIncomingNotification)
+  },
+  beforeDestroy() {
+    window.removeEventListener('recruitment-notification', this.handleIncomingNotification)
   },
   methods: {
+    async loadUnreadCount() {
+      if (!this.userInfo.userName || !this.$api || !this.$api.notification) {
+        this.unreadCount = 0
+        return
+      }
+      try {
+        const data = await this.$api.notification.getUnreadCount()
+        this.unreadCount = data.count || 0
+      } catch (e) {}
+    },
+    syncRecruitmentWs() {
+      if (this.userInfo && this.userInfo.userName) {
+        connectRecruitmentWs(this.userInfo.userName)
+      }
+    },
+    handleIncomingNotification() {
+      this.loadUnreadCount()
+    },
+    goNotifications() {
+      this.$router.push('/company/notifications').catch(() => {})
+    },
     handleMenuSelect(index) {
       this.$router.push(index).catch(() => {})
     },
     
     handleCommand(command) {
+      if (command === 'notifications') {
+        this.goNotifications()
+      }
       if (command === 'logout') {
+        disconnectRecruitmentWs()
         localStorage.removeItem('token')
         localStorage.removeItem('userInfo')
         this.$message.success('已退出登录')
@@ -127,6 +165,7 @@ export default {
 .user-info {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .user-name {
@@ -135,6 +174,16 @@ export default {
   color: white;
   cursor: pointer;
   padding: 0 10px;
+}
+
+.notice-btn {
+  color: #fff;
+  font-size: 20px;
+}
+
+.notice-badge {
+  display: flex;
+  align-items: center;
 }
 
 .user-name .el-avatar {

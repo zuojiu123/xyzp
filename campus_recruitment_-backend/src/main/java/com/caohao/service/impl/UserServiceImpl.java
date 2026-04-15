@@ -38,6 +38,25 @@ public class UserServiceImpl implements UserService {
     @Resource
     private CompanyDao companyDao;
 
+    private String buildAuthCodeKey(String receiver) {
+        return "AuthCode" + receiver;
+    }
+
+    private Result validateAuthCode(String receiver, String inputCode) {
+        if (receiver == null || receiver.trim().isEmpty()) {
+            return Result.failed("验证码校验目标为空");
+        }
+        if (inputCode == null || inputCode.trim().isEmpty()) {
+            return Result.failed("请输入验证码");
+        }
+        String cachedCode = stringRedisTemplate.opsForValue().get(buildAuthCodeKey(receiver.trim()));
+        if (cachedCode == null || !cachedCode.equals(inputCode.trim())) {
+            return Result.failed("验证码错误或已过期");
+        }
+        stringRedisTemplate.delete(buildAuthCodeKey(receiver.trim()));
+        return null;
+    }
+
     /**
      * 通过ID查询单条数据
      *
@@ -140,9 +159,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result registeredUser(UserParam user) {
-        // 跳过邮箱验证码，默认使用1234
-        if (user.getInputCode() == null || !"1234".equals(user.getInputCode())) {
-            return Result.failed("验证码错误，请输入1234");
+        Result authCodeCheck = validateAuthCode(user.getUserName(), user.getInputCode());
+        if (authCodeCheck != null) {
+            return authCodeCheck;
         }
         UserModel userModel = userDao.selectByUserName(user.getUserName());
         if (userModel != null) {
@@ -186,10 +205,9 @@ public class UserServiceImpl implements UserService {
             return Result.failed("请先登录后修改密码");
         }
         
-        // 支持测试验证码1234或Redis中的验证码
-        String authCode = stringRedisTemplate.opsForValue().get("AuthCode" + username);
-        if (!"1234".equals(user.getInputCode()) && (authCode == null || !authCode.equals(user.getInputCode()))) {
-            return Result.failed("验证码错误，请输入1234或获取正确的验证码");
+        Result authCodeCheck = validateAuthCode(username, user.getInputCode());
+        if (authCodeCheck != null) {
+            return authCodeCheck;
         }
 
         user.setPassword(BCryptUtil.encode(user.getPassword()));

@@ -71,7 +71,7 @@
               <el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请确认新密码"></el-input>
             </el-form-item>
             <el-form-item label="验证码" prop="inputCode">
-              <el-input v-model="passwordForm.inputCode" placeholder="请输入验证码（测试：1234）">
+              <el-input v-model="passwordForm.inputCode" placeholder="请输入邮箱验证码">
                 <el-button slot="append" @click="sendCode" :disabled="countdown > 0">
                   {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
                 </el-button>
@@ -144,10 +144,22 @@ export default {
     }
   },
   mounted() {
+    this.applyRouteTab()
     this.loadUserInfo()
     this.loadApplications()
   },
+  watch: {
+    '$route.query.tab'() {
+      this.applyRouteTab()
+    }
+  },
   methods: {
+    applyRouteTab() {
+      const tab = this.$route.query && this.$route.query.tab
+      if (tab && ['info', 'applications', 'settings'].includes(tab)) {
+        this.activeTab = tab
+      }
+    },
     async loadUserInfo() {
       try {
         const userInfo = await this.$api.profile.getUserInfo()
@@ -198,7 +210,7 @@ export default {
             this.$message.success('密码修改成功')
             this.passwordForm = { password: '', confirmPassword: '', inputCode: '' }
           } catch (error) {
-            this.$message.error('密码修改失败')
+            this.$message.error(error.message || '密码修改失败')
           } finally {
             this.updatingPassword = false
           }
@@ -206,10 +218,19 @@ export default {
       })
     },
 
-    sendCode() {
-      // 模拟发送验证码
-      this.$message.success('验证码发送成功（测试验证码：1234）')
-      this.startCountdown()
+    async sendCode() {
+      const receiver = this.userInfo.userName || this.userInfo.email
+      if (!receiver) {
+        this.$message.error('当前用户邮箱信息缺失')
+        return
+      }
+      try {
+        const message = await this.$api.email.getAuthCode(receiver)
+        this.$message.success(message || '验证码发送成功')
+        this.startCountdown()
+      } catch (error) {
+        this.$message.error(error.message || '验证码发送失败')
+      }
     },
 
     startCountdown() {

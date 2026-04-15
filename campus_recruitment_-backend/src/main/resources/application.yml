@@ -16,6 +16,19 @@ spring:
   redis:
     host: localhost
     port: 6379
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 server:
   port: 3030
@@ -23,6 +36,8 @@ server:
 file:
   upload:
     path: ./uploads/resumes/
+  remote-upload:
+    url: http://82.157.42.25:5050/file/upload
 
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml

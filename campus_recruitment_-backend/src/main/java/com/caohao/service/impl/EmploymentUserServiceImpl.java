@@ -18,6 +18,7 @@ import com.caohao.pojo.param.EmploymentParam;
 import com.caohao.pojo.param.EmploymentUserParam;
 import com.caohao.security.util.GetTokenInfoUtil;
 import com.caohao.service.EmploymentUserService;
+import com.caohao.service.UserNotificationService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
@@ -55,6 +56,9 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
 
     @Resource
     private UserDao userDao;
+
+    @Resource
+    private UserNotificationService userNotificationService;
 
     private static final Gson GSON = new Gson();
 
@@ -225,6 +229,22 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
             payload.put("replyContent", result.getReplyContent());
             payload.put("employmentId", result.getEmploymentId());
             payload.put("id", result.getId());
+            String title = "求职申请状态更新";
+            String content = (result.getReplyContent() != null && !result.getReplyContent().trim().isEmpty())
+                    ? result.getReplyContent()
+                    : "您投递的职位申请状态已更新为：" + result.getReplyStatus();
+            userNotificationService.saveNotification(
+                    applicant.getId(),
+                    applicant.getUserName(),
+                    "APPLICATION_STATUS",
+                    title,
+                    content,
+                    "EMPLOYMENT_USER",
+                    result.getId()
+            );
+            payload.put("notificationType", "APPLICATION_STATUS");
+            payload.put("title", title);
+            payload.put("content", content);
             WebsocketServer.pushMessage(null, GSON.toJson(payload), applicant.getUserName());
         } catch (Exception e) {
             e.printStackTrace();
@@ -305,6 +325,10 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
 
     @Override
     public PageInfo<EmploymentUserModel> queryByPageAdmin(EmploymentUserParam employmentUser, Integer pageNum, Integer pageSize) {
+        UserModel currentUser = requireCurrentUser();
+        if (!isAdmin(currentUser)) {
+            throw new RuntimeException("仅管理员可查看全局申请记录");
+        }
         PageHelper.startPage(pageNum, pageSize);
         List<EmploymentUserModel> employmentUsers = this.employmentUserDao.queryAllByLimit(employmentUser);
         for (EmploymentUserModel user : employmentUsers) {

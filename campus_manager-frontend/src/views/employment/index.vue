@@ -243,6 +243,28 @@
         <el-form-item label="职位描述" prop="description">
           <el-input v-model="temp.description" type="textarea" :rows="4" placeholder="请输入职位描述" />
         </el-form-item>
+        <el-form-item v-if="type !== 'add'" label="审核日志">
+          <el-table
+            v-loading="auditLogLoading"
+            :data="auditLogs"
+            size="mini"
+            border
+            style="width: 100%;"
+          >
+            <el-table-column label="审核时间" width="160">
+              <template slot-scope="{ row }">
+                <span>{{ row.createTime | parseTime }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="审核人" prop="operatorName" width="120" />
+            <el-table-column label="原状态" prop="beforeStatus" width="110" />
+            <el-table-column label="新状态" prop="afterStatus" width="110" />
+            <el-table-column label="审核说明" prop="content" min-width="180" show-overflow-tooltip />
+          </el-table>
+          <div v-if="!auditLogLoading && !auditLogs.length" class="empty-log">
+            暂无审核日志
+          </div>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">
@@ -260,6 +282,7 @@
 import { mapState } from 'vuex'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/time'
+import { getAuditLogList } from '@/api/auditLog'
 
 export default {
   components: { Pagination },
@@ -297,6 +320,8 @@ export default {
       },
       visible: false,
       total: 0,
+      auditLogs: [],
+      auditLogLoading: false,
       rules: {
         title: [
           { required: true, message: '请输入职位标题', trigger: 'blur' }
@@ -418,6 +443,7 @@ export default {
       }).then(() => {
         const temp = Object.assign({}, row)
         temp.status = 1
+        temp.auditRemark = `审核状态已从“${statusText}”更改为“审核通过”`
         this.updateEmploymentStatus(temp, `审核状态已从“${statusText}”更改为“审核通过”`)
       })
     },
@@ -441,7 +467,7 @@ export default {
       }).then(({ value }) => {
         const temp = Object.assign({}, row)
         temp.status = 2
-        temp.rejectReason = value
+        temp.auditRemark = value
         this.updateEmploymentStatus(temp, `审核状态已从“${statusText}”更改为“已驳回”`)
       })
     },
@@ -454,6 +480,7 @@ export default {
       }).then(() => {
         const temp = Object.assign({}, row)
         temp.status = 0
+        temp.auditRemark = '职位已重新提交审核'
         this.updateEmploymentStatus(temp, '职位已重新提交审核')
       })
     },
@@ -463,6 +490,7 @@ export default {
       this.temp = Object.assign({}, row)
       this.dialogFormVisible = true
       this.dialogStatus = 'update'
+      this.loadAuditLogs(row.id)
     },
     // 查看职位详情
     viewJob (row) {
@@ -470,6 +498,24 @@ export default {
       this.temp = Object.assign({}, row)
       this.dialogFormVisible = true
       this.dialogStatus = 'view'
+      this.loadAuditLogs(row.id)
+    },
+    loadAuditLogs (employmentId) {
+      this.auditLogLoading = true
+      getAuditLogList({
+        pageNum: 1,
+        pageSize: 20,
+        condition: {
+          targetType: 'EMPLOYMENT',
+          targetId: employmentId
+        }
+      }).then(res => {
+        this.auditLogs = res.list || []
+      }).catch(() => {
+        this.auditLogs = []
+      }).finally(() => {
+        this.auditLogLoading = false
+      })
     },
     // 更新职位状态
     updateEmploymentStatus (temp, message) {
@@ -603,6 +649,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.empty-log {
+  padding-top: 8px;
+  color: #909399;
+  font-size: 13px;
+}
 .el-descriptions {
   margin: 20px;
 }

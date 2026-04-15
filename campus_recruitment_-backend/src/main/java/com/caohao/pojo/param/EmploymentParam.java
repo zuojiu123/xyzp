@@ -24,6 +24,7 @@ public class EmploymentParam extends Employment {
     private String minSalary; // 最低薪资筛选
     private String maxSalary; // 最高薪资筛选
     private Boolean showAll; // 是否显示所有状态的职位
+    private String auditRemark; // 审核备注
 
 }
 

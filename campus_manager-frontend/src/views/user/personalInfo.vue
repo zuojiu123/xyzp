@@ -128,22 +128,29 @@ export default {
 
     /* 获取验证码 */
     getAuthCode () {
-      /* 获取验证码 */
-      this.isCheck = false
-      const timer = setInterval(() => {
-        if (this.time > 0) {
-          this.time--
-        }
-        if (this.time === 0) {
-          this.isCheck = true
-          this.time = 60
-          clearInterval(timer)
-        }
-      }, 1000)
-      const params = {
-        receiver: JSON.parse(localStorage.getItem('userInfo')).sub
+      const localUser = JSON.parse(localStorage.getItem('userInfo') || '{}')
+      const receiver = this.userInfo.userName || this.info.userName || localUser.userName || localUser.email
+      if (!receiver) {
+        this.$message.error('当前用户邮箱信息缺失')
+        return
       }
-      this.$store.dispatch('getAuthCode', params)
+      const params = { receiver }
+      this.$store.dispatch('getAuthCode', params).then((msg) => {
+        this.$message.success(msg || '验证码发送成功')
+        this.isCheck = false
+        const timer = setInterval(() => {
+          if (this.time > 0) {
+            this.time--
+          }
+          if (this.time === 0) {
+            this.isCheck = true
+            this.time = 60
+            clearInterval(timer)
+          }
+        }, 1000)
+      }).catch((err) => {
+        this.$message.error((err && err.message) || '验证码发送失败')
+      })
     },
     updatePassword () {
       this.$refs.passwordForm.validate(valid => {
@@ -152,7 +159,7 @@ export default {
             this.$message.success('密码修改成功')
           }).catch(err => {
             console.log(err)
-            this.$message.error(err)
+            this.$message.error((err && err.message) || '密码修改失败')
           })
         } else {
           return false

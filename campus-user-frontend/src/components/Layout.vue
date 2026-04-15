@@ -41,6 +41,9 @@
         <!-- 用户信息/登录区域 -->
         <div class="right-actions">
           <div v-if="userInfo" class="user-menu-area">
+            <el-badge :value="unreadCount" :hidden="!unreadCount" class="notice-badge">
+              <el-button class="notice-btn" type="text" icon="el-icon-bell" @click="goNotifications"></el-button>
+            </el-badge>
             <el-dropdown @command="handleCommand" trigger="click">
               <div class="user-dropdown-trigger">
                 <el-avatar :size="36" :src="userInfo.avatar" icon="el-icon-user-solid" class="user-avatar"></el-avatar>
@@ -49,6 +52,7 @@
               </div>
               <el-dropdown-menu slot="dropdown" class="custom-dropdown">
                 <el-dropdown-item command="profile" icon="el-icon-user">个人中心</el-dropdown-item>
+                <el-dropdown-item command="notifications" icon="el-icon-bell">通知中心</el-dropdown-item>
                 <el-dropdown-item command="resume" icon="el-icon-document">简历管理</el-dropdown-item>
                 <el-dropdown-item command="logout" divided icon="el-icon-switch-button" style="color: #f56c6c;">退出登录</el-dropdown-item>
               </el-dropdown-menu>
@@ -93,13 +97,19 @@ export default {
   data() {
     return {
       userInfo: null,
-      activeIndex: '/'
+      activeIndex: '/',
+      unreadCount: 0
     }
   },
   mounted() {
     this.loadUserInfo()
     this.activeIndex = this.$route.path
     this.syncRecruitmentWs()
+    this.loadUnreadCount()
+    window.addEventListener('recruitment-notification', this.handleIncomingNotification)
+  },
+  beforeDestroy() {
+    window.removeEventListener('recruitment-notification', this.handleIncomingNotification)
   },
   watch: {
     '$route'(to) {
@@ -108,11 +118,25 @@ export default {
     userInfo: {
       handler() {
         this.syncRecruitmentWs()
+        this.loadUnreadCount()
       },
       deep: true
     }
   },
   methods: {
+    async loadUnreadCount() {
+      if (!this.userInfo || !this.$api || !this.$api.notification) {
+        this.unreadCount = 0
+        return
+      }
+      try {
+        const data = await this.$api.notification.getUnreadCount()
+        this.unreadCount = data.count || 0
+      } catch (e) {}
+    },
+    handleIncomingNotification() {
+      this.loadUnreadCount()
+    },
     loadUserInfo() {
       const token = localStorage.getItem('token')
       const userInfo = localStorage.getItem('userInfo')
@@ -158,6 +182,9 @@ export default {
         case 'profile':
           this.$router.push('/profile')
           break
+        case 'notifications':
+          this.goNotifications()
+          break
         case 'resume':
           this.$router.push('/resume')
           break
@@ -178,12 +205,16 @@ export default {
         this.$router.push('/login')
       })
     },
+    goNotifications() {
+      this.$router.push('/notifications').catch(() => {})
+    },
 
     clearUserInfo() {
       disconnectRecruitmentWs()
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
       this.userInfo = null
+      this.unreadCount = 0
     }
   }
 }
@@ -294,6 +325,22 @@ export default {
   align-items: center;
   justify-content: flex-end;
   min-width: 200px;
+  gap: 10px;
+}
+
+.notice-badge {
+  display: flex;
+  align-items: center;
+}
+
+.notice-btn {
+  padding: 8px;
+  font-size: 20px;
+  color: #64748b;
+}
+
+.notice-btn:hover {
+  color: #ff6b00;
 }
 
 /* 登录状态下的下拉菜单触发器 */

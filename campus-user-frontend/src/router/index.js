@@ -56,6 +56,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/notifications',
+    name: 'Notifications',
+    component: () => import('@/views/Notifications.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/resume',
     name: 'Resume',
     component: () => import('@/views/Resume.vue'),
@@ -129,6 +135,12 @@ const routes = [
     path: '/company/profile',
     name: 'CompanyProfile',
     component: () => import('@/views/company/CompanyProfile.vue'),
+    meta: { requiresAuth: true, requiresRole: 'Enterprise_User' }
+  },
+  {
+    path: '/company/notifications',
+    name: 'CompanyNotifications',
+    component: () => import('@/views/Notifications.vue'),
     meta: { requiresAuth: true, requiresRole: 'Enterprise_User' }
   },
   // 动态路由放在最后

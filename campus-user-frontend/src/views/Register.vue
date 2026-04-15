@@ -13,7 +13,7 @@
         <el-form-item prop="authCode">
           <el-input
             v-model="registerForm.authCode"
-            placeholder="请输入验证码（测试验证码：1234）"
+            placeholder="请输入邮箱验证码"
             prefix-icon="el-icon-key"
           >
             <el-button slot="append" @click="sendAuthCode" :disabled="countdown > 0">
@@ -135,11 +135,11 @@ export default {
       }
       
       try {
-        await api.email.getAuthCode(this.registerForm.email)
-        this.$message.success('验证码发送成功')
+        const message = await api.email.getAuthCode(this.registerForm.email)
+        this.$message.success(message || '验证码发送成功')
         this.startCountdown()
       } catch (error) {
-        this.$message.error('验证码发送失败')
+        this.$message.error(error.message || '验证码发送失败')
       }
     },
     

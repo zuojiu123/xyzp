@@ -77,6 +77,7 @@ public class WebSecurityConfigNew {
             .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .antMatchers("/websocket/**").permitAll()
             .antMatchers("/auth/**", "/user/registeredUser", "/user/login", "/swagger-ui.html#/**", "/swagger-ui.html/**").permitAll()
+            .antMatchers(HttpMethod.GET, "/statistics/public").permitAll()
             .antMatchers(HttpMethod.GET, "/employment/**", "/article/**", "/company/**").permitAll()
             .anyRequest().authenticated()
             .and()

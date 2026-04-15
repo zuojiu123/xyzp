@@ -46,12 +46,9 @@ export default {
   user: {
     register: (data) => api.post('/user/registeredUser', data),
     getCurrentUser: () => api.get('/user/username'),
-    getUserList: (pageNum, pageSize, params) => api.post(`/user/${pageNum}/${pageSize}`, params),
-    getUserById: (id) => api.get(`/user/${id}`),
     updateUser: (data) => api.put('/user', data),
     patchUser: (data) => api.patch('/user/patch', data),
-    updatePassword: (data) => api.post('/user/password', data),
-    deleteUser: (id) => api.delete(`/user/${id}`)
+    updatePassword: (data) => api.post('/user/password', data)
   },
 
   // 公司相关
@@ -125,24 +122,26 @@ export default {
 
   // 统计相关
   statistics: {
-    getDashboardStats: () => api.get('/statistics/dashboard'),
-    getUserStats: () => api.get('/statistics/user'),
-    getCompanyStats: () => api.get('/statistics/company'),
-    getEmploymentStats: () => api.get('/statistics/employment')
+    getDashboardStats: () => api.get('/statistics/public')
+  },
+
+  // 通知相关
+  notification: {
+    getList: (pageNum, pageSize, params = {}) => api.post(`/notification/${pageNum}/${pageSize}`, params),
+    getUnreadCount: () => api.get('/notification/unread-count'),
+    markRead: (id) => api.put(`/notification/read/${id}`),
+    markAllRead: () => api.put('/notification/read-all')
   },
 
   // 简历相关
   resume: {
     uploadResume: (file) => {
-      const formData = new FormData()
-      formData.append('file', file)
-      return api.post('/resume/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      })
+      const fd = new FormData()
+      fd.append('file', file)
+      return api.post('/userResume/upload', fd)
     },
-    getUserResumeList: (pageNum, pageSize) => api.get(`/resume/user/${pageNum}/${pageSize}`),
-    getAllResumeList: (pageNum, pageSize) => api.get(`/resume/all/${pageNum}/${pageSize}`),
-    deleteResume: (id) => api.delete(`/resume/${id}`)
+    getUserResumeList: () => api.get('/userResume/user'),
+    deleteResume: (id) => api.delete(`/userResume/${id}`)
   },
 
   // 枚举相关

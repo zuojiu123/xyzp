@@ -146,6 +146,17 @@ export const constantRouterMap = [
     }]
   },
   {
+    path: '/loginLog',
+    component: Layout,
+    meta: { role: 'admin' },
+    children: [{
+      path: 'index',
+      name: 'LoginLog',
+      component: () => import('@/views/loginLog/index'),
+      meta: { title: '登录日志', icon: 'form' }
+    }]
+  },
+  {
     path: '/personalInfo',
     component: Layout,
     meta: { role: 'user' },

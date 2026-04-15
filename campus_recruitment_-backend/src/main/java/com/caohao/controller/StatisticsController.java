@@ -1,6 +1,9 @@
 package com.caohao.controller;
 
 import com.caohao.common.Result;
+import com.caohao.common.enums.impl.UserRoleEnum;
+import com.caohao.pojo.model.UserModel;
+import com.caohao.security.util.GetTokenInfoUtil;
 import com.caohao.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -36,6 +39,42 @@ public class StatisticsController {
     @Resource
     private ArticleService articleService;
 
+    private void requireAdmin() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            throw new RuntimeException("请先登录后再执行该操作");
+        }
+        UserModel currentUser = userService.queryByUsername(username);
+        if (currentUser == null) {
+            throw new RuntimeException("当前用户不存在，请重新登录");
+        }
+        if (!UserRoleEnum.Admin.name().equals(currentUser.getRole())) {
+            throw new RuntimeException("仅管理员可查看统计数据");
+        }
+    }
+
+    /**
+     * 获取系统统计数据
+     *
+     * @return 统计数据
+     */
+    @ApiOperation("获取首页公开统计摘要")
+    @GetMapping("/public")
+    public Result getPublicStatistics() {
+        Map<String, Object> statistics = new HashMap<>();
+
+        try {
+            statistics.put("userCount", userService.getTotalCount());
+            statistics.put("companyCount", companyService.getApprovedCount());
+            statistics.put("jobCount", employmentService.getActiveCount());
+            statistics.put("applicationCount",
+                    employmentUserService.countByReplyStatus("Agree_With_Induction"));
+            return Result.ok(statistics);
+        } catch (Exception e) {
+            return Result.failed("获取首页统计摘要失败");
+        }
+    }
+
     /**
      * 获取系统统计数据
      *
@@ -47,6 +86,7 @@ public class StatisticsController {
         Map<String, Object> statistics = new HashMap<>();
         
         try {
+            requireAdmin();
             // 使用实际的Service方法
             statistics.put("userCount", userService.getTotalCount());
             statistics.put("companyCount", companyService.getTotalCount());
@@ -79,6 +119,7 @@ public class StatisticsController {
         Map<String, Object> statistics = new HashMap<>();
         
         try {
+            requireAdmin();
             // 使用实际的Service方法
             statistics.put("totalUsers", userService.getTotalCount());
             statistics.put("normalUsers", userService.getNormalUserCount());
@@ -102,6 +143,7 @@ public class StatisticsController {
         Map<String, Object> statistics = new HashMap<>();
         
         try {
+            requireAdmin();
             // 使用实际的Service方法
             statistics.put("totalCompanies", companyService.getTotalCount());
             statistics.put("approvedCompanies", companyService.getApprovedCount());
@@ -125,6 +167,7 @@ public class StatisticsController {
         Map<String, Object> statistics = new HashMap<>();
         
         try {
+            requireAdmin();
             // 使用实际的Service方法
             statistics.put("totalEmployments", employmentService.getTotalCount());
             statistics.put("activeEmployments", employmentService.getActiveCount());

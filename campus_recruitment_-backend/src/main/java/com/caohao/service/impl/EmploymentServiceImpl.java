@@ -4,6 +4,7 @@ import com.caohao.common.enums.impl.CompanyStatusEnum;
 import com.caohao.common.enums.impl.UserRoleEnum;
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
+import com.caohao.controller.websocket.server.WebsocketServer;
 import com.caohao.dao.CompanyDao;
 import com.caohao.dao.EmploymentUserDao;
 import com.caohao.dao.UserDao;
@@ -17,7 +18,10 @@ import com.caohao.pojo.param.EmploymentParam;
 import com.caohao.pojo.param.EmploymentUserParam;
 import com.caohao.pojo.param.CompanyParam;
 import com.caohao.security.util.GetTokenInfoUtil;
+import com.caohao.service.AuditLogService;
 import com.caohao.service.EmploymentService;
+import com.caohao.service.UserNotificationService;
+import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -32,6 +36,8 @@ import java.util.List;
  */
 @Service("employmentService")
 public class EmploymentServiceImpl implements EmploymentService {
+    private static final Gson GSON = new Gson();
+
     @Resource
     private EmploymentDao employmentDao;
     @Resource
@@ -40,6 +46,12 @@ public class EmploymentServiceImpl implements EmploymentService {
     private EmploymentUserDao employmentUserDao;
     @Resource
     private UserDao userDao;
+
+    @Resource
+    private AuditLogService auditLogService;
+
+    @Resource
+    private UserNotificationService userNotificationService;
 
     private UserModel requireCurrentUser() {
         String username = GetTokenInfoUtil.getUsername();
@@ -53,8 +65,32 @@ public class EmploymentServiceImpl implements EmploymentService {
         return currentUser;
     }
 
+    private UserModel getCurrentUserOrNull() {
+        String username = GetTokenInfoUtil.getUsername();
+        if ("noLogin".equals(username) || username == null || username.trim().isEmpty()) {
+            return null;
+        }
+        return userDao.selectByUserName(username);
+    }
+
     private boolean isAdmin(UserModel user) {
         return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
+
+    private String employmentStatusText(Integer status) {
+        if (status == null) {
+            return null;
+        }
+        switch (status) {
+            case 0:
+                return "待审核";
+            case 1:
+                return "审核通过";
+            case 2:
+                return "已驳回";
+            default:
+                return String.valueOf(status);
+        }
     }
 
     /**
@@ -66,10 +102,23 @@ public class EmploymentServiceImpl implements EmploymentService {
     @Override
     public EmploymentModel queryById(String id) {
         EmploymentModel employmentModel = this.employmentDao.queryById(id);
+        if (employmentModel == null) {
+            return null;
+        }
         employmentModel.setCompanyModel(companyDao.queryById(employmentModel.getCompanyId()));
+        UserModel currentUser = getCurrentUserOrNull();
+        boolean admin = isAdmin(currentUser);
+        boolean owner = currentUser != null && currentUser.getId().equals(employmentModel.getUserId());
+        boolean publicVisible = employmentModel.getStatus() != null
+                && employmentModel.getStatus() == 1
+                && employmentModel.getCompanyModel() != null
+                && CompanyStatusEnum.Approve.name().equals(employmentModel.getCompanyModel().getStatus());
+        if (!publicVisible && !admin && !owner) {
+            throw new RuntimeException("该职位尚未对外开放");
+        }
         String currentUsername = GetTokenInfoUtil.getUsername();
         if (!"noLogin".equals(currentUsername)) {
-            UserModel user = userDao.selectByUserName(currentUsername);
+            UserModel user = currentUser != null ? currentUser : userDao.selectByUserName(currentUsername);
             if (user != null) {
                 // 检查投递状态
                 EmploymentUserParam employmentUserParam = new EmploymentUserParam();
@@ -248,9 +297,48 @@ public class EmploymentServiceImpl implements EmploymentService {
         if (!isAdmin(currentUser)) {
             throw new RuntimeException("仅管理员可执行职位审核");
         }
+        EmploymentModel existing = this.employmentDao.queryById(employment.getId());
+        if (existing == null) {
+            throw new RuntimeException("职位信息不存在");
+        }
         employment.setUpdateTime(DateUtil.getCurrentTimeMillis());
         this.employmentDao.update(employment);
-        return this.queryById(employment.getId());
+        EmploymentModel result = this.queryById(employment.getId());
+        String auditContent = employment.getAuditRemark();
+        if (auditContent == null || auditContent.trim().isEmpty()) {
+            auditContent = employmentStatusText(result.getStatus()) + "操作";
+        }
+        auditLogService.saveAuditLog(
+                "EMPLOYMENT",
+                result.getId(),
+                result.getTitle(),
+                employmentStatusText(existing.getStatus()),
+                employmentStatusText(result.getStatus()),
+                auditContent,
+                currentUser.getId(),
+                currentUser.getUserName()
+        );
+        userNotificationService.saveNotification(
+                result.getUserId(),
+                targetUser != null ? targetUser.getUserName() : null,
+                "EMPLOYMENT_AUDIT",
+                "职位审核结果通知",
+                "您发布的职位《" + result.getTitle() + "》状态已更新为：" + employmentStatusText(result.getStatus()) + (auditContent != null ? "。" + auditContent : ""),
+                "EMPLOYMENT",
+                result.getId()
+        );
+        UserModel targetUser = userDao.queryById(result.getUserId());
+        if (targetUser != null && targetUser.getUserName() != null) {
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("type", "notification");
+            payload.put("notificationType", "EMPLOYMENT_AUDIT");
+            payload.put("title", "职位审核结果通知");
+            payload.put("content", "您发布的职位《" + result.getTitle() + "》状态已更新为：" + employmentStatusText(result.getStatus()) + (auditContent != null ? "。" + auditContent : ""));
+            payload.put("targetType", "EMPLOYMENT");
+            payload.put("targetId", result.getId());
+            WebsocketServer.pushMessage(null, GSON.toJson(payload), targetUser.getUserName());
+        }
+        return result;
     }
 
     @Override
