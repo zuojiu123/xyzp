@@ -40,6 +40,13 @@ export function updateEmploymentUser(params) {
   }).then(res => getResult(res))
 }
 
+export function getEmploymentUserTimeline(id) {
+  return request({
+    url: `applicationFlowLog/employmentUser/${id}`,
+    method: 'get'
+  }).then(res => getResult(res))
+}
+
 /**
 * 修改删除信息
 */

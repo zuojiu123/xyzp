@@ -36,12 +36,14 @@
           </el-form-item>
         </el-form>
       </div>
-      <div v-if=" isCheck" class="check" @click="getAuthCode">
-        点击获取验证码
-      </div>
-      <div v-else class="check-false">
-        重新获取({{ time }})
-      </div>
+      <el-button
+        class="auth-code-btn"
+        :class="{ 'is-counting': !isCheck }"
+        :disabled="!isCheck || sendingAuthCode"
+        @click="getAuthCode"
+      >
+        {{ !isCheck ? `重新获取（${time}s）` : (sendingAuthCode ? '发送中...' : '获取验证码') }}
+      </el-button>
       <el-button type="primary" @click="updatePassword">
         修改密码
       </el-button>
@@ -57,6 +59,8 @@ export default {
 
       isCheck: true, // 显示获取验证码
       time: 60,
+      countdownTimer: null,
+      sendingAuthCode: false,
       imageUrl: '',
       passwordForm: {
         password: '',
@@ -128,28 +132,38 @@ export default {
 
     /* 获取验证码 */
     getAuthCode () {
+      if (!this.isCheck || this.sendingAuthCode) {
+        return
+      }
       const localUser = JSON.parse(localStorage.getItem('userInfo') || '{}')
       const receiver = this.userInfo.userName || this.info.userName || localUser.userName || localUser.email
       if (!receiver) {
         this.$message.error('当前用户邮箱信息缺失')
         return
       }
+      this.sendingAuthCode = true
       const params = { receiver }
       this.$store.dispatch('getAuthCode', params).then((msg) => {
         this.$message.success(msg || '验证码发送成功')
         this.isCheck = false
-        const timer = setInterval(() => {
+        if (this.countdownTimer) {
+          clearInterval(this.countdownTimer)
+        }
+        this.countdownTimer = setInterval(() => {
           if (this.time > 0) {
             this.time--
           }
           if (this.time === 0) {
             this.isCheck = true
             this.time = 60
-            clearInterval(timer)
+            clearInterval(this.countdownTimer)
+            this.countdownTimer = null
           }
         }, 1000)
       }).catch((err) => {
         this.$message.error((err && err.message) || '验证码发送失败')
+      }).finally(() => {
+        this.sendingAuthCode = false
       })
     },
     updatePassword () {
@@ -165,6 +179,12 @@ export default {
           return false
         }
       })
+    }
+  },
+  beforeDestroy () {
+    if (this.countdownTimer) {
+      clearInterval(this.countdownTimer)
+      this.countdownTimer = null
     }
   }
 }
@@ -231,11 +251,33 @@ export default {
   .right {
     flex: 1;
     padding-left: 50px;
-    .check-false {
+    .auth-code-btn {
+      min-width: 180px;
+      height: 44px;
       margin-bottom: 30px;
+      border: 1px solid rgba(47, 128, 237, 0.16);
+      border-radius: 14px;
+      background: linear-gradient(135deg, #f9fbff 0%, #eef5ff 100%);
+      color: #2f80ed;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all .24s ease;
     }
-    .check {
-      margin-bottom: 30px;
+
+    .auth-code-btn:hover,
+    .auth-code-btn:focus {
+      border-color: rgba(47, 128, 237, 0.35);
+      background: linear-gradient(135deg, #ffffff 0%, #edf4ff 100%);
+      color: #1f63c9;
+    }
+
+    .auth-code-btn.is-counting,
+    .auth-code-btn.is-disabled,
+    .auth-code-btn.is-disabled:hover,
+    .auth-code-btn.is-disabled:focus {
+      border-color: #e3e9f3;
+      background: #f7f9fc;
+      color: #94a3b8;
     }
   }
 }

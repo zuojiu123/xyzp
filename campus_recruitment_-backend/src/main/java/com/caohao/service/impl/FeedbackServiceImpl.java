@@ -2,10 +2,13 @@ package com.caohao.service.impl;
 
 import com.caohao.common.utils.DateUtil;
 import com.caohao.common.utils.IDGenerator;
+import com.caohao.dao.UserDao;
 import com.caohao.pojo.entity.Feedback;
 import com.caohao.dao.FeedbackDao;
 import com.caohao.pojo.model.FeedbackModel;
 import com.caohao.pojo.param.FeedbackParam;
+import com.caohao.pojo.model.UserModel;
+import com.caohao.security.util.GetTokenInfoUtil;
 import com.caohao.service.FeedbackService;
 import org.springframework.stereotype.Service;
 import com.github.pagehelper.PageHelper;
@@ -23,6 +26,29 @@ import java.util.List;
 public class FeedbackServiceImpl implements FeedbackService {
     @Resource
     private FeedbackDao feedbackDao;
+    @Resource
+    private UserDao userDao;
+
+    private String normalizeStatus(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return "Pending";
+        }
+        switch (status) {
+            case "0":
+            case "No_Response":
+                return "Pending";
+            case "1":
+            case "Response":
+                return "Resolved";
+            case "Pending":
+            case "Processing":
+            case "Resolved":
+            case "Closed":
+                return status;
+            default:
+                return "Pending";
+        }
+    }
 
     /**
      * 通过ID查询单条数据
@@ -60,6 +86,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     public FeedbackParam insert(FeedbackParam feedback) {
         feedback.setId(IDGenerator.StringID());
         feedback.setCreateTime(DateUtil.getCurrentTimeMillis());
+        feedback.setStatus(normalizeStatus(feedback.getStatus()));
         this.feedbackDao.insert(feedback);
         return feedback;
     }
@@ -73,6 +100,24 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     public FeedbackModel update(FeedbackParam feedback) {
         feedback.setReplyTime(DateUtil.getCurrentTimeMillis());
+        feedback.setStatus(normalizeStatus(feedback.getStatus()));
+        if ((feedback.getStatus() == null || feedback.getStatus().trim().isEmpty())
+                && feedback.getReplyContent() != null && !feedback.getReplyContent().trim().isEmpty()) {
+            feedback.setStatus("Resolved");
+        }
+        if (feedback.getReplyUserId() == null || feedback.getReplyUserId().trim().isEmpty()) {
+            String username = GetTokenInfoUtil.getUsername();
+            if (!"noLogin".equals(username) && username != null && !username.trim().isEmpty()) {
+                UserModel currentUser = userDao.selectByUserName(username);
+                if (currentUser != null) {
+                    feedback.setReplyUserId(currentUser.getId());
+                }
+            }
+        }
+        if (feedback.getReplyContent() != null && !feedback.getReplyContent().trim().isEmpty()
+                && "Processing".equals(feedback.getStatus())) {
+            feedback.setStatus("Resolved");
+        }
         this.feedbackDao.update(feedback);
         return this.queryById(feedback.getId());
     }

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import { isLoggedIn, isEnterpriseUser, getUserInfo } from '@/utils/auth'
+import { getUserInfo, isLoggedIn } from '@/utils/auth'
 
 Vue.use(VueRouter)
 
@@ -86,28 +86,18 @@ const routes = [
   {
     path: '/about',
     name: 'About',
-    component: () => import('@/views/About.vue'),
-    meta: {
-      title: '关于我们'
-    }
+    component: () => import('@/views/About.vue')
   },
   {
     path: '/contact',
     name: 'Contact',
-    component: () => import('@/views/Contact.vue'),
-    meta: {
-      title: '联系方式'
-    }
+    component: () => import('@/views/Contact.vue')
   },
   {
     path: '/privacy',
     name: 'PrivacyPolicy',
-    component: () => import('@/views/PrivacyPolicy.vue'),
-    meta: {
-      title: '隐私政策'
-    }
+    component: () => import('@/views/PrivacyPolicy.vue')
   },
-  // 企业相关路由（必须在 /company/:id 之前）
   {
     path: '/company/register',
     name: 'CompanyRegister',
@@ -143,7 +133,6 @@ const routes = [
     component: () => import('@/views/Notifications.vue'),
     meta: { requiresAuth: true, requiresRole: 'Enterprise_User' }
   },
-  // 动态路由放在最后
   {
     path: '/company/:id',
     name: 'CompanyDetail',
@@ -155,19 +144,26 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
-  // 配置滚动行为，实现点击链接后回到页面顶部
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
-    } else {
-      return { x: 0, y: 0 }
     }
+    return { x: 0, y: 0 }
   }
 })
 
-// 路由守卫
+function redirectToAdminConsole() {
+  const { protocol, hostname } = window.location
+  window.location.href = `${protocol}//${hostname}:8081/login`
+}
+
 router.beforeEach((to, from, next) => {
-  // 检查是否需要认证
+  const currentUser = getUserInfo()
+  if (currentUser && currentUser.role === 'Admin') {
+    redirectToAdminConsole()
+    return
+  }
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isLoggedIn()) {
       next({
@@ -176,8 +172,7 @@ router.beforeEach((to, from, next) => {
       })
       return
     }
-    
-    // 检查角色权限
+
     if (to.meta.requiresRole) {
       const userInfo = getUserInfo()
       if (!userInfo || userInfo.role !== to.meta.requiresRole) {
@@ -186,7 +181,7 @@ router.beforeEach((to, from, next) => {
       }
     }
   }
-  
+
   next()
 })
 

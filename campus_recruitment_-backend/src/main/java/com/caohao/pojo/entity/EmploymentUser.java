@@ -65,9 +65,25 @@ public class EmploymentUser implements Serializable {
      * 类型：1-投递，2-收藏
      */
     private Integer type;
-
-
-
-
+    /**
+     * 回复状态
+     */
+    private String replyStatus;
+    /**
+     * 用户状态
+     */
+    private String userStatus;
+    /**
+     * 招聘流程阶段
+     */
+    private String recruitStage;
+    /**
+     * 面试时间
+     */
+    private Long interviewTime;
+    /**
+     * 面试备注
+     */
+    private String interviewRemark;
 }
 

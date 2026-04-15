@@ -26,7 +26,7 @@ public class FeedbackParam extends Feedback {
     /**
      * 状态：0未回复，1已回复
      */
-    private FeedBackStatusEnum status;
+    private String status;
 
 
 

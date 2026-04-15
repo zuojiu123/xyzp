@@ -1,47 +1,108 @@
 <template>
-  <div class="app-container">
+  <div class="app-container feedback-page">
+    <el-row :gutter="20" class="stats-row">
+      <el-col :span="6">
+        <el-card class="stats-card all">
+          <div class="stats-number">{{ feedbackStats.total }}</div>
+          <div class="stats-label">总反馈数</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stats-card pending">
+          <div class="stats-number">{{ feedbackStats.pending }}</div>
+          <div class="stats-label">待处理</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stats-card processing">
+          <div class="stats-number">{{ feedbackStats.processing }}</div>
+          <div class="stats-label">处理中</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card class="stats-card resolved">
+          <div class="stats-number">{{ feedbackStats.resolved }}</div>
+          <div class="stats-label">已解决/关闭</div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <div class="filter-container">
-      <!-- @keyup.enter.native="handleFilter" -->
-      <el-input v-model="listQuery.title" placeholder="请输入考试名称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleQuery" />
-      <!-- <el-select v-model="listQuery.importance" placeholder="Imp" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
-      </el-select> -->
+      <el-button
+        class="filter-item"
+        :type="listQuery.status === 'Pending' ? 'primary' : 'default'"
+        plain
+        @click="togglePendingOnly"
+      >
+        只看待处理
+      </el-button>
+      <el-input
+        v-model="listQuery.title"
+        placeholder="请输入反馈标题"
+        style="width: 220px;"
+        class="filter-item"
+        @keyup.enter.native="handleQuery"
+      />
+      <el-select v-model="listQuery.type" clearable placeholder="反馈类型" style="width: 150px;" class="filter-item">
+        <el-option v-for="item in feedBackTypeEnum" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
+      </el-select>
+      <el-select v-model="listQuery.status" clearable placeholder="处理状态" style="width: 150px;" class="filter-item">
+        <el-option label="待处理" value="Pending" />
+        <el-option label="处理中" value="Processing" />
+        <el-option label="已解决" value="Resolved" />
+        <el-option label="已关闭" value="Closed" />
+      </el-select>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleQuery">
         查询
       </el-button>
-      <!-- <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="addExam">
-        Add
-      </el-button> -->
+      <el-button class="filter-item" icon="el-icon-refresh" @click="resetQuery">
+        重置
+      </el-button>
     </div>
-    <el-table v-loading="listLoading" :data="feedbackList" element-loading-text="Loading" border fit highlight-current-row>
-      <el-table-column align="center" label="ID" prop="id" />
-      <el-table-column align="center" label="标题" prop="title" />
-      <el-table-column align="center" label="内容" prop="content" />
-      <el-table-column align="center" label="用户id" prop="userId" />
-      <el-table-column align="center" label="类型" prop="type.msg" />
-      <el-table-column align="center" label="创建时间" prop="createTime">
-        <template slot-scope="{row}">
-          <span>
-            {{ row.createTime | parseTime }}
-          </span>
+
+    <el-table v-loading="listLoading" :data="feedbackList" element-loading-text="加载中..." border fit highlight-current-row>
+      <el-table-column align="center" label="标题" prop="title" min-width="180" show-overflow-tooltip />
+      <el-table-column align="center" label="内容" prop="content" min-width="220" show-overflow-tooltip />
+      <el-table-column align="center" label="用户ID" prop="userId" width="110" />
+      <el-table-column align="center" label="类型" width="120">
+        <template slot-scope="{ row }">
+          <el-tag type="info">{{ getEnumText(row.type) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="回复内容" prop="replyContent" />
-      <el-table-column align="center" label="回复人id" prop="replyUserId" />
-      <el-table-column align="center" label="回复时间" prop="replyTime">
-        <template slot-scope="{row}">
-          <span>
-            {{ row.replyTime | parseTime }}
-          </span>
+      <el-table-column align="center" label="创建时间" width="160">
+        <template slot-scope="{ row }">
+          <span>{{ row.createTime | parseTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="状态" prop="status.msg" />
-      <el-table-column align="center" label="操作" width="200">
-        <template slot-scope="row">
-          <el-button type="primary" size="mini" @click="handleUpdate(row)">
-            修改
+      <el-table-column align="center" label="处理状态" width="120">
+        <template slot-scope="{ row }">
+          <el-tag :type="getStatusType(row.status)">{{ getStatusLabel(row.status) }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="处理人" width="120">
+        <template slot-scope="{ row }">
+          {{ row.replyUserName || row.replyUserId || '—' }}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="回复时间" width="160">
+        <template slot-scope="{ row }">
+          <span>{{ row.replyTime | parseTime }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" width="220">
+        <template slot-scope="{ row }">
+          <el-button type="info" size="mini" @click="viewDetail(row)">
+            详情
           </el-button>
-          <el-popconfirm title="确定要删除此条数据吗？" @confirm="handleDelete(row)">
+          <el-button
+            v-if="row.status === 'Pending' || row.status === 'Processing'"
+            type="primary"
+            size="mini"
+            @click="handleUpdate(row)"
+          >
+            处理
+          </el-button>
+          <el-popconfirm title="确定要删除此条反馈吗？" @confirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger">
               删除
             </el-button>
@@ -50,43 +111,72 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.pageNum" :limit.sync="listQuery.pageSize" @pagination="getFeedbackList" />
+    <pagination
+      v-show="total > 0"
+      :total="total"
+      :page.sync="listQuery.pageNum"
+      :limit.sync="listQuery.pageSize"
+      @pagination="getFeedbackList"
+    />
 
-    <!-- 弹框 -->
-    <el-dialog :visible.sync="dialogFormVisible" title="新增数据">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="temp.title" placeholder="请输入" />
+    <el-dialog :visible.sync="detailVisible" title="反馈详情" width="680px">
+      <template v-if="currentRow">
+        <el-descriptions :column="1" border>
+          <el-descriptions-item label="标题">{{ currentRow.title || '—' }}</el-descriptions-item>
+          <el-descriptions-item label="内容">
+            <div class="content-block">{{ currentRow.content || '—' }}</div>
+          </el-descriptions-item>
+          <el-descriptions-item label="类型">{{ getEnumText(currentRow.type) }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="getStatusType(currentRow.status)">{{ getStatusLabel(currentRow.status) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="反馈用户">{{ currentRow.userId || '—' }}</el-descriptions-item>
+          <el-descriptions-item label="处理回复">
+            <div class="content-block">{{ currentRow.replyContent || '暂无回复' }}</div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </template>
+    </el-dialog>
+
+    <el-dialog :visible.sync="dialogFormVisible" title="反馈处理" width="560px">
+      <el-form ref="dataForm" :model="temp" label-position="left" label-width="90px">
+        <el-form-item label="标题">
+          <el-input v-model="temp.title" disabled />
         </el-form-item>
-        <el-form-item label="内容" prop="content">
-          <el-input v-model="temp.content" placeholder="请输入" />
+        <el-form-item label="内容">
+          <el-input v-model="temp.content" type="textarea" :rows="4" disabled />
         </el-form-item>
-        <!-- <el-form-item label="角色">
-          <el-select v-model="temp.role" class="filter-item" placeholder="请选择角色">
-            <el-option v-for="item in roleList" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
-          </el-select>
-        </el-form-item> -->
-        <el-form-item label="类型" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="请选择">
+        <el-form-item label="类型">
+          <el-select v-model="temp.type" disabled style="width: 100%">
             <el-option v-for="item in feedBackTypeEnum" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
           </el-select>
         </el-form-item>
-        <el-form-item label="回复内容" prop="replyContent">
-          <el-input v-model="temp.replyContent" placeholder="请输入" />
+        <el-form-item label="回复内容">
+          <el-input v-model="temp.replyContent" type="textarea" :rows="4" placeholder="请输入处理回复" />
+          <div class="reply-template-row">
+            <el-button size="mini" @click="applyReplyTemplate('已记录，问题正在排查处理中，我们会尽快同步进展。', 'Processing')">
+              模板：处理中
+            </el-button>
+            <el-button size="mini" @click="applyReplyTemplate('问题已处理完成，如仍有异常请继续反馈。', 'Resolved')">
+              模板：已解决
+            </el-button>
+            <el-button size="mini" @click="applyReplyTemplate('该问题已归档关闭，感谢你的反馈。', 'Closed')">
+              模板：关闭
+            </el-button>
+          </div>
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="temp.status" class="filter-item" placeholder="请选择">
-            <el-option v-for="item in feedBackStatusEnum" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
+        <el-form-item label="状态">
+          <el-select v-model="temp.status" style="width: 100%">
+            <el-option label="待处理" value="Pending" />
+            <el-option label="处理中" value="Processing" />
+            <el-option label="已解决" value="Resolved" />
+            <el-option label="已关闭" value="Closed" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
-          取消
-        </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?addData():updateData()">
-          确定
-        </el-button>
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateData">确定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -100,100 +190,102 @@ import Pagination from '@/components/Pagination'
 export default {
   components: { Pagination },
   filters: {
-    parseTime (val) {
+    parseTime(val) {
       return parseTime(val, '{y}-{m}-{d} {h}:{i}') || '--'
     }
   },
-  data () {
+  data() {
     return {
       listQuery: {
         pageNum: 1,
         pageSize: 10,
-        title: ''
+        title: '',
+        type: null,
+        status: ''
       },
       listLoading: true,
-      ExamName: '',
       dialogFormVisible: false,
-      dialogStatus: '',
+      detailVisible: false,
+      currentRow: null,
       temp: {
+        id: '',
         title: '',
         content: '',
         type: '',
         replyContent: '',
-        status: ''
+        status: 'Pending'
       },
-      visible: false,
-      total: 0
+      total: 0,
+      feedbackStats: {
+        total: 0,
+        pending: 0,
+        processing: 0,
+        resolved: 0
+      }
     }
   },
   computed: {
     ...mapState({
       feedbackList: state => state.feedback.feedbackList,
-      feedBackStatusEnum: state => state.enumList.feedBackStatusEnum,
       feedBackTypeEnum: state => state.enumList.feedBackTypeEnum
     })
   },
-  mounted () {
+  mounted() {
     this.getFeedbackList()
-    this.getFeedBackStatusEnum()
     this.getFeedBackTypeEnum()
   },
   methods: {
-    // 获取反馈状态枚举
-    getFeedBackStatusEnum () {
-      this.$store.dispatch('getFeedBackStatusEnum', 'FeedBackStatusEnum')
-    },
-
-    // 获取反馈类型枚举
-    getFeedBackTypeEnum () {
+    getFeedBackTypeEnum() {
       this.$store.dispatch('getFeedBackTypeEnum', 'FeedBackTypeEnum')
     },
-
-    // 获取用户列表
-    getFeedbackList () {
-      const params = {
+    updateStats(list) {
+      const arr = Array.isArray(list) ? list : []
+      this.feedbackStats = {
+        total: arr.length,
+        pending: arr.filter(item => item.status === 'Pending').length,
+        processing: arr.filter(item => item.status === 'Processing').length,
+        resolved: arr.filter(item => item.status === 'Resolved' || item.status === 'Closed').length
+      }
+    },
+    buildQueryParams() {
+      return {
         pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize
+        pageSize: this.listQuery.pageSize,
+        condition: {
+          title: this.listQuery.title,
+          type: this.listQuery.type,
+          status: this.listQuery.status || null
+        }
       }
-      this.$store.dispatch('getFeedbackList', params).then(res => {
-        this.listLoading = false
-        this.total = res.total
+    },
+    getFeedbackList() {
+      this.listLoading = true
+      this.$store.dispatch('queryFeedback', this.buildQueryParams()).then(res => {
+        this.total = res.total || 0
+        this.updateStats(res.list || [])
       }).catch(err => {
-        console.log(err)
+        this.$message.error((err && err.message) || '获取反馈列表失败')
+      }).finally(() => {
+        this.listLoading = false
       })
     },
-
-    // 清空form表单
-    resetrForm () {
+    viewDetail(row) {
+      this.currentRow = row
+      this.detailVisible = true
+    },
+    handleUpdate(row) {
       this.temp = {
-        title: '',
-        content: '',
-        type: '',
-        replyContent: '',
-        status: ''
+        id: row.id,
+        title: row.title || '',
+        content: row.content || '',
+        type: row.type && row.type.enumCode ? row.type.enumCode : row.type,
+        replyContent: row.replyContent || '',
+        status: row.status || (row.replyContent ? 'Resolved' : 'Pending')
       }
-    },
-
-    // 添加用户弹窗
-    addExam () {
       this.dialogFormVisible = true
-      this.dialogStatus = 'create'
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
     },
-    // 修改用户弹窗
-    handleUpdate (row) {
-      this.temp = Object.assign({}, row.row)
-      this.temp.type = row.row.type.enumCode
-      this.temp.status = row.row.status.enumCode
-      this.dialogFormVisible = true
-      this.dialogStatus = 'update'
-    },
-
-    // 删除用户
-    handleDelete (row) {
-      this.$store.dispatch('deleteFeedback', row.row.id).then(res => {
+    handleDelete(row) {
+      this.$store.dispatch('deleteFeedback', row.id).then(() => {
         this.getFeedbackList()
         this.$notify({
           title: 'Success',
@@ -202,52 +294,128 @@ export default {
           duration: 2000
         })
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error(err.message || err)
       })
     },
-
-    // 添加用户
-    addData () {
-      this.$store.dispatch('addFeedback', this.temp).then(res => {
-        this.dialogFormVisible = false
-        this.resetrForm()
-        this.getfeedbackList()
-        this.$notify({
-          title: 'Success',
-          message: '添加成功',
-          type: 'success',
-          duration: 2000
-        })
-      }).catch(err => {
-        this.$message.error(err)
-      })
-    },
-    // 修改用户
-    updateData () {
-      this.$store.dispatch('updateFeedback', this.temp).then(res => {
+    updateData() {
+      const payload = {
+        ...this.temp,
+        status: this.temp.replyContent && this.temp.replyContent.trim() && this.temp.status === 'Pending'
+          ? 'Resolved'
+          : this.temp.status
+      }
+      this.$store.dispatch('updateFeedback', payload).then(() => {
         this.getFeedbackList()
         this.$notify({
           title: 'Success',
-          message: '修改成功',
+          message: '处理成功',
           type: 'success',
           duration: 2000
         })
         this.dialogFormVisible = false
       }).catch(err => {
-        this.$message.error(err)
+        this.$message.error(err.message || err)
       })
     },
-
-    // 按条件查询用户
-    handleQuery () {
-      const params = {
-        pageNum: this.listQuery.pageNum,
-        pageSize: this.listQuery.pageSize,
-        condition: { title: this.listQuery.title }
+    handleQuery() {
+      this.listQuery.pageNum = 1
+      this.getFeedbackList()
+    },
+    resetQuery() {
+      this.listQuery = {
+        pageNum: 1,
+        pageSize: 10,
+        title: '',
+        type: null,
+        status: ''
       }
-      this.$store.dispatch('queryFeedback', params)
+      this.getFeedbackList()
+    },
+    togglePendingOnly() {
+      this.listQuery.pageNum = 1
+      this.listQuery.status = this.listQuery.status === 'Pending' ? '' : 'Pending'
+      this.getFeedbackList()
+    },
+    applyReplyTemplate(content, status) {
+      this.temp.replyContent = content
+      this.temp.status = status
+    },
+    getEnumText(value) {
+      if (!value) return '—'
+      if (typeof value === 'string') return value
+      if (value.msg) return value.msg
+      if (value.enumCode) return value.enumCode
+      return '—'
+    },
+    getStatusType(status) {
+      const map = {
+        Pending: 'warning',
+        Processing: 'primary',
+        Resolved: 'success',
+        Closed: 'info'
+      }
+      return map[status] || 'info'
+    },
+    getStatusLabel(status) {
+      const map = {
+        Pending: '待处理',
+        Processing: '处理中',
+        Resolved: '已解决',
+        Closed: '已关闭'
+      }
+      return map[status] || status || '—'
     }
   }
-
 }
 </script>
+
+<style scoped>
+.feedback-page .stats-row {
+  margin-bottom: 20px;
+}
+
+.stats-card {
+  text-align: center;
+}
+
+.stats-number {
+  font-size: 26px;
+  font-weight: 700;
+  color: #303133;
+}
+
+.stats-label {
+  margin-top: 6px;
+  color: #909399;
+  font-size: 13px;
+}
+
+.stats-card.pending {
+  border-left: 4px solid #e6a23c;
+}
+
+.stats-card.processing {
+  border-left: 4px solid #409eff;
+}
+
+.stats-card.resolved {
+  border-left: 4px solid #67c23a;
+}
+
+.stats-card.all {
+  border-left: 4px solid #ff7a18;
+}
+
+.content-block {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+}
+
+.reply-template-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+</style>

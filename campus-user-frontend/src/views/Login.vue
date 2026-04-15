@@ -85,7 +85,7 @@
 
           <div class="auth-panel__tips">
             <span>支持使用注册邮箱直接登录</span>
-            <span>企业账号登录后会自动进入企业工作台</span>
+            <span>企业账号进入企业工作台，管理员账号将跳转到管理端</span>
           </div>
 
           <el-form-item class="auth-form__submit">
@@ -157,6 +157,14 @@ export default {
     }
   },
   methods: {
+    getAdminConsoleUrl() {
+      const { protocol, hostname, port } = window.location
+      const adminPort = port === '8080' ? '8081' : '8081'
+      return `${protocol}//${hostname}:${adminPort}/login`
+    },
+    redirectToAdminConsole() {
+      window.location.href = this.getAdminConsoleUrl()
+    },
     handleLogin() {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
@@ -170,7 +178,9 @@ export default {
               this.$message.success('登录成功')
 
               const userRole = response.user && response.user.role
-              if (userRole === 'Enterprise_User') {
+              if (userRole === 'Admin') {
+                this.redirectToAdminConsole()
+              } else if (userRole === 'Enterprise_User') {
                 this.$router.push('/company/dashboard')
               } else {
                 this.$router.push('/')

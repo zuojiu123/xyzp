@@ -30,6 +30,7 @@ export function request(config) {
         (err.response && err.response.data && err.response.data.msg) ||
         err.message ||
         '网络请求失败'
+      const isTimeout = err.code === 'ECONNABORTED' || /timeout/i.test(err.message || '')
 
       if (status === 401) {
         removeToken()
@@ -39,6 +40,8 @@ export function request(config) {
         }
       } else if (status === 403) {
         Message.error('没有权限执行该操作')
+      } else if (isTimeout) {
+        Message.error('请求超时，请稍后重试')
       } else if (!err.response) {
         Message.error('无法连接服务器，请检查后端是否启动或接口地址')
       } else {

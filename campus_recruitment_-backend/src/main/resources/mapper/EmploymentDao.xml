@@ -51,16 +51,30 @@
                 and et.user_id = #{userId}
             </if>
             <if test="title != null and title != ''">
-                and et.title like "%${title}%"
+                and et.title like concat('%', #{title}, '%')
             </if>
             <if test="description != null and description != ''">
                 and et.description = #{description}
             </if>
             <if test="education != null and education != ''">
-                and et.education = #{education}
+                and (
+                    et.education = #{education}
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '专科及以上')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '专科')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '本科')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '硕士')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '博士')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '本科及以上')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '本科')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '硕士')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '博士')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '研究生及以上')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '硕士')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '博士')
+                )
             </if>
             <if test="position != null and position != ''">
-                and et.position = #{position}
+                and et.position like concat('%', #{position}, '%')
             </if>
             <if test="createTime != null">
                 and et.create_time = #{createTime}
@@ -143,7 +157,21 @@
             </if>
             <!-- 学历筛选 -->
             <if test="education != null and education != '' and education != '全部' and education != '不限'">
-                and et.education = #{education}
+                and (
+                    et.education = #{education}
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '专科及以上')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '专科')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '本科')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '硕士')
+                    or (#{education} = 'College_Degree_Or_Above' and et.education = '博士')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '本科及以上')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '本科')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '硕士')
+                    or (#{education} = 'Bachelor_Or_Above_Degree' and et.education = '博士')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '研究生及以上')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '硕士')
+                    or (#{education} = 'Master_Degree_Or_Above' and et.education = '博士')
+                )
             </if>
             <!-- 公司规模筛选 -->
             <if test="companyScale != null and companyScale != '' and companyScale != '全部'">

@@ -155,19 +155,31 @@ public class CompanyServiceImpl implements CompanyService {
      */
     @Override
     public CompanyParam insert(CompanyParam company) {
+        UserModel user = requireCurrentUser();
+        CompanyModel existing = companyDao.queryByUserId(user.getId());
+
+        if (existing != null) {
+            company.setId(existing.getId());
+            company.setUserId(existing.getUserId());
+            company.setCreateTime(existing.getCreateTime());
+            company.setUpdateTime(DateUtil.getCurrentTimeMillis());
+            company.setStatus(existing.getStatus());
+            company.setProcessor(existing.getProcessor());
+            company.setReplyTime(existing.getReplyTime());
+            company.setReplyContent(existing.getReplyContent());
+            this.companyDao.update(company);
+            return company;
+        }
+
         company.setId(IDGenerator.StringID());
         company.setCreateTime(DateUtil.getCurrentTimeMillis());
         company.setUpdateTime(DateUtil.getCurrentTimeMillis());
-        
-        // 获取当前登录用户的ID
-        UserModel user = requireCurrentUser();
         company.setUserId(user.getId());
-        
-        // 设置默认状态为待审核
+
         if (company.getStatus() == null || company.getStatus().isEmpty()) {
             company.setStatus(CompanyStatusEnum.Check_Pending.name());
         }
-        
+
         this.companyDao.insert(company);
         return company;
     }

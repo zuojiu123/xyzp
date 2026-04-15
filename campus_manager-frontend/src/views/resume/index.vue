@@ -59,7 +59,7 @@
       <el-select v-model="listQuery.replyStatus" placeholder="申请状态" clearable style="width: 120px;" class="filter-item">
         <el-option label="待回复" value="Wait_For_Reply" />
         <el-option label="已通过" value="Agree_With_Induction" />
-        <el-option label="已拒绝" value="Refused_Entry" />
+        <el-option label="已拒绝" value="Rejected" />
       </el-select>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleQuery">
         查询
@@ -92,6 +92,13 @@
           <span>{{ row.createTime | parseTime }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="流程阶段" width="120">
+        <template slot-scope="{row}">
+          <el-tag type="info">
+            {{ getStageText(row.recruitStage) }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="申请状态" width="110">
         <template slot-scope="{row}">
           <el-tag v-if="row.replyStatus === 'Wait_For_Reply'" type="warning">
@@ -100,7 +107,7 @@
           <el-tag v-else-if="row.replyStatus === 'Agree_With_Induction'" type="success">
             已通过
           </el-tag>
-          <el-tag v-else-if="row.replyStatus === 'Refused_Entry'" type="danger">
+          <el-tag v-else-if="row.replyStatus === 'Refused_Entry' || row.replyStatus === 'Rejected'" type="danger">
             已拒绝
           </el-tag>
           <el-tag v-else type="info">
@@ -108,11 +115,19 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="100">
+      <el-table-column align="center" label="操作" width="220">
         <template slot-scope="{row}">
           <el-button type="info" size="mini" @click="viewDetail(row)">
             详情
           </el-button>
+          <template v-if="row.replyStatus === 'Wait_For_Reply'">
+            <el-button type="success" size="mini" @click="quickHandle(row, 'Agree_With_Induction')">
+              通过
+            </el-button>
+            <el-button type="danger" size="mini" @click="quickHandle(row, 'Rejected')">
+              拒绝
+            </el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -132,6 +147,12 @@
           <el-descriptions-item label="职位">
             {{ (currentRow.employmentModel && currentRow.employmentModel.title) || '—' }}
           </el-descriptions-item>
+          <el-descriptions-item label="流程阶段">
+            <el-tag type="info">{{ getStageText(currentRow.recruitStage) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="申请状态">
+            <el-tag :type="getReplyStatusType(currentRow.replyStatus)">{{ getReplyStatusText(currentRow.replyStatus) }}</el-tag>
+          </el-descriptions-item>
           <el-descriptions-item label="自我介绍">
             <div class="intro-block">
               {{ currentRow.introduce || '—' }}
@@ -148,7 +169,53 @@
             </template>
             <span v-else>未上传</span>
           </el-descriptions-item>
+          <el-descriptions-item label="流程时间线">
+            <el-button type="text" @click="loadTimeline(currentRow)">刷新时间线</el-button>
+            <div v-loading="timelineLoading" class="timeline-box">
+              <el-timeline v-if="timeline.length">
+                <el-timeline-item
+                  v-for="item in timeline"
+                  :key="item.id"
+                  :timestamp="item.createTime | parseTime"
+                  placement="top"
+                >
+                  <div class="timeline-node-title">
+                    <strong>{{ getFlowActionText(item.actionType) }}</strong>
+                    <el-tag size="mini" type="info">{{ getStageText(item.stageTo) }}</el-tag>
+                  </div>
+                  <div class="timeline-node-content">{{ item.content || '状态已更新' }}</div>
+                </el-timeline-item>
+              </el-timeline>
+              <div v-else-if="!timelineLoading" class="timeline-empty">暂无流程记录</div>
+            </div>
+          </el-descriptions-item>
         </el-descriptions>
+        <div v-if="currentRow.replyStatus === 'Wait_For_Reply'" class="decision-panel">
+          <div class="decision-panel__title">处理此申请</div>
+          <el-select v-model="decisionStage" style="width: 220px" placeholder="请选择流程阶段">
+            <el-option label="筛选中" value="SCREENING" />
+            <el-option label="面试中" value="INTERVIEW" />
+            <el-option label="待录用" value="OFFER" />
+            <el-option label="已录用" value="HIRED" />
+            <el-option label="已淘汰" value="REJECTED" />
+          </el-select>
+          <el-input
+            v-model="decisionRemark"
+            type="textarea"
+            :rows="4"
+            maxlength="300"
+            show-word-limit
+            placeholder="填写处理备注，候选人会收到通知"
+          />
+          <div class="decision-actions">
+            <el-button type="success" :loading="decisionLoading" @click="handleDecision('Agree_With_Induction')">
+              通过并通知
+            </el-button>
+            <el-button type="danger" :loading="decisionLoading" @click="handleDecision('Rejected')">
+              拒绝并通知
+            </el-button>
+          </div>
+        </div>
       </template>
     </el-dialog>
 
@@ -178,6 +245,7 @@ import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils/time'
 import { getDashboardStatistics } from '@/api/statistics'
 import { fetchResumeBlob } from '@/utils/resumeFile'
+import { getEmploymentUserTimeline } from '@/api/employmentUser'
 
 function normalizeExt(extension) {
   if (!extension) return ''
@@ -215,7 +283,12 @@ export default {
       currentResumeObjectUrl: '',
       resumeBlobLoading: false,
       previewRow: null,
-      resumeActionLoading: ''
+      resumeActionLoading: '',
+      timelineLoading: false,
+      timeline: [],
+      decisionRemark: '',
+      decisionLoading: false,
+      decisionStage: 'SCREENING'
     }
   },
   computed: {
@@ -363,7 +436,102 @@ export default {
     },
     viewDetail (row) {
       this.currentRow = row
+      this.decisionRemark = row.replyContent || ''
+      this.decisionStage = row.recruitStage || 'SCREENING'
       this.detailVisible = true
+      this.loadTimeline(row)
+    },
+    async quickHandle (row, status) {
+      const actionText = status === 'Agree_With_Induction' ? '通过' : '拒绝'
+      try {
+        await this.$confirm(`确定要${actionText}该申请吗？`, '提示', { type: 'warning' })
+        await this.$store.dispatch('updateEmploymentUser', {
+          id: row.id,
+          replyStatus: status,
+          recruitStage: status === 'Agree_With_Induction' ? 'HIRED' : 'REJECTED',
+          replyContent: status === 'Agree_With_Induction'
+            ? '管理员审核后已通过该申请。'
+            : '管理员审核后未通过该申请。'
+        })
+        this.$message.success(`已${actionText}`)
+        this.loadResumeSummary()
+        this.getResumeList()
+      } catch (e) {
+        if (e !== 'cancel') {
+          this.$message.error((e && e.message) || `${actionText}失败`)
+        }
+      }
+    },
+    async loadTimeline (row) {
+      if (!row || !row.id) return
+      this.timelineLoading = true
+      try {
+        this.timeline = await getEmploymentUserTimeline(row.id)
+      } catch (e) {
+        this.$message.error((e && e.message) || '获取流程时间线失败')
+      } finally {
+        this.timelineLoading = false
+      }
+    },
+    getStageText (stage) {
+      const texts = {
+        SUBMITTED: '已投递',
+        SCREENING: '筛选中',
+        INTERVIEW: '面试中',
+        OFFER: '待录用',
+        HIRED: '已录用',
+        REJECTED: '已淘汰',
+        WITHDRAWN: '已撤回'
+      }
+      return texts[stage] || stage || '未知阶段'
+    },
+    getFlowActionText (actionType) {
+      const texts = {
+        SUBMIT: '候选人投递',
+        STATUS_CHANGE: '处理状态更新',
+        COLLECT: '收藏职位'
+      }
+      return texts[actionType] || actionType || '流程变更'
+    },
+    getReplyStatusType (status) {
+      const map = {
+        Wait_For_Reply: 'warning',
+        Agree_With_Induction: 'success',
+        Rejected: 'danger',
+        Refused_Entry: 'danger'
+      }
+      return map[status] || 'info'
+    },
+    getReplyStatusText (status) {
+      const map = {
+        Wait_For_Reply: '待处理',
+        Agree_With_Induction: '已通过',
+        Rejected: '已拒绝',
+        Refused_Entry: '已拒绝'
+      }
+      return map[status] || status || '未知'
+    },
+    async handleDecision (status) {
+      if (!this.currentRow) return
+      this.decisionLoading = true
+      try {
+        await this.$store.dispatch('updateEmploymentUser', {
+          id: this.currentRow.id,
+          replyStatus: status,
+          recruitStage: this.decisionStage,
+          replyContent: this.decisionRemark || (status === 'Agree_With_Induction'
+            ? '管理员审核后已通过该申请。'
+            : '管理员审核后未通过该申请。')
+        })
+        this.$message.success('处理成功')
+        this.detailVisible = false
+        this.loadResumeSummary()
+        this.getResumeList()
+      } catch (e) {
+        this.$message.error((e && e.message) || '处理失败')
+      } finally {
+        this.decisionLoading = false
+      }
     }
   }
 }
@@ -424,5 +592,49 @@ export default {
   text-align: center;
   color: #909399;
   padding: 48px;
+}
+
+.timeline-box {
+  margin-top: 8px;
+}
+
+.timeline-node-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-node-content {
+  margin-top: 6px;
+  color: #606266;
+  line-height: 1.6;
+}
+
+.timeline-empty {
+  color: #909399;
+}
+
+.decision-panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #ebeef5;
+}
+
+.decision-panel__title {
+  margin-bottom: 12px;
+  color: #303133;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.decision-panel .el-select,
+.decision-panel .el-textarea {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.decision-actions {
+  display: flex;
+  gap: 10px;
 }
 </style>

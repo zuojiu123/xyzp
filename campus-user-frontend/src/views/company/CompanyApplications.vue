@@ -96,6 +96,26 @@
             <el-descriptions-item v-if="currentApplication.replyContent" label="历史回复" :span="2">
               <div class="reply-block">{{ currentApplication.replyContent }}</div>
             </el-descriptions-item>
+            <el-descriptions-item label="流程时间线" :span="2">
+              <el-button type="text" @click="loadTimeline(currentApplication)">刷新时间线</el-button>
+              <div v-loading="timelineLoading" class="timeline-box">
+                <el-timeline v-if="timeline.length">
+                  <el-timeline-item
+                    v-for="item in timeline"
+                    :key="item.id"
+                    :timestamp="formatTime(item.createTime)"
+                    placement="top"
+                  >
+                    <div class="timeline-node-title">
+                      <strong>{{ getFlowActionText(item.actionType) }}</strong>
+                      <el-tag size="mini" type="info">{{ getStageText(item.stageTo) }}</el-tag>
+                    </div>
+                    <div class="timeline-node-content">{{ item.content || '状态已更新' }}</div>
+                  </el-timeline-item>
+                </el-timeline>
+                <div v-else-if="!timelineLoading" class="timeline-empty">暂无流程记录</div>
+              </div>
+            </el-descriptions-item>
           </el-descriptions>
 
           <div v-if="currentApplication.replyStatus === 'Wait_For_Reply'" class="reply-editor">
@@ -161,7 +181,9 @@ export default {
       currentResumeUrl: '',
       currentResume: null,
       _resumeBlobUrl: '',
-      companyId: ''
+      companyId: '',
+      timeline: [],
+      timelineLoading: false
     }
   },
   computed: {
@@ -238,11 +260,25 @@ export default {
     viewDetail(application) {
       this.currentApplication = application
       this.replyContent = ''
+      this.timeline = []
       this.detailVisible = true
+      this.loadTimeline(application)
     },
     onDetailClosed() {
       this.currentApplication = null
       this.replyContent = ''
+      this.timeline = []
+    },
+    async loadTimeline(application) {
+      if (!application || !application.id) return
+      this.timelineLoading = true
+      try {
+        this.timeline = await this.$api.employmentUser.getApplicationTimeline(application.id)
+      } catch (error) {
+        this.$message.error(error.message || '获取流程时间线失败')
+      } finally {
+        this.timelineLoading = false
+      }
     },
     async handleApplication(application, status) {
       try {
@@ -300,6 +336,26 @@ export default {
         Refused_Entry: '已拒绝'
       }
       return texts[replyStatus] || replyStatus || '未知'
+    },
+    getStageText(stage) {
+      const texts = {
+        SUBMITTED: '已投递',
+        SCREENING: '筛选中',
+        INTERVIEW: '面试中',
+        OFFER: '待录用',
+        HIRED: '已录用',
+        REJECTED: '已淘汰',
+        WITHDRAWN: '已撤回'
+      }
+      return texts[stage] || stage || '未知阶段'
+    },
+    getFlowActionText(actionType) {
+      const texts = {
+        SUBMIT: '候选人投递',
+        STATUS_CHANGE: '处理状态更新',
+        COLLECT: '收藏职位'
+      }
+      return texts[actionType] || actionType || '流程变更'
     },
     formatTime(timestamp) {
       if (timestamp == null) return '—'
@@ -496,6 +552,26 @@ export default {
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.timeline-box {
+  margin-top: 8px;
+}
+
+.timeline-node-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timeline-node-content {
+  margin-top: 6px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.timeline-empty {
+  color: #94a3b8;
 }
 
 .reply-editor {

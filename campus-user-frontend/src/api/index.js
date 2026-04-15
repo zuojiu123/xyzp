@@ -81,6 +81,7 @@ export default {
     getCompanyApplications: (pageNum, pageSize, params) => api.post(`/employmentUser/company/${pageNum}/${pageSize}`, params),
     getUserApplications: (username) => api.get(`/employmentUser/user/${username}`),
     getApplicationById: (id) => api.get(`/employmentUser/${id}`),
+    getApplicationTimeline: (id) => api.get(`/applicationFlowLog/employmentUser/${id}`),
     applyJob: (data) => api.post('/employmentUser', data),
     updateApplication: (data) => api.put('/employmentUser', data),
     deleteApplication: (id) => api.delete(`/employmentUser/${id}`)

@@ -28,7 +28,12 @@ public class FeedbackModel extends Feedback {
     /**
      * 状态：0未回复，1已回复
      */
-    private EnumEntity status;
+    private String status;
+
+    /**
+     * 处理人显示名
+     */
+    private String replyUserName;
 
 
 

@@ -9,6 +9,7 @@ import com.caohao.dao.EmploymentDao;
 import com.caohao.dao.EmploymentUserDao;
 import com.caohao.dao.UserDao;
 import com.caohao.dao.UserResumeDao;
+import com.caohao.pojo.entity.ApplicationFlowLog;
 import com.caohao.pojo.entity.UserResume;
 import com.caohao.pojo.model.UserModel;
 import com.caohao.pojo.model.CompanyModel;
@@ -18,6 +19,7 @@ import com.caohao.pojo.param.EmploymentParam;
 import com.caohao.pojo.param.EmploymentUserParam;
 import com.caohao.security.util.GetTokenInfoUtil;
 import com.caohao.service.EmploymentUserService;
+import com.caohao.service.ApplicationFlowLogService;
 import com.caohao.service.UserNotificationService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -60,6 +62,9 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
     @Resource
     private UserNotificationService userNotificationService;
 
+    @Resource
+    private ApplicationFlowLogService applicationFlowLogService;
+
     private static final Gson GSON = new Gson();
 
     private UserModel requireCurrentUser() {
@@ -76,6 +81,64 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
 
     private boolean isAdmin(UserModel user) {
         return user != null && UserRoleEnum.Admin.name().equals(user.getRole());
+    }
+
+    private String normalizeRecruitStage(String recruitStage, String replyStatus) {
+        if (replyStatus != null && !replyStatus.trim().isEmpty()) {
+            switch (replyStatus) {
+                case "Agree_With_Induction":
+                    return "HIRED";
+                case "Rejected":
+                case "Refused_Entry":
+                    return "REJECTED";
+                default:
+                    break;
+            }
+        }
+        if (recruitStage != null && !recruitStage.trim().isEmpty()) {
+            return recruitStage;
+        }
+        return "SUBMITTED";
+    }
+
+    private String normalizeUserStatus(String userStatus, String replyStatus) {
+        if (userStatus != null && !userStatus.trim().isEmpty()) {
+            return userStatus;
+        }
+        if ("Agree_With_Induction".equals(replyStatus)) {
+            return "Pass";
+        }
+        if ("Rejected".equals(replyStatus) || "Refused_Entry".equals(replyStatus)) {
+            return "Reject";
+        }
+        return "Normal";
+    }
+
+    private void recordFlowLog(EmploymentUserModel before,
+                               EmploymentUserModel after,
+                               String actionType,
+                               String content,
+                               UserModel operator,
+                               EmploymentModel employmentModel) {
+        if (after == null) {
+            return;
+        }
+        ApplicationFlowLog log = new ApplicationFlowLog();
+        log.setEmploymentUserId(after.getId());
+        log.setEmploymentId(after.getEmploymentId());
+        log.setCompanyId(employmentModel != null ? employmentModel.getCompanyId() : null);
+        log.setApplicantUserId(after.getUserId());
+        log.setOperatorUserId(operator != null ? operator.getId() : null);
+        log.setOperatorRole(operator != null ? operator.getRole() : null);
+        log.setActionType(actionType);
+        log.setStageFrom(before != null ? before.getRecruitStage() : null);
+        log.setStageTo(after.getRecruitStage());
+        log.setReplyStatusFrom(before != null ? before.getReplyStatus() : null);
+        log.setReplyStatusTo(after.getReplyStatus());
+        log.setUserStatusFrom(before != null ? before.getUserStatus() : null);
+        log.setUserStatusTo(after.getUserStatus());
+        log.setContent(content);
+        applicationFlowLogService.save(log);
     }
 
     /**
@@ -156,14 +219,15 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
         if (employmentUser.getReplyStatus() == null || employmentUser.getReplyStatus().isEmpty()) {
             employmentUser.setReplyStatus("Wait_For_Reply");
         }
-        if (employmentUser.getUserStatus() == null || employmentUser.getUserStatus().isEmpty()) {
-            employmentUser.setUserStatus("Wait_For_Reply");
-        }
+        employmentUser.setUserStatus(normalizeUserStatus(employmentUser.getUserStatus(), employmentUser.getReplyStatus()));
+        employmentUser.setRecruitStage(normalizeRecruitStage(employmentUser.getRecruitStage(), employmentUser.getReplyStatus()));
         if (employmentUser.getDeleted() == null) {
             employmentUser.setDeleted(0);
         }
 
         this.employmentUserDao.insert(employmentUser);
+        EmploymentUserModel created = this.queryById(employmentUser.getId());
+        recordFlowLog(null, created, "SUBMIT", "候选人提交了职位申请", currentUser, employmentModel);
         return employmentUser;
     }
 
@@ -203,9 +267,15 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
                 employmentUser.setUserStatus("Reject");
             }
         }
+        employmentUser.setRecruitStage(normalizeRecruitStage(employmentUser.getRecruitStage(), employmentUser.getReplyStatus()));
+        employmentUser.setUserStatus(normalizeUserStatus(employmentUser.getUserStatus(), employmentUser.getReplyStatus()));
 
         this.employmentUserDao.update(employmentUser);
         EmploymentUserModel result = this.queryById(employmentUser.getId());
+        String flowContent = (result.getReplyContent() != null && !result.getReplyContent().trim().isEmpty())
+                ? result.getReplyContent()
+                : "申请状态已更新";
+        recordFlowLog(existing, result, "STATUS_CHANGE", flowContent, currentUser, employmentModel);
         if (existing != null && employmentUser.getReplyStatus() != null
                 && !Objects.equals(employmentUser.getReplyStatus(), oldReplyStatus)) {
             pushApplicationStatusToApplicant(existing.getUserId(), result);
@@ -226,13 +296,14 @@ public class EmploymentUserServiceImpl implements EmploymentUserService {
             payload.put("type", "application_status");
             payload.put("replyStatus", result.getReplyStatus());
             payload.put("userStatus", result.getUserStatus());
+            payload.put("recruitStage", result.getRecruitStage());
             payload.put("replyContent", result.getReplyContent());
             payload.put("employmentId", result.getEmploymentId());
             payload.put("id", result.getId());
             String title = "求职申请状态更新";
             String content = (result.getReplyContent() != null && !result.getReplyContent().trim().isEmpty())
                     ? result.getReplyContent()
-                    : "您投递的职位申请状态已更新为：" + result.getReplyStatus();
+                    : "您投递的职位申请状态已更新为：" + result.getRecruitStage();
             userNotificationService.saveNotification(
                     applicant.getId(),
                     applicant.getUserName(),

@@ -18,20 +18,25 @@
         <result property="type" column="type" jdbcType="INTEGER"/>
         <result property="replyStatus" column="reply_status" jdbcType="VARCHAR"/>
         <result property="userStatus" column="user_status" jdbcType="VARCHAR"/>
+        <result property="recruitStage" column="recruit_stage" jdbcType="VARCHAR"/>
+        <result property="interviewTime" column="interview_time" jdbcType="BIGINT"/>
+        <result property="interviewRemark" column="interview_remark" jdbcType="VARCHAR"/>
     </resultMap>
 
-    <!--查询单个-->
     <select id="queryById" resultMap="EmploymentUserMap">
         select
-          id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, type, reply_status, user_status
+            id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted,
+            reply_time, reply_content, reply_user, type, reply_status, user_status,
+            recruit_stage, interview_time, interview_remark
         from employment_user
         where id = #{id}
     </select>
 
-    <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="EmploymentUserMap">
         select
-          id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, type, reply_status, user_status
+            id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted,
+            reply_time, reply_content, reply_user, type, reply_status, user_status,
+            recruit_stage, interview_time, interview_remark
         from employment_user
         <where>
             <if test="id != null and id != ''">
@@ -44,7 +49,7 @@
                 and user_id = #{userId}
             </if>
             <if test="name != null and name != ''">
-                and name like "%${name}%"
+                and name like concat('%', #{name}, '%')
             </if>
             <if test="phone != null and phone != ''">
                 and phone = #{phone}
@@ -79,6 +84,9 @@
             <if test="userStatus != null and userStatus != ''">
                 and user_status = #{userStatus}
             </if>
+            <if test="recruitStage != null and recruitStage != ''">
+                and recruit_stage = #{recruitStage}
+            </if>
             <if test="ids != null and ids.size() > 0">
                 and employment_id in
                 <foreach collection="ids" close=")" item="item" open="(" separator=",">
@@ -87,107 +95,94 @@
             </if>
         </where>
     </select>
+
     <select id="getByUser" resultMap="EmploymentUserMap">
-        select * from employment_user where user_id = #{userId} order by create_time DESC
+        select
+            id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted,
+            reply_time, reply_content, reply_user, type, reply_status, user_status,
+            recruit_stage, interview_time, interview_remark
+        from employment_user
+        where user_id = #{userId}
+        order by create_time desc
     </select>
 
-
-    <!--新增数据，只插入非null字段-->
     <insert id="insert">
         insert into employment_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null and id != ''">
-                id,
-            </if>
+            <if test="id != null and id != ''">id,</if>
             employment_id,
             user_id,
-            <if test="name != null and name != ''">
-                name,
-            </if>
-            <if test="phone != null and phone != ''">
-                phone,
-            </if>
-            <if test="introduce != null and introduce != ''">
-                introduce,
-            </if>
-            <if test="resume != null and resume != ''">
-                resume,
-            </if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="phone != null and phone != ''">phone,</if>
+            <if test="introduce != null and introduce != ''">introduce,</if>
+            <if test="resume != null and resume != ''">resume,</if>
             create_time,
             deleted,
-            <if test="replyTime != null">
-                reply_time,
-            </if>
-            <if test="replyContent != null and replyContent != ''">
-                reply_content,
-            </if>
-            <if test="replyUser != null and replyUser != ''">
-                reply_user,
-            </if>
-            <if test="type != null">
-                type,
-            </if>
-            <if test="replyStatus != null and replyStatus != ''">
-                reply_status,
-            </if>
-            <if test="userStatus != null and userStatus != ''">
-                user_status,
-            </if>
+            <if test="replyTime != null">reply_time,</if>
+            <if test="replyContent != null and replyContent != ''">reply_content,</if>
+            <if test="replyUser != null and replyUser != ''">reply_user,</if>
+            <if test="type != null">type,</if>
+            <if test="replyStatus != null and replyStatus != ''">reply_status,</if>
+            <if test="userStatus != null and userStatus != ''">user_status,</if>
+            <if test="recruitStage != null and recruitStage != ''">recruit_stage,</if>
+            <if test="interviewTime != null">interview_time,</if>
+            <if test="interviewRemark != null and interviewRemark != ''">interview_remark,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null and id != ''">
-                #{id},
-            </if>
+            <if test="id != null and id != ''">#{id},</if>
             #{employmentId},
             #{userId},
-            <if test="name != null and name != ''">
-                #{name},
-            </if>
-            <if test="phone != null and phone != ''">
-                #{phone},
-            </if>
-            <if test="introduce != null and introduce != ''">
-                #{introduce},
-            </if>
-            <if test="resume != null and resume != ''">
-                #{resume},
-            </if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="phone != null and phone != ''">#{phone},</if>
+            <if test="introduce != null and introduce != ''">#{introduce},</if>
+            <if test="resume != null and resume != ''">#{resume},</if>
             #{createTime},
             #{deleted},
-            <if test="replyTime != null">
-                #{replyTime},
-            </if>
-            <if test="replyContent != null and replyContent != ''">
-                #{replyContent},
-            </if>
-            <if test="replyUser != null and replyUser != ''">
-                #{replyUser},
-            </if>
-            <if test="type != null">
-                #{type},
-            </if>
-            <if test="replyStatus != null and replyStatus != ''">
-                #{replyStatus},
-            </if>
-            <if test="userStatus != null and userStatus != ''">
-                #{userStatus},
-            </if>
+            <if test="replyTime != null">#{replyTime},</if>
+            <if test="replyContent != null and replyContent != ''">#{replyContent},</if>
+            <if test="replyUser != null and replyUser != ''">#{replyUser},</if>
+            <if test="type != null">#{type},</if>
+            <if test="replyStatus != null and replyStatus != ''">#{replyStatus},</if>
+            <if test="userStatus != null and userStatus != ''">#{userStatus},</if>
+            <if test="recruitStage != null and recruitStage != ''">#{recruitStage},</if>
+            <if test="interviewTime != null">#{interviewTime},</if>
+            <if test="interviewRemark != null and interviewRemark != ''">#{interviewRemark},</if>
         </trim>
     </insert>
 
-    <insert id="insertBatch" >
-        insert into employment_user(id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, type, reply_status, user_status)
+    <insert id="insertBatch">
+        insert into employment_user(
+            id, employment_id, user_id, name, phone, introduce, resume, create_time, deleted,
+            reply_time, reply_content, reply_user, type, reply_status, user_status,
+            recruit_stage, interview_time, interview_remark
+        )
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.id}, #{entity.employmentId}, #{entity.userId}, #{entity.name}, #{entity.phone}, #{entity.introduce}, #{entity.resume}, #{entity.createTime}, #{entity.deleted}, #{entity.replyTime}, #{entity.replyContent}, #{entity.replyUser}, #{entity.type}, #{entity.replyStatus}, #{entity.userStatus})
+            (
+                #{entity.id}, #{entity.employmentId}, #{entity.userId}, #{entity.name}, #{entity.phone},
+                #{entity.introduce}, #{entity.resume}, #{entity.createTime}, #{entity.deleted},
+                #{entity.replyTime}, #{entity.replyContent}, #{entity.replyUser}, #{entity.type},
+                #{entity.replyStatus}, #{entity.userStatus}, #{entity.recruitStage},
+                #{entity.interviewTime}, #{entity.interviewRemark}
+            )
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch">
-        insert into employment_user(employment_id, user_id, name, phone, introduce, resume, create_time, deleted, reply_time, reply_content, reply_user, type, reply_status, user_status)
+        insert into employment_user(
+            employment_id, user_id, name, phone, introduce, resume, create_time, deleted,
+            reply_time, reply_content, reply_user, type, reply_status, user_status,
+            recruit_stage, interview_time, interview_remark
+        )
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.employmentId}, #{entity.userId}, #{entity.name}, #{entity.phone}, #{entity.introduce}, #{entity.resume}, #{entity.createTime}, #{entity.deleted}, #{entity.replyTime}, #{entity.replyContent}, #{entity.replyUser}, #{entity.type}, #{entity.replyStatus}, #{entity.userStatus})
+            (
+                #{entity.employmentId}, #{entity.userId}, #{entity.name}, #{entity.phone},
+                #{entity.introduce}, #{entity.resume}, #{entity.createTime}, #{entity.deleted},
+                #{entity.replyTime}, #{entity.replyContent}, #{entity.replyUser}, #{entity.type},
+                #{entity.replyStatus}, #{entity.userStatus}, #{entity.recruitStage},
+                #{entity.interviewTime}, #{entity.interviewRemark}
+            )
         </foreach>
         on duplicate key update
         employment_id = values(employment_id),
@@ -202,68 +197,44 @@
         reply_content = values(reply_content),
         reply_user = values(reply_user),
         reply_status = values(reply_status),
-        user_status = values(user_status)
+        user_status = values(user_status),
+        recruit_stage = values(recruit_stage),
+        interview_time = values(interview_time),
+        interview_remark = values(interview_remark)
     </insert>
 
-    <!--通过主键修改数据-->
     <update id="update">
         update employment_user
         <set>
-            <if test="employmentId != null and employmentId != ''">
-                employment_id = #{employmentId},
-            </if>
-            <if test="userId != null and userId != ''">
-                user_id = #{userId},
-            </if>
-            <if test="name != null and name != ''">
-                name = #{name},
-            </if>
-            <if test="phone != null and phone != ''">
-                phone = #{phone},
-            </if>
-            <if test="introduce != null and introduce != ''">
-                introduce = #{introduce},
-            </if>
-            <if test="resume != null and resume != ''">
-                resume = #{resume},
-            </if>
-            <if test="createTime != null">
-                create_time = #{createTime},
-            </if>
-            <if test="deleted != null">
-                deleted = #{deleted},
-            </if>
-            <if test="replyTime != null">
-                reply_time = #{replyTime},
-            </if>
-            <if test="replyContent != null and replyContent != ''">
-                reply_content = #{replyContent},
-            </if>
-            <if test="replyUser != null and replyUser != ''">
-                reply_user = #{replyUser},
-            </if>
-            <if test="type != null">
-                type = #{type},
-            </if>
-            <if test="replyStatus != null and replyStatus != ''">
-                reply_status = #{replyStatus},
-            </if>
-            <if test="userStatus != null and userStatus != ''">
-                user_status = #{userStatus},
-            </if>
+            <if test="employmentId != null and employmentId != ''">employment_id = #{employmentId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="phone != null and phone != ''">phone = #{phone},</if>
+            <if test="introduce != null and introduce != ''">introduce = #{introduce},</if>
+            <if test="resume != null and resume != ''">resume = #{resume},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="deleted != null">deleted = #{deleted},</if>
+            <if test="replyTime != null">reply_time = #{replyTime},</if>
+            <if test="replyContent != null and replyContent != ''">reply_content = #{replyContent},</if>
+            <if test="replyUser != null and replyUser != ''">reply_user = #{replyUser},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="replyStatus != null and replyStatus != ''">reply_status = #{replyStatus},</if>
+            <if test="userStatus != null and userStatus != ''">user_status = #{userStatus},</if>
+            <if test="recruitStage != null and recruitStage != ''">recruit_stage = #{recruitStage},</if>
+            <if test="interviewTime != null">interview_time = #{interviewTime},</if>
+            <if test="interviewRemark != null and interviewRemark != ''">interview_remark = #{interviewRemark},</if>
         </set>
         where id = #{id}
     </update>
 
-    <!--通过主键删除-->
     <delete id="deleteById">
         delete from employment_user where id = #{id}
     </delete>
+
     <delete id="deleteByEmployId">
         delete from employment_user where employment_id = #{employmentId}
     </delete>
 
-    <!--获取申请总数-->
     <select id="getTotalCount" resultType="int">
         select count(*) from employment_user where deleted = 0
     </select>
@@ -281,7 +252,6 @@
           and e.company_id = #{companyId}
     </select>
 
-    <!--通过用户ID和职位ID删除数据-->
     <delete id="deleteByUserIdAndEmploymentId" parameterType="com.caohao.pojo.param.EmploymentUserParam">
         delete from employment_user where user_id = #{userId} and employment_id = #{employmentId}
         <if test="type != null">
@@ -290,4 +260,3 @@
     </delete>
 
 </mapper>
-

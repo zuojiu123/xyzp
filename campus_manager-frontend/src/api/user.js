@@ -67,8 +67,9 @@ export function getAuthCode(params) {
   return request({
     url: '/email/getAuthCode',
     method: 'get',
-    params: params
-  })
+    params: params,
+    timeout: 30000
+  }).then(res => getResult(res))
 }
 
 export function updatePassword(params) {

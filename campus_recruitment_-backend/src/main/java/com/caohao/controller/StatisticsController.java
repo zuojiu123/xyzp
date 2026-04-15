@@ -100,7 +100,8 @@ public class StatisticsController {
             statistics.put("approvedApplicationCount",
                     employmentUserService.countByReplyStatus("Agree_With_Induction"));
             statistics.put("rejectedApplicationCount",
-                    employmentUserService.countByReplyStatus("Refused_Entry"));
+                    employmentUserService.countByReplyStatus("Refused_Entry")
+                            + employmentUserService.countByReplyStatus("Rejected"));
             
             return Result.ok(statistics);
         } catch (Exception e) {

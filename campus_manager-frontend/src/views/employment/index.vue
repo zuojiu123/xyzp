@@ -5,7 +5,7 @@
       <el-input v-model="listQuery.title" placeholder="请输入职位名称" style="width: 150px;" class="filter-item" @keyup.enter.native="handleQuery" />
       <el-input v-model="listQuery.position" placeholder="工作地点" style="width: 120px;" class="filter-item" @keyup.enter.native="handleQuery" />
       <el-select v-model="listQuery.education" placeholder="学历要求" clearable style="width: 120px;" class="filter-item">
-        <el-option v-for="item in employmentEducationEnum" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
+        <el-option v-for="item in educationOptions" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
       </el-select>
       <el-select v-model="listQuery.status" placeholder="审核状态" clearable style="width: 120px;" class="filter-item">
         <el-option label="待审核" :value="0" />
@@ -37,7 +37,7 @@
         </el-button>
       </el-button-group>
     </div>
-    <el-table v-loading="listLoading" style="margin-top:20px" :data="employmentList" element-loading-text="Loading" border fit highlight-current-row :expand-row-keys="expands" :row-key="getRowKeys" @expand-change="expandChange">
+    <el-table v-loading="listLoading" style="margin-top:20px" :data="displayEmploymentList" element-loading-text="Loading" border fit highlight-current-row :expand-row-keys="expands" :row-key="getRowKeys" @expand-change="expandChange">
       <el-table-column type="expand">
         <template slot-scope="{row}">
           <el-descriptions title="职位详情" :column="2" border>
@@ -50,7 +50,7 @@
               </el-tag>
             </el-descriptions-item>
             <el-descriptions-item label="学历要求">
-              {{ row.education || '--' }}
+              {{ getEducationText(row.education) }}
             </el-descriptions-item>
             <el-descriptions-item label="福利待遇">
               {{ row.treatment || '暂无' }}
@@ -64,7 +64,11 @@
       <el-table-column align="center" label="ID" prop="id" width="80" />
       <el-table-column align="center" label="职位标题" prop="title" width="150" show-overflow-tooltip />
       <el-table-column align="center" label="工作地点" prop="position" width="120" show-overflow-tooltip />
-      <el-table-column align="center" label="学历" prop="education" width="80" />
+      <el-table-column align="center" label="学历" width="120">
+        <template slot-scope="{row}">
+          {{ getEducationText(row.education) }}
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="薪资" width="100">
         <template slot-scope="{row}">
           <span v-if="row.minSalary && row.maxSalary">
@@ -117,8 +121,8 @@
               <el-dropdown-item v-if="row.status === 0" @click.native="rejectJob(row)">
                 <i class="el-icon-close" /> 驳回审核
               </el-dropdown-item>
-              <el-dropdown-item v-if="row.status === 1 || row.status === 2" divided @click.native="reactivateJob(row)">
-                <i class="el-icon-refresh-left" /> 重新提交审核
+              <el-dropdown-item v-if="row.status === 2" divided @click.native="reactivateJob(row)">
+                <i class="el-icon-refresh-left" /> 驳回后重新提交
               </el-dropdown-item>
               <el-dropdown-item @click.native="viewJob(row)">
                 <i class="el-icon-view" /> 查看详情
@@ -153,7 +157,7 @@
           <el-col :span="12">
             <el-form-item label="学历要求" prop="education">
               <el-select v-model="temp.education" class="filter-item" placeholder="请选择学历" style="width: 100%;">
-                <el-option v-for="item in employmentEducationEnum" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
+                <el-option v-for="item in educationOptions" :key="item.enumCode" :label="item.msg" :value="item.enumCode" />
               </el-select>
             </el-form-item>
           </el-col>
@@ -293,6 +297,11 @@ export default {
   },
   data () {
     return {
+      defaultEducationOptions: [
+        { enumCode: 'College_Degree_Or_Above', msg: '专科及以上' },
+        { enumCode: 'Bachelor_Or_Above_Degree', msg: '本科及以上' },
+        { enumCode: 'Master_Degree_Or_Above', msg: '硕士及以上' }
+      ],
       expands: [],
       type: 'add',
       listQuery: {
@@ -320,6 +329,7 @@ export default {
       },
       visible: false,
       total: 0,
+      displayEmploymentList: [],
       auditLogs: [],
       auditLogLoading: false,
       rules: {
@@ -344,7 +354,12 @@ export default {
       employmentEducationEnum: state => state.enumList.employmentEducationEnum,
       employmentReplyStatus: state => state.enumList.employmentReplyStatus
       // employmentUserStatus: state => state.enumList.employmentUserStatus
-    })
+    }),
+    educationOptions () {
+      return this.employmentEducationEnum && this.employmentEducationEnum.length
+        ? this.employmentEducationEnum
+        : this.defaultEducationOptions
+    }
   },
   mounted () {
     this.applyRouteQuery()
@@ -396,7 +411,8 @@ export default {
       }
 
       this.$store.dispatch('getEmploymentList', params).then(res => {
-        this.total = res.total
+        this.displayEmploymentList = this.applyLocalFilters(res.list || [])
+        this.total = this.hasActiveFilters() ? this.displayEmploymentList.length : (res.total || 0)
         this.listLoading = false
       }).catch(err => {
         this.$message.error((err && err.message) || '获取职位列表失败')
@@ -473,15 +489,15 @@ export default {
     },
     // 重新审核
     reactivateJob (row) {
-      this.$confirm('确认将该职位重新提交审核？', '重新审核', {
+      this.$confirm('该职位当前处于“已驳回”状态。确认重新提交后，状态会变回“待审核”，需要管理员再次审核。', '重新提交审核', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         const temp = Object.assign({}, row)
         temp.status = 0
-        temp.auditRemark = '职位已重新提交审核'
-        this.updateEmploymentStatus(temp, '职位已重新提交审核')
+        temp.auditRemark = '企业已根据驳回意见修改职位，并重新提交审核'
+        this.updateEmploymentStatus(temp, `职位“${row.title}”已重新提交审核，当前状态已变更为“待审核”`)
       })
     },
     // 编辑职位
@@ -528,6 +544,13 @@ export default {
         })
         // 刷新列表显示所有状态
         this.getEmploymentList()
+        if (this.dialogFormVisible && this.temp && this.temp.id === temp.id) {
+          this.temp = Object.assign({}, this.temp, temp)
+          this.loadAuditLogs(temp.id)
+        }
+        if (temp.status === 0 && this.listQuery.status === 2) {
+          this.$message.info('该职位已回到待审核状态，若当前仍筛选“已驳回”，它会从当前列表中消失')
+        }
       }).catch(err => {
         this.$message.error((err && err.message) ? `操作失败：${err.message}` : '操作失败')
       })
@@ -535,7 +558,7 @@ export default {
 
     // 删除用户
     handleDelete (row) {
-      this.$store.dispatch('deleteExamIntroduction', row.row.id).then(res => {
+      this.$store.dispatch('deleteEmployment', row.row.id).then(res => {
         this.getEmploymentList()
         this.$notify({
           title: 'Success',
@@ -602,7 +625,8 @@ export default {
       }
       this.listLoading = true
       this.$store.dispatch('queryEmployment', params).then(res => {
-        this.total = res.total
+        this.displayEmploymentList = this.applyLocalFilters(res.list || [])
+        this.total = this.displayEmploymentList.length
       }).catch(err => {
         this.$message.error((err && err.message) || '查询失败')
       }).finally(() => {
@@ -627,6 +651,26 @@ export default {
       this.listQuery.pageNum = 1
       this.getEmploymentList()
     },
+    applyLocalFilters (list) {
+      return (list || []).filter(item => {
+        const titleMatch = !this.listQuery.title || (item.title || '').includes(this.listQuery.title)
+        const positionMatch = !this.listQuery.position || (item.position || '').includes(this.listQuery.position)
+        const educationMatch = !this.listQuery.education || this.matchEducation(item.education, this.listQuery.education)
+        const statusMatch = this.listQuery.status === null || this.listQuery.status === '' ||
+          Number(item.status) === Number(this.listQuery.status)
+        return titleMatch && positionMatch && educationMatch && statusMatch
+      })
+    },
+    hasActiveFilters () {
+      return Boolean(
+        this.listQuery.title ||
+        this.listQuery.position ||
+        this.listQuery.education ||
+        this.listQuery.status === 0 ||
+        this.listQuery.status === 1 ||
+        this.listQuery.status === 2
+      )
+    },
     // 获取弹框标题
     getDialogTitle () {
       const titleMap = {
@@ -644,6 +688,34 @@ export default {
         2: '已驳回'
       }
       return statusMap[status] || '未知状态'
+    },
+    getEducationText (education) {
+      const found = this.educationOptions.find(item => item.enumCode === education)
+      return found ? found.msg : (education || '--')
+    },
+    matchEducation (actualEducation, selectedEducation) {
+      if (!selectedEducation) return true
+      const actual = actualEducation || ''
+      const rankMap = {
+        专科: 1,
+        '专科及以上': 1,
+        本科: 2,
+        '本科及以上': 2,
+        硕士: 3,
+        博士: 4,
+        '研究生及以上': 3
+      }
+      const selectedRankMap = {
+        College_Degree_Or_Above: 1,
+        Bachelor_Or_Above_Degree: 2,
+        Master_Degree_Or_Above: 3
+      }
+      const actualRank = rankMap[actual]
+      const selectedRank = selectedRankMap[selectedEducation]
+      if (actualRank && selectedRank) {
+        return actualRank >= selectedRank
+      }
+      return actual === selectedEducation || this.getEducationText(actual) === this.getEducationText(selectedEducation)
     }
   }
 }

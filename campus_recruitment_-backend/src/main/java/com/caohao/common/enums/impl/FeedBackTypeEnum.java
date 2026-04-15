@@ -1,14 +1,13 @@
 package com.caohao.common.enums.impl;
 
-
 import com.caohao.common.enums.EnumCode;
 
-public enum  FeedBackTypeEnum implements EnumCode {
+public enum FeedBackTypeEnum implements EnumCode {
 
-    Bug(1,"bug反馈"),
-    Suggest (2,"建议"),
-    Complaint  (3,"投诉"),
-    ;
+    LegacyBug(0, "bug反馈"),
+    Bug(1, "bug反馈"),
+    Suggest(2, "建议"),
+    Complaint(3, "投诉");
 
     private final long code;
     private final String msg;
